@@ -147,7 +147,7 @@ namespace cpp_redis {
 			case cpp_redis::sinter:
 				cmd_str = g_sinter_cmd;
 			case cpp_redis::ssinter_store:
-				cmd_str =g_sinter_store_cmd;
+				cmd_str = g_sinter_store_cmd;
 				break;
 			case cpp_redis::sunion:
 				cmd_str = g_sunion_cmd;
@@ -160,6 +160,15 @@ namespace cpp_redis {
 				break;
 			case cpp_redis::sdiff_store:
 				cmd_str = g_sdiff_store_cmd;
+				break;
+			case cpp_redis::zset_add:
+				cmd_str = g_zset_add_cmd;
+				break;
+			case cpp_redis::zset_score:
+				cmd_str = g_zset_score_cmd;
+				break;
+			case cpp_redis::zset_incrby:
+				cmd_str = g_zset_incrby_cmd;
 				break;
 			default:
 				break;

@@ -53,6 +53,19 @@ namespace cpp_redis {
 			return std::move(ostr.str());
 		}
 
+		static std::string float_to_string(float value)
+		{
+			std::ostringstream ostr;
+			ostr << value;
+			return std::move(ostr.str());
+		}
+
+		static std::string double_to_string(double value)
+		{
+			std::ostringstream ostr;
+			ostr << value;
+			return std::move(ostr.str());
+		}
 
 		static int string_to_int(std::string && str)
 		{

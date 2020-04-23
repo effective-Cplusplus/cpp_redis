@@ -326,6 +326,14 @@ namespace cpp_redis {
 		{
 			return {};
 		}
+		virtual std::string zset_score(std::string&& key, std::string&& member)
+		{
+			return "";
+		}
+		virtual std::string zset_incrby(std::string&& key, std::string&& member)
+		{
+			return "";
+		}
 	private:
 		bool select_db(int&& num)
 		{

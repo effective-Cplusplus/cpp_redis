@@ -60,6 +60,10 @@ namespace cpp_redis {
 	const std::string  g_sunion_store_cmd = "SUNIONSTORE";
 	const std::string g_sdiff_cmd = "SDIFF";
 	const std::string g_sdiff_store_cmd = "SDIFFSTORE";
+	/*********************zset²Ù×÷*********************************/
+	const std::string g_zset_add_cmd     = "ZADD";
+	const std::string g_zset_score_cmd   = "ZSCORE";
+	const std::string g_zset_incrby_cmd =  "ZINCRBY";
 
 	typedef std::string BYTES;
 	typedef std::string KEY;
@@ -128,6 +132,9 @@ namespace cpp_redis {
 		ssunion_store=45,
 		sdiff =46,
 		sdiff_store=47,
+		zset_add = 48,
+		zset_score =49,
+		zset_incrby =50,
 	};
 
 	enum request_type
@@ -136,11 +143,16 @@ namespace cpp_redis {
 		string_request = 0,
 		list_request = 1,
 		set_request =2,
+		zset_request =3,
+		hash_request=4,
 	};
 
 	struct String {};
 	struct List {};
 	struct Set{};
+	struct ZSet{};
+	struct Hash{};
+	struct A{};
 }
 
 #endif // cpp_define_h__
