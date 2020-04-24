@@ -225,6 +225,26 @@ namespace cpp_redis {
 			return std::move(cmd_str);
 		}
 
+		std::string get_aggregate_mothod(aggregate_mothod mothod)
+		{
+			std::string str;
+			switch (mothod)
+			{
+			case aggregate_mothod::agg_sum:
+				str = g_zset_aggsum;
+				break;
+			case aggregate_mothod::agg_min:
+				str = g_zset_aggmin;
+				break;
+			case aggregate_mothod::agg_max:
+				str = g_zset_aggmax;
+			default:
+				break;
+			}
+
+			return std::move(str);
+		}
+
 		template<typename...Args>
 		std::string req_n_key(std::string&& command, Args&&...key)
 		{

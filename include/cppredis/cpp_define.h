@@ -61,6 +61,9 @@ namespace cpp_redis {
 	const std::string g_sdiff_cmd = "SDIFF";
 	const std::string g_sdiff_store_cmd = "SDIFFSTORE";
 	/*********************zset²Ù×÷**************************************/
+	const std::string g_zset_aggsum           = "SUM";
+	const std::string g_zset_aggmin           = "MIN";
+	const std::string g_zset_aggmax           = "MAX";
 	const std::string g_zset_add_cmd          = "ZADD";
 	const std::string g_zset_score_cmd        = "ZSCORE";
 	const std::string g_zset_incrby_cmd       =  "ZINCRBY";
@@ -178,6 +181,14 @@ namespace cpp_redis {
 		set_request =2,
 		zset_request =3,
 		hash_request=4,
+	};
+
+	enum aggregate_mothod
+	{
+		agg_none = -1,
+		agg_sum = 0,
+		agg_min = 1,
+		agg_max = 2,
 	};
 
 	struct String {};

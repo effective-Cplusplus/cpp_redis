@@ -339,6 +339,52 @@ namespace cpp_redis {
 			return results[0];
 		}
 
+		virtual int zset_union_store(KEYS&& keys, aggregate_mothod mothod)
+		{
+			if (mothod != aggregate_mothod::agg_none){
+				keys.emplace_back("AGGREGATE");
+				keys.emplace_back(request_->get_aggregate_mothod(mothod));
+			}
+
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_union_store), std::forward<KEYS>(keys));
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_){
+				return 0;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()){
+				return 0;
+			}
+
+			return results[0];
+		}
+
+		virtual int zset_inter_store(KEYS&& keys, aggregate_mothod mothod)
+		{
+			if (mothod != aggregate_mothod::agg_none) {
+				keys.emplace_back("AGGREGATE");
+				keys.emplace_back(request_->get_aggregate_mothod(mothod));
+			}
+
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_inter_store), std::forward<KEYS>(keys));
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_) {
+				return 0;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()) {
+				return 0;
+			}
+
+			return results[0];
+		}
+
 		/**************************************************************以下几个接口不常用************************************************************************/
 		//合法的 min 和 max 参数必须包含(或者[， 其中(表示开区间（指定的值不会被包含在范围之内）， 而[则表示闭区间（指定的值会被包含在范围之内）。
 		//特殊值 + 和 - 在 min 参数以及 max 参数中具有特殊的意义， 其中 + 表示正无限， 而 - 表示负无限。 

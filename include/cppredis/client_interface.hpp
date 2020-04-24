@@ -411,6 +411,16 @@ namespace cpp_redis {
 			return 0;
 		}
 
+		virtual int zset_union_store(KEYS&& keys,aggregate_mothod mothod)
+		{
+			return -1;
+		}
+
+		virtual int zset_inter_store(KEYS&& keys, aggregate_mothod mothod)
+		{
+			return -1;
+		}
+
 		virtual int hash_set(std::string&& field, std::string&& value)
 		{
 			return 0;

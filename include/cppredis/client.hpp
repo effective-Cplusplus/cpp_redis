@@ -841,6 +841,56 @@ namespace cpp_redis {
 			static_assert(is_zset, "This API Support ZSet Request");
 			return client_->zset_remrangebylex(std::forward<std::string>(key),std::forward<std::string>(min), std::forward<std::string>(max));
 		}
+		
+		//计算给定的一个或多个有序集的并集，其中给定 key 的数量必须以 num_keys 参数指定，
+		//并将该并集(结果集)储存到 dst_store_key ,其中num_keys,参与计算key的个数
+		//默认情况下，结果集中某个成员的 score 值是所有给定集下该成员 score 值之 和
+		//函数使用介绍，参数1：目标存储的key,参数 2，求和的方式，参数3：N个key 跟上权重,具体使用可以看官方命令
+		template<typename...Args>
+		int zset_union_store(std::string&& dst_store_key,int num_keys,aggregate_mothod mothod,
+			int weight_min,int weight_max,Args&&...args)
+		{
+			constexpr auto Size = sizeof...(args) + 2;
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			keys_.push_back(std::forward<std::string>(dst_store_key));
+			keys_.emplace_back(unit::int_to_string(num_keys));
+
+			make_keys(std::forward<Args>(args)...);
+
+			if (keys_.size() == 1 || keys_.size() != Size) {
+				return false;
+			}
+
+			keys_.emplace_back("WEIGHTS");
+			keys_.emplace_back(unit::int_to_string(weight_min));
+			keys_.emplace_back(unit::int_to_string(weight_max));
+			return client_->zset_union_store(std::move(keys_), mothod);
+		}
+
+		//求交集，具体参数可以参考 zset_union_store接口
+		template<typename...Args>
+		int zset_inter_store(std::string&& dst_store_key, int num_keys, aggregate_mothod mothod,
+			int weight_min, int weight_max, Args&&...args)
+		{
+			constexpr auto Size = sizeof...(args) + 2;
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			keys_.push_back(std::forward<std::string>(dst_store_key));
+			keys_.emplace_back(unit::int_to_string(num_keys));
+
+			make_keys(std::forward<Args>(args)...);
+
+			if (keys_.size() == 1 || keys_.size() != Size) {
+				return false;
+			}
+
+			keys_.emplace_back("WEIGHTS");
+			keys_.emplace_back(unit::int_to_string(weight_min));
+			keys_.emplace_back(unit::int_to_string(weight_max));
+			return client_->zset_inter_store(std::move(keys_), mothod);
+		}
+
 	private:
 		void make_keys()
 		{
