@@ -10,10 +10,9 @@ namespace cpp_redis {
 		}
 
 		//score Ö»ÄÜÎªdouble,int float
-		template<typename...Args>
-		int zset_add(std::string&& key, Args&&...args) {
+		int zset_add(std::string&& key,KEYS&&keys) {
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_add), std::forward<Args>(args)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_add),std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -275,21 +274,24 @@ namespace cpp_redis {
 			return results[0];
 		}
 
-		template<typename...Args>
-		bool zset_rem(std::string&& key, Args&&...args)
+
+		virtual bool zset_rem(std::string&& key,KEYS &&keys)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rem), 
-				std::forward<std::string>(key), std::forward<Args>(args)...);
-		
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_rem),std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 			
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() ==status::errors_){
+			if (res->get_result_code() !=status::int_result_){
 				return false;
 			}
 
-			return true;
+			const auto results = res->get_int_results();
+			if (results.empty()){
+				return false;
+			}
+
+			return results[0]>2 ?true:false;
 		}
 	};
 }//cpp_redis

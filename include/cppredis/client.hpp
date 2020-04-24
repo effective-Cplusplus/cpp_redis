@@ -620,16 +620,20 @@ namespace cpp_redis {
 			return ptr->set_diff_store(std::forward<std::string>(dst_key), std::forward<Args>(key)...);
 		}
 
-		/***********此接口存在问题，还没测试**********/
+		//ZADD key score member [[score member] [score member] …]
 		template<typename...Args>
 		int zset_add(std::string&& key, Args&&...args) {
+			constexpr auto Size = sizeof...(args)+1;
 			static_assert(is_zset, "This API Support ZSet Request");
-			auto ptr = std::dynamic_pointer_cast<zset_client>(client_);
-			if (ptr == nullptr) {
-				return -1;
+
+			keys_.push_back(std::forward<std::string>(key));
+			make_keys(std::forward<Args>(args)...);
+
+			if (keys_.size() == 1 || keys_.size()!= Size) {
+				return false;
 			}
 
-			return ptr->zset_add(std::forward<std::string>(key), std::forward<Args>(args)...);
+			return client_->zset_add(std::forward<std::string>(key),std::move(keys_));
 		}
 
 		//获取指定zset成员的值
@@ -644,8 +648,8 @@ namespace cpp_redis {
 			if (constexpr (std::is_same<T, float>::value)) {
 				value = cpp_redis::unit::float_to_string(member);
 			}
-			else if  constexpr (cpp_redis::traits::is_stdstring<T>::value) {
-				value = std::move(member);
+			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
+				value = buid_string(member);
 			}
 			else if (constexpr(std::is_same<T, int>::value)) {
 				value = cpp_redis::unit::int_to_string(member);
@@ -657,8 +661,8 @@ namespace cpp_redis {
 			else if constexpr (std::is_same<T, double>::value) {
 				value = cpp_redis::unit::double_to_string(member);
 			}
-			else if  constexpr (cpp_redis::traits::is_stdstring<T>::value) {
-				value = std::move(member);
+			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
+				value = buid_string(member);
 			}
 			else if constexpr (std::is_same<T, int>::value) {
 				value = cpp_redis::unit::int_to_string(member);
@@ -681,8 +685,8 @@ namespace cpp_redis {
 			if (constexpr (std::is_same<T, float>::value)) {
 				value = cpp_redis::unit::float_to_string(member);
 			}
-			else if  constexpr (cpp_redis::traits::is_stdstring<T>::value) {
-				value = std::move(member);
+			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
+				value = buid_string(member);
 			}
 			else if (constexpr(std::is_same<T, int>::value)) {
 				value = cpp_redis::unit::int_to_string(member);
@@ -777,19 +781,69 @@ namespace cpp_redis {
 			return client_->zset_revrank(std::forward<std::string>(key), std::forward<std::string>(member));
 		}
 
+		//ZREM key score member [[score member][score member] …]
 		template<typename...Args>
 		bool zset_rem(std::string&& key, Args&&...args)
 		{
+			constexpr auto Size = sizeof...(args) + 1;
 			static_assert(is_zset, "This API Support ZSet Request");
 			auto ptr = std::dynamic_pointer_cast<zset_client>(client_);
 			if (ptr == nullptr) {
 				return false;
 			}
 
-			return ptr->zset_rem(std::forward<std::string>(key), std::forward<Args>(args)...);
+			keys_.push_back(std::forward<std::string>(key));
+			make_keys(std::forward<Args>(args)...);
+
+			if (keys_.size() ==1 || keys_.size() !=Size){
+				return false;
+			}
+
+			return ptr->zset_rem(std::forward<std::string>(key),std::move(keys_));
 		}
 
 	private:
+		void make_keys()
+		{
+
+		}
+
+		template<typename T,typename...Args>
+		void make_keys(T&&header,Args&&...args)
+		{
+			std::string value;
+#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
+			if (constexpr (std::is_same<T, float>::value)) {
+				value = cpp_redis::unit::float_to_string(header);
+			}
+			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
+				value = buid_string(header);
+			}
+			else if (constexpr(std::is_same<T, int>::value)) {
+				value = cpp_redis::unit::int_to_string(header);
+			}
+#else
+			if constexpr (std::is_same<T, float>::value) {
+				value = cpp_redis::unit::float_to_string(header);
+			}
+			else if constexpr (std::is_same<T, double>::value) {
+				value = cpp_redis::unit::double_to_string(header);
+			}
+			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
+				value = buid_string(header);
+			}
+			else if constexpr (std::is_same<T, int>::value) {
+				value = cpp_redis::unit::int_to_string(header);
+			}
+
+			if (!value.empty()){
+				keys_.push_back(std::move(value));
+			}
+
+			make_keys(std::forward<Args>(args)...);
+#endif
+		}
+
 		void create_object()
 		{
 			if (request_type_ == cpp_redis::string_request) {
@@ -819,15 +873,16 @@ namespace cpp_redis {
 			static_assert(is_string, "T only string ");
 
 			std::string str;
-			size_t size = 0;
 
 #if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
 			if (constexpr (std::is_same<char*, typename std::decay<T>::type>::value)) {
-				size = strlen(value);
+				size_t size = strlen(value);
+				str.resize(size);
 				std::copy(value, value + size, str.begin());
 			}
 			else if (constexpr (std::is_same<const char*, typename std::decay<T>::type>::value)) {
-				size = strlen(value);
+				size_t size = strlen(value);
+				str.resize(size);
 				std::copy(value, value + size, str.begin());
 			}
 			else {
@@ -835,11 +890,12 @@ namespace cpp_redis {
 			}
 #else
 			if constexpr (std::is_same<char*, typename std::decay<T>::type>::value) {
-				size = strlen(value);
+				size_t size = strlen(value);
+				str.resize(size);
 				memcpy(&str[0], value, size);
 			}
 			else if constexpr (std::is_same<const char*, typename std::decay<T>::type>::value) {
-				size = strlen(value);
+				size_t size = strlen(value);
 				str.resize(size);
 				memcpy(&str[0], value, size);
 			}
@@ -882,6 +938,7 @@ namespace cpp_redis {
 		static constexpr bool is_none = cpp_redis::traits::contains<type, String, List, Set, ZSet, Hash>::value;
 		int request_type_ = request_type::none;
 		std::shared_ptr<client>client_;
+		std::vector<std::string>keys_;
 	};
 }
 #endif // client_h__

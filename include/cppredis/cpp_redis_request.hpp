@@ -245,6 +245,12 @@ namespace cpp_redis {
 
 			return build_respone(std::move(command), std::move(pairs));
 		}
+
+		std::string req_n_keys(std::string&& command, KEYS&& keys)
+		{
+			return build_respone(std::move(command), std::forward<KEYS>(keys));
+		}
+
 		std::string req_key_value_has_senconds(std::string&& command, PAIR&& p, size_t seconds = 0)
 		{
 			std::vector<BYTES> cmds;
@@ -269,11 +275,12 @@ namespace cpp_redis {
 		template<typename T>
 		std::string build_respone(std::string&& command, T&& cmds)
 		{
+			auto key_cmds = std::move(cmds);
 			BYTES v;
-			add_number(get_command_size(cmds), v, '*');
+			add_number(get_command_size(key_cmds), v, '*');
 			add_value_with_size(command, v);
 
-			for (auto i = cmds.begin(); i != cmds.end(); ++i) {
+			for (auto i = key_cmds.begin(); i != key_cmds.end(); ++i) {
 				auto& p = *i;
 				
 				add_pair(p, v);

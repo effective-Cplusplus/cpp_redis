@@ -326,6 +326,11 @@ namespace cpp_redis {
 		{
 			return {};
 		}
+		
+		virtual int zset_add(std::string&& key, KEYS&& keys) 
+		{
+			return -1;
+		}
 		virtual std::string zset_score(std::string&& key, std::string&& member)
 		{
 			return "";
@@ -375,6 +380,11 @@ namespace cpp_redis {
 		virtual int zset_revrank(std::string&& key, std::string&& member)
 		{
 			return -1;
+		}
+
+		virtual bool zset_rem(std::string&& key, KEYS&& keys)
+		{
+			return false;
 		}
 	private:
 		bool select_db(int&& num)
