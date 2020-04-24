@@ -3,7 +3,7 @@
 
 #include "cpp_redis_list.hpp"
 #include "cpp_redis_string.hpp"
-#include "cpp_set.hpp"
+#include "cpp_set_client.hpp"
 #include "cpp_hash_client.hpp"
 #include "cpp_zset_client.hpp"
 

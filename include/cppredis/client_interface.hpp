@@ -411,6 +411,10 @@ namespace cpp_redis {
 			return 0;
 		}
 
+		virtual int hash_set(std::string&& field, std::string&& value)
+		{
+			return 0;
+		}
 
 	private:
 		bool select_db(int&& num)

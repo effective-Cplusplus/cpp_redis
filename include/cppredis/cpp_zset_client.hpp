@@ -2,9 +2,6 @@
 #define cpp_zset_client_h__
 
 #include "client_interface.hpp"
-/******************说明************************************************/
-/***************ZUNIONSTORE此接口没有实现,作者不知道如何使用**********/
-/****************ZINTERSTORE此接口没有实现,作者不知道如何使用*********/
 
 namespace cpp_redis {
 	class zset_client :public client {
@@ -349,6 +346,7 @@ namespace cpp_redis {
 		virtual RESULTS_TYPE zset_rangebylex(std::string&& key, std::string&& min, 
 			std::string&& max, bool limit, std::string&& limit_min, std::string&& limit_max)
 		{
+			check_args();
 			std::string msg;
 			if (limit){
 				msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rangebylex), std::forward<std::string>(key),
@@ -370,6 +368,7 @@ namespace cpp_redis {
 
 		virtual int zset_lexcount(std::string&& key, std::string&& min, std::string&& max)
 		{
+			check_args();
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_lexcount),std::forward<std::string>(key),
 				std::forward<std::string>(min), std::forward<std::string>(max));
 
@@ -390,6 +389,7 @@ namespace cpp_redis {
 
 		virtual int zset_remrangebylex(std::string&& key, std::string&& min, std::string&& max)
 		{
+			check_args();
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_remrangebylex), std::forward<std::string>(key),
 				std::forward<std::string>(min), std::forward<std::string>(max));
 

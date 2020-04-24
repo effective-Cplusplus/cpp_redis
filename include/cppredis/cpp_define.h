@@ -60,7 +60,7 @@ namespace cpp_redis {
 	const std::string  g_sunion_store_cmd = "SUNIONSTORE";
 	const std::string g_sdiff_cmd = "SDIFF";
 	const std::string g_sdiff_store_cmd = "SDIFFSTORE";
-	/*********************zset²Ù×÷*********************************/
+	/*********************zset²Ù×÷**************************************/
 	const std::string g_zset_add_cmd          = "ZADD";
 	const std::string g_zset_score_cmd        = "ZSCORE";
 	const std::string g_zset_incrby_cmd       =  "ZINCRBY";
@@ -78,6 +78,9 @@ namespace cpp_redis {
 	const std::string g_zset_rangebylex_cmd      = "ZRANGEBYLEX";
 	const std::string g_zset_lexcount_cmd        = "ZLEXCOUNT";
 	const std::string g_zset_remrangebylex_cmd   = "ZREMRANGEBYLEX";
+	const std::string g_zset_union_store_mcd     = "ZUNIONSTORE";
+	const std::string g_zset_inter_store_cmd     = "ZINTERSTORE";
+	/***********************hash²Ù×÷************************************/
 
 	typedef std::string BYTES;
 	typedef std::string KEY;
@@ -158,11 +161,13 @@ namespace cpp_redis {
 		zset_revrange =57,
 		zset_lexcount =58,
 		zset_rangebylex =59,
-		zset_range_score=60,
-		zset_remrangebylex =61,
-		zset_rerange_score =62,
-		zset_remrangebyscore=63,
-		zset_remrangeby_rank =64,
+		zset_union_store =60,
+		zset_inter_store =61,
+		zset_range_score=62,
+		zset_remrangebylex =63,
+		zset_rerange_score =64,
+		zset_remrangebyscore=65,
+		zset_remrangeby_rank =66,
 	};
 
 	enum request_type

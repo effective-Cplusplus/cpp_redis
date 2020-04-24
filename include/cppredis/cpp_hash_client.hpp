@@ -11,6 +11,12 @@ namespace cpp_redis
 		virtual ~hash_client() {
 
 		}
+
+		virtual int hash_set(std::string&& field, std::string&& value)
+		{
+			check_args();
+			return 0;
+		}
 	};
 }
 

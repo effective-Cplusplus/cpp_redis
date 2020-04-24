@@ -212,6 +212,12 @@ namespace cpp_redis {
 			case cpp_redis::zset_remrangebylex:
 				cmd_str = g_zset_remrangebylex_cmd;
 				break;
+			case cpp_redis::zset_union_store:
+				cmd_str = g_zset_union_store_mcd;
+				break;
+			case cpp_redis::zset_inter_store:
+				cmd_str = g_zset_inter_store_cmd;
+				break;
 			default:
 				break;
 			}
