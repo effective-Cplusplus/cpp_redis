@@ -84,6 +84,10 @@ namespace cpp_redis {
 	const std::string g_zset_union_store_mcd     = "ZUNIONSTORE";
 	const std::string g_zset_inter_store_cmd     = "ZINTERSTORE";
 	/***********************hash²Ù×÷************************************/
+	 const std::string g_hash_set_cmd = "HSET";
+	 const std::string g_hash_setx_cmd ="HSETNX";
+	 const std::string g_hash_exists_cmd = "HEXISTS";
+	/*******************************************************************/
 
 	typedef std::string BYTES;
 	typedef std::string KEY;
@@ -171,6 +175,9 @@ namespace cpp_redis {
 		zset_rerange_score =64,
 		zset_remrangebyscore=65,
 		zset_remrangeby_rank =66,
+		hash_set =67,
+		hash_setx=68,
+		hash_exists =69,
 	};
 
 	enum request_type
@@ -196,7 +203,6 @@ namespace cpp_redis {
 	struct Set{};
 	struct ZSet{};
 	struct Hash{};
-	struct A{};
 }
 
 #endif // cpp_define_h__

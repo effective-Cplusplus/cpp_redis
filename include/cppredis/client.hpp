@@ -649,7 +649,7 @@ namespace cpp_redis {
 				value = cpp_redis::unit::float_to_string(member);
 			}
 			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = buid_string(member);
+				value = build_string(member);
 			}
 			else if (constexpr(std::is_same<T, int>::value)) {
 				value = cpp_redis::unit::int_to_string(member);
@@ -662,7 +662,7 @@ namespace cpp_redis {
 				value = cpp_redis::unit::double_to_string(member);
 			}
 			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = buid_string(member);
+				value = build_string(member);
 			}
 			else if constexpr (std::is_same<T, int>::value) {
 				value = cpp_redis::unit::int_to_string(member);
@@ -686,7 +686,7 @@ namespace cpp_redis {
 				value = cpp_redis::unit::float_to_string(member);
 			}
 			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = buid_string(member);
+				value = build_string(member);
 			}
 			else if (constexpr(std::is_same<T, int>::value)) {
 				value = cpp_redis::unit::int_to_string(member);
@@ -699,7 +699,7 @@ namespace cpp_redis {
 				value = cpp_redis::unit::double_to_string(member);
 			}
 			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = buid_string(member);
+				value = build_string(member);
 			}
 			else if constexpr (std::is_same<T, int>::value) {
 				value = cpp_redis::unit::int_to_string(member);
@@ -891,6 +891,34 @@ namespace cpp_redis {
 			return client_->zset_inter_store(std::move(keys_), mothod);
 		}
 
+		//当 HSET 命令在哈希表中新创建 field 域并成功为它设置值时， 命令返回 1 
+		//如果域 field 已经存在于哈希表， 并且 HSET 命令成功使用新值覆盖了它的旧值， 那么命令返回 0
+		template<typename T1,typename T2>
+		int hash_set(std::string&&key,T1 &&field, T2&& value)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+
+			return client_->hash_set(std::forward<std::string>(key), 
+				hash_build_string(std::forward<T1>(field)), hash_build_string(std::forward<T2>(value)));
+		}
+
+		//HSETNX 命令在设置成功时返回 1 ， 在给定域已经存在而放弃执行设置操作时返回 0.
+		//如果给定域已经存在于哈希表当中， 那么命令将放弃执行设置操作。
+		template<typename T1, typename T2>
+		int hash_setx(std::string&& key, T1&& field, T2&& value)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+
+			return client_->hash_setx(std::forward<std::string>(key),
+				hash_build_string(std::forward<T1>(field)), hash_build_string(std::forward<T2>(value)));
+		}
+
+		template<typename T>
+		int hash_exists(std::string&& key,T&& field)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			return client_->hash_exists(std::forward<std::string>(key),hash_build_string(std::forward<T>(field)));
+		}
 	private:
 		void make_keys()
 		{
@@ -906,9 +934,9 @@ namespace cpp_redis {
 				value = cpp_redis::unit::float_to_string(header);
 			}
 			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = buid_string(header);
+				value = build_string(header);
 			}
-			else if (constexpr(std::is_same<T, int>::value)) {
+			else if (constexpr(std::is_integral<typename std::decay<T>::type>::value)) {
 				value = cpp_redis::unit::int_to_string(header);
 			}
 #else
@@ -919,9 +947,9 @@ namespace cpp_redis {
 				value = cpp_redis::unit::double_to_string(header);
 			}
 			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = buid_string(header);
+				value = build_string(header);
 			}
-			else if constexpr (std::is_same<T, int>::value) {
+			else if constexpr (std::is_integral<typename std::decay<T>::type>::value) {
 				value = cpp_redis::unit::int_to_string(header);
 			}
 
@@ -956,11 +984,27 @@ namespace cpp_redis {
 		}
 
 		template<typename T>
-		std::string buid_string(T&& value)
+		std::string hash_build_string(T&& value)
 		{
-			constexpr bool is_string = cpp_redis::traits::is_string<T>::value;
-			static_assert(is_string, "T only string ");
+			std::string str;
+#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
+			if (constexpr (std::is_same<T,bool>::value)){
+				str = value ? "true" : "false";
+			}
+#else
+			if constexpr (std::is_same<T,bool>::value){
+				str = value ? "true" : "false";
+			}else{
+				str = build_string(value);
+			}
 
+			return std::move(str);
+#endif
+		}
+
+		template<typename T>
+		std::string build_string(T&& value)
+		{
 			std::string str;
 
 #if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
@@ -973,8 +1017,9 @@ namespace cpp_redis {
 				size_t size = strlen(value);
 				str.resize(size);
 				std::copy(value, value + size, str.begin());
-			}
-			else {
+			}else if constexpr (std::is_integral<typename std::decay<T>::type>::value) {
+				str = unit::int_to_string(value);
+			}else {
 				str = std::move(value);
 			}
 #else
@@ -987,8 +1032,9 @@ namespace cpp_redis {
 				size_t size = strlen(value);
 				str.resize(size);
 				memcpy(&str[0], value, size);
-			}
-			else {
+			}else if constexpr(std::is_integral<typename std::decay<T>::type>::value){
+				str = unit::int_to_string(value);
+			}else {
 				str = std::move(value);
 			}
 #endif

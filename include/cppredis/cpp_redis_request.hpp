@@ -218,6 +218,15 @@ namespace cpp_redis {
 			case cpp_redis::zset_inter_store:
 				cmd_str = g_zset_inter_store_cmd;
 				break;
+			case cpp_redis::hash_set:
+				cmd_str = g_hash_set_cmd;
+				break;
+			case cpp_redis::hash_setx:
+				cmd_str = g_hash_setx_cmd;
+				break;
+			case cpp_redis::hash_exists:
+				cmd_str = g_hash_exists_cmd;
+				break;
 			default:
 				break;
 			}

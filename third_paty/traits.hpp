@@ -146,6 +146,13 @@ namespace cpp_redis{
 
 		};
 
+		template <typename T, typename... Args>
+		struct contains : public std::false_type {};
+
+		template <typename T, typename U, typename... Args>
+		struct contains<T, U, Args...> :
+			public conditional_t<std::is_same<T, U>::value, std::true_type, contains<T, Args...>> {};
+
 		/**************************make_integer_sequence*****************************************************/
 
 		template<typename T, T... Ints>
