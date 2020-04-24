@@ -129,7 +129,7 @@ namespace cpp_redis {
 				return { {} };
 			}
 			
-			return res->get_results();
+			return std::move(res->get_results());
 		}
 
 		//可以通过使用 WITHSCORES 选项，来让成员和它的 score 值一并返回，
@@ -157,7 +157,7 @@ namespace cpp_redis {
 				return { {} };
 			}
 
-			return res->get_results();
+			return std::move(res->get_results());
 		}
 
 		//求区间内的score
@@ -194,7 +194,7 @@ namespace cpp_redis {
 				return { {} };
 			}
 
-			return res->get_results();
+			return std::move(res->get_results());
 		}
 
 		virtual RESULTS_TYPE zset_revrange_score(std::string&& key, std::string&& max, std::string&& min,
@@ -231,7 +231,7 @@ namespace cpp_redis {
 				return { {} };
 			}
 
-			return res->get_results();
+			return std::move(res->get_results());
 		}
 
 		//升序，从0开始
@@ -291,8 +291,117 @@ namespace cpp_redis {
 				return false;
 			}
 
-			return results[0]>2 ?true:false;
+			return results[0]>0 ?true:false;
 		}
+
+		//移除有序集 key 中，指定排名(rank)区间内的所有成员
+		virtual int zset_remrangeby_rank(std::string&& key, std::string&& begin, std::string&& end)
+		{
+			check_args();
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_remrangeby_rank),std::forward<std::string>(key),std::forward<std::string>(begin),
+				std::forward<std::string>(end));
+			
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_) {
+				return false;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()) {
+				return false;
+			}
+
+			return results[0];
+		}
+
+		virtual int zset_remrangebyscore(std::string&& key, std::string&& min, std::string&& max)
+		{
+			check_args();
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_remrangebyscore), std::forward<std::string>(key), std::forward<std::string>(min),
+				std::forward<std::string>(max));
+
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_) {
+				return false;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()) {
+				return false;
+			}
+
+			return results[0];
+		}
+
+		//合法的 min 和 max 参数必须包含(或者[， 其中(表示开区间（指定的值不会被包含在范围之内）， 而[则表示闭区间（指定的值会被包含在范围之内）。
+		//特殊值 + 和 - 在 min 参数以及 max 参数中具有特殊的意义， 其中 + 表示正无限， 而 - 表示负无限。 
+		//因此， 向一个所有成员的分值都相同的有序集合发送命令 ZRANGEBYLEX <zset> -+， 命令将返回有序集合中的所有元素。
+		virtual RESULTS_TYPE zset_rangebylex(std::string&& key, std::string&& min, 
+			std::string&& max, bool limit, std::string&& limit_min, std::string&& limit_max)
+		{
+			std::string msg;
+			if (limit){
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rangebylex), std::forward<std::string>(key),
+					std::forward<std::string>(min),std::forward<std::string>(max),std::forward<std::string>(limit_min),std::forward<std::string>(limit_max));
+			}else{
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rangebylex), std::forward<std::string>(key),
+					std::forward<std::string>(min), std::forward<std::string>(max));
+			}
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::results_) {
+				return { {} };
+			}
+
+			return std::move(res->get_results());
+		}
+
+		virtual int zset_lexcount(std::string&& key, std::string&& min, std::string&& max)
+		{
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_lexcount),std::forward<std::string>(key),
+				std::forward<std::string>(min), std::forward<std::string>(max));
+
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_) {
+				return false;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()) {
+				return false;
+			}
+
+			return results[0];
+		}
+
+		virtual int zset_remrangebylex(std::string&& key, std::string&& min, std::string&& max)
+		{
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_remrangebylex), std::forward<std::string>(key),
+				std::forward<std::string>(min), std::forward<std::string>(max));
+
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_) {
+				return false;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()) {
+				return false;
+			}
+
+			return results[0];
+		}
+
 	};
 }//cpp_redis
 

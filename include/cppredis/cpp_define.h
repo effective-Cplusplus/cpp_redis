@@ -73,6 +73,11 @@ namespace cpp_redis {
 	const std::string g_zset_rank_cmd          = "ZRANK";
 	const std::string g_zset_revrank_cmd       = "ZREVRANK";
 	const std::string g_zset_rem_cmd           = "ZREM";
+	const std::string g_zset_remrangeby_rank_cmd = "ZREMRANGEBYRANK";
+	const std::string g_zset_remrangebyscore_cmd = "ZREMRANGEBYSCORE";
+	const std::string g_zset_rangebylex_cmd      = "ZRANGEBYLEX";
+	const std::string g_zset_lexcount_cmd        = "ZLEXCOUNT";
+	const std::string g_zset_remrangebylex_cmd   = "ZREMRANGEBYLEX";
 
 	typedef std::string BYTES;
 	typedef std::string KEY;
@@ -151,9 +156,13 @@ namespace cpp_redis {
 		zset_rem = 55,
 		zset_revrank = 56,
 		zset_revrange =57,
-		zset_range_score =58,
-		zset_rerange_score =59,
-
+		zset_lexcount =58,
+		zset_rangebylex =59,
+		zset_range_score=60,
+		zset_remrangebylex =61,
+		zset_rerange_score =62,
+		zset_remrangebyscore=63,
+		zset_remrangeby_rank =64,
 	};
 
 	enum request_type

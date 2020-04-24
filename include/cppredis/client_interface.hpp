@@ -386,6 +386,32 @@ namespace cpp_redis {
 		{
 			return false;
 		}
+
+		virtual int zset_remrangeby_rank(std::string&& key, std::string&& begin, std::string&& end)
+		{
+			return -1;
+		}
+		virtual int zset_remrangebyscore(std::string&& key, std::string&& min, std::string&& max)
+		{
+			return -1;
+		}
+		virtual RESULTS_TYPE zset_rangebylex(std::string&& key, std::string&& min,
+			std::string&& max, bool limit, std::string&& limit_min, std::string&& limit_max)
+		{
+			return { {} };
+		}
+
+		virtual int zset_lexcount(std::string&& key, std::string&& min, std::string&& max)
+		{
+			return -1;
+		}
+
+		virtual int zset_remrangebylex(std::string&& key, std::string&& min,std::string&& max)
+		{
+			return 0;
+		}
+
+
 	private:
 		bool select_db(int&& num)
 		{

@@ -802,6 +802,45 @@ namespace cpp_redis {
 			return ptr->zset_rem(std::forward<std::string>(key),std::move(keys_));
 		}
 
+		//移除有序集 key 中，指定排名(rank)区间内的所有成员
+		int zset_remrangeby_rank(std::string&& key,int begin,int end)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			return client_->zset_remrangeby_rank(std::forward<std::string>(key), unit::int_to_string(begin), unit::int_to_string(end));
+		}
+
+		//移除有序集 key 中，所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员。
+		int zset_remrangebyscore(std::string&& key,int min,int max)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+			return client_->zset_remrangebyscore(std::forward<std::string>(key), unit::int_to_string(min), unit::int_to_string(max));
+		}
+		
+		//合法的 min 和 max 参数必须包含(或者[， 其中(表示开区间（指定的值不会被包含在范围之内）， 而[则表示闭区间（指定的值会被包含在范围之内）。
+		//特殊值 + 和 - 在 min 参数以及 max 参数中具有特殊的意义， 其中 + 表示正无限， 而 - 表示负无限。 
+		//因此， 向一个所有成员的分值都相同的有序集合发送命令 ZRANGEBYLEX <zset> -+， 命令将返回有序集合中的所有元素。
+
+		RESULTS_TYPE zset_rangebylex(std::string&& key,std::string&&min,std::string&& max,bool limit=false,int limit_min=0,int limit_max=1)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+			return client_->zset_rangebylex(std::forward<std::string>(key),std::forward<std::string>(min),std::forward<std::string>(max), 
+				limit,unit::int_to_string(limit_max),unit::int_to_string(limit_max));
+		}
+
+		//此接口和上面接口一样，只是返回数量
+		int zset_lexcount(std::string&& key, std::string&& min, std::string&& max)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+			return client_->zset_lexcount(std::forward<std::string>(key), std::forward<std::string>(min), std::forward<std::string>(max));
+		}
+
+		//特殊符号，删除元素
+		int zset_remrangebylex(std::string&& key, std::string&& min, std::string&& max)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+			return client_->zset_remrangebylex(std::forward<std::string>(key),std::forward<std::string>(min), std::forward<std::string>(max));
+		}
 	private:
 		void make_keys()
 		{

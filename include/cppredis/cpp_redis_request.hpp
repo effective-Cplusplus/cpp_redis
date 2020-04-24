@@ -197,6 +197,21 @@ namespace cpp_redis {
 			case cpp_redis::zset_rem:
 				cmd_str = g_zset_rem_cmd;
 				break;
+			case cpp_redis::zset_remrangeby_rank:
+				cmd_str = g_zset_remrangeby_rank_cmd;
+				break;
+			case cpp_redis::zset_remrangebyscore:
+				cmd_str = g_zset_remrangebyscore_cmd;
+				break;
+			case cpp_redis::zset_rangebylex:
+				cmd_str = g_zset_rangebylex_cmd;
+				break;
+			case cpp_redis::zset_lexcount:
+				cmd_str = g_zset_lexcount_cmd;
+				break;
+			case cpp_redis::zset_remrangebylex:
+				cmd_str = g_zset_remrangebylex_cmd;
+				break;
 			default:
 				break;
 			}
