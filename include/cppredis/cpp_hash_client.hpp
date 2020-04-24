@@ -1,6 +1,8 @@
 #ifndef cpp_hash_client_h__
 #define cpp_hash_client_h__
 
+#include "client_interface.hpp"
+
 namespace cpp_redis
 {
 	class hash_client :public client {

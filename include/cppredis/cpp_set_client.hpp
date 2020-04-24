@@ -1,10 +1,10 @@
-#ifndef cpp_set_h__
-#define cpp_set_h__
+#ifndef cpp_set_client_h__
+#define cpp_set_client_h__
 
 #include "client_interface.hpp"
 
 namespace cpp_redis {
-	class set_client :public client{
+	class set_client :public client {
 	public:
 		set_client() = default;
 		virtual ~set_client()
@@ -14,7 +14,7 @@ namespace cpp_redis {
 
 		//返回当前set的个数
 		template<typename...Args>
-		std::tuple<bool,int>set_add(std::string&& key, Args&&...args)
+		std::tuple<bool, int>set_add(std::string&& key, Args&&...args)
 		{
 			check_args();
 
@@ -24,16 +24,16 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_){
+			if (res->get_result_code() != status::int_result_) {
 				return { false,-1 };
 			}
 
 			const auto result = res->get_int_results();
-			if (result.empty()){
+			if (result.empty()) {
 				return { false,-1 };
 			}
 
-			return std::make_tuple(true,result[0]);
+			return std::make_tuple(true, result[0]);
 		}
 
 		//返回当前set的个数,删除失败直接返回-1
@@ -102,14 +102,14 @@ namespace cpp_redis {
 				return "";
 			}
 
-			return ((result[0] == g_nil)  ?  "" : result[0]);
+			return ((result[0] == g_nil) ? "" : result[0]);
 		}
 
 		//count >0表示元素不会重复, <0表示元素会重复
 		virtual RESULTS_TYPE set_rand_elem(std::string&& key, int count)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::srandmember),std::forward<std::string>(key),std::move(unit::int_to_string(count)));
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::srandmember), std::forward<std::string>(key), std::move(unit::int_to_string(count)));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -118,28 +118,28 @@ namespace cpp_redis {
 			}
 
 			auto result = res->get_results();
-			if (result.empty() ||result[0] ==g_nil ) {
+			if (result.empty() || result[0] == g_nil) {
 				return {};
 			}
 
 			return  std::move(result);
 		}
 
-		virtual bool set_move_elem(std::string&&src_key,std::string&&dst_key,std::string &&member)
+		virtual bool set_move_elem(std::string&& src_key, std::string&& dst_key, std::string&& member)
 		{
 			check_args();
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::smove), std::forward<std::string>(src_key),
-				std::forward<std::string>(dst_key),std::forward<std::string>(member));
+				std::forward<std::string>(dst_key), std::forward<std::string>(member));
 
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_){
+			if (res->get_result_code() != status::int_result_) {
 				return false;
 			}
 
 			const auto resulut = res->get_int_results();
-			if (resulut.empty()){
+			if (resulut.empty()) {
 				return false;
 			}
 
@@ -169,7 +169,7 @@ namespace cpp_redis {
 		virtual RESULTS_TYPE set_get_all_member(std::string&& key)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::smembers),std::forward<std::string>(key));
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::smembers), std::forward<std::string>(key));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -208,11 +208,11 @@ namespace cpp_redis {
 
 		//求集合的交集，如果一个为空，就返回空,并保存另外一个地方
 		template<typename...Args>
-		int set_inter_store(std::string&& dst_key,Args&&...keys)
+		int set_inter_store(std::string&& dst_key, Args&&...keys)
 		{
 			check_args();
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::ssinter_store),
-				std::forward<std::string>(dst_key),std::forward<Args>(keys)...);
+				std::forward<std::string>(dst_key), std::forward<Args>(keys)...);
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -282,7 +282,7 @@ namespace cpp_redis {
 		RESULTS_TYPE set_diff(Args&&...key)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sdiff),std::forward<Args>(key)...);
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sdiff), std::forward<Args>(key)...);
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -304,7 +304,7 @@ namespace cpp_redis {
 		int set_diff_store(std::string&& dst_key, Args&&...key)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sdiff_store),std::forward<std::string>(dst_key),std::forward<Args>(key)...);
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sdiff_store), std::forward<std::string>(dst_key), std::forward<Args>(key)...);
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -322,4 +322,5 @@ namespace cpp_redis {
 
 	};
 }
-#endif // cpp_set_h__
+
+#endif // cpp_set_client_h__
