@@ -48,10 +48,11 @@ namespace cpp_redis {
 			return ((results[0] == g_nil) ? "" :results[0]);
 		}
 
-		virtual std::string zset_incrby(std::string&& key, std::string&& member)
+		virtual std::string zset_incrby(std::string&& key,std::string&& increment,std::string&& member)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_incrby), std::forward<std::string>(key),"increment ",std::forward<std::string>(member));
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_incrby),std::forward<std::string>(key),
+				std::forward<std::string>(increment),std::forward<std::string>(member));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -65,6 +66,230 @@ namespace cpp_redis {
 			}
 
 			return ((results[0] == g_nil) ? "" : results[0]);
+		}
+
+		virtual int zset_card(std::string&& key)
+		{
+			check_args();
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_card), std::forward<std::string>(key));
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_) {
+				return 0;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()) {
+				return 0;
+			}
+
+			return results[0];
+		}
+	
+		virtual int zset_count(std::string&& key, std::string&& min, std::string&& max)
+		{
+			check_args();
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_count),
+				std::forward<std::string>(key),std::forward<std::string>(min), std::forward<std::string>(max));
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_) {
+				return 0;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()) {
+				return 0;
+			}
+
+			return results[0];
+		}
+
+		//可以通过使用 WITHSCORES 选项，来让成员和它的 score 值一并返回，
+		//返回列表以 value1, score1, ..., valueN, scoreN 的格式表示。
+		//客户端库可能会返回一些更复杂的数据类型，比如数组、元组等。
+		//递增排列
+		virtual RESULTS_TYPE zset_range(std::string&& key, std::string&& begin, std::string&& end,bool with_scores)
+		{
+			check_args();
+
+			std::string msg;
+			if (with_scores){
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_range), std::forward<std::string>(key),
+					std::forward<std::string>(begin), std::forward<std::string>(end),"WITHSCORES"); //WITHSCORES 选项
+			}else{
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_range), std::forward<std::string>(key),
+					std::forward<std::string>(begin), std::forward<std::string>(end)); //WITHSCORES 选项
+			}
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code()!= status::results_){
+				return { {} };
+			}
+			
+			return res->get_results();
+		}
+
+		//可以通过使用 WITHSCORES 选项，来让成员和它的 score 值一并返回，
+		//返回列表以 value1, score1, ..., valueN, scoreN 的格式表示。
+		//客户端库可能会返回一些更复杂的数据类型，比如数组、元组等。
+		//递减排列
+		virtual RESULTS_TYPE zset_revrange(std::string&& key, std::string&& begin, std::string&& end, bool with_scores)
+		{
+			check_args();
+
+			std::string msg;
+			if (with_scores) {
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_revrange), std::forward<std::string>(key),
+					std::forward<std::string>(begin), std::forward<std::string>(end), "WITHSCORES"); //WITHSCORES 选项
+			}
+			else {
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_revrange), std::forward<std::string>(key),
+					std::forward<std::string>(begin), std::forward<std::string>(end)); //WITHSCORES 选项
+			}
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::results_) {
+				return { {} };
+			}
+
+			return res->get_results();
+		}
+
+		//求区间内的score
+		virtual RESULTS_TYPE zset_range_score(std::string&& key, std::string&& min, std::string&& max,
+			bool with_scores, bool limit, std::string&& limit_min, std::string &&limit_max)
+		{
+			check_args();
+
+			std::string msg;
+			if (with_scores) {
+				if (limit){
+					msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_range_score), std::forward<std::string>(key),
+						std::forward<std::string>(min), std::forward<std::string>(max), "WITHSCORES", "LIMIT",//WITHSCORES 选项
+						std::forward<std::string>(limit_min), std::forward<std::string>(limit_max));//limit表示范围
+				}else{
+					msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_range_score), std::forward<std::string>(key),
+						std::forward<std::string>(min), std::forward<std::string>(max), "WITHSCORES"); //WITHSCORES 选项
+				}
+			}else {
+				if (limit) {
+					msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_range_score), std::forward<std::string>(key),
+						std::forward<std::string>(min), std::forward<std::string>(max), "LIMIT",
+						std::forward<std::string>(limit_min), std::forward<std::string>(limit_max));//limit表示范围
+				}else {
+					msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_range_score), std::forward<std::string>(key),
+						std::forward<std::string>(min), std::forward<std::string>(max));
+				}
+			}
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::results_) {
+				return { {} };
+			}
+
+			return res->get_results();
+		}
+
+		virtual RESULTS_TYPE zset_revrange_score(std::string&& key, std::string&& max, std::string&& min,
+			bool with_scores, bool limit, std::string&& limit_min, std::string&& limit_max)
+		{
+			check_args();
+
+			std::string msg;
+			if (with_scores) {
+				if (limit) {
+					msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rerange_score), std::forward<std::string>(key),
+						std::forward<std::string>(max), std::forward<std::string>(min), "WITHSCORES", "LIMIT",//WITHSCORES 选项
+						std::forward<std::string>(limit_min), std::forward<std::string>(limit_max));//limit表示范围
+				}else {
+					msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rerange_score), std::forward<std::string>(key),
+						std::forward<std::string>(max), std::forward<std::string>(min), "WITHSCORES"); //WITHSCORES 选项
+				}
+			}
+			else {
+				if (limit) {
+					msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rerange_score), std::forward<std::string>(key),
+						std::forward<std::string>(max), std::forward<std::string>(min), "LIMIT",
+						std::forward<std::string>(limit_min), std::forward<std::string>(limit_max));//limit表示范围
+				}else {
+					msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rerange_score), std::forward<std::string>(key),
+						std::forward<std::string>(max), std::forward<std::string>(min));
+				}
+			}
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::results_) {
+				return { {} };
+			}
+
+			return res->get_results();
+		}
+
+		//升序，从0开始
+		virtual int zset_rank(std::string&& key, std::string&& member)
+		{
+			check_args();
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rank),std::forward<std::string>(key),std::forward<std::string>(member));
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_) {
+				return -1;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()) {
+				return -1;
+			}
+
+			return results[0];
+		}
+
+		//降序，从0开始，到从大的开始排
+		virtual int zset_revrank(std::string&& key, std::string&& member)
+		{
+			check_args();
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_revrank),std::forward<std::string>(key),std::forward<std::string>(member));
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::int_result_) {
+				return -1;
+			}
+
+			const auto results = res->get_int_results();
+			if (results.empty()) {
+				return -1;
+			}
+
+			return results[0];
+		}
+
+		template<typename...Args>
+		bool zset_rem(std::string&& key, Args&&...args)
+		{
+			check_args();
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::zset_rem), 
+				std::forward<std::string>(key), std::forward<Args>(args)...);
+		
+			socket_->send_msg(std::move(msg));
+			
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() ==status::errors_){
+				return false;
+			}
+
+			return true;
 		}
 	};
 }//cpp_redis

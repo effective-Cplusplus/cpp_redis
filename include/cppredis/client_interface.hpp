@@ -330,9 +330,51 @@ namespace cpp_redis {
 		{
 			return "";
 		}
-		virtual std::string zset_incrby(std::string&& key, std::string&& member)
+		virtual std::string zset_incrby(std::string&& key,std::string&& increment,std::string&& member)
 		{
 			return "";
+		}
+
+		virtual int zset_card(std::string&& key)
+		{
+			return 0;
+		}
+
+		virtual int zset_count(std::string&& key, std::string&& min, std::string&& max)
+		{
+			return 0;
+		}
+
+		virtual RESULTS_TYPE zset_range(std::string&& key, std::string&& begin, std::string&& end,bool with_scores)
+		{
+			return { {} };
+		}
+
+		virtual RESULTS_TYPE zset_revrange(std::string&& key, std::string&& begin, std::string&& end, bool with_scores)
+		{
+			return { {} };
+		}
+
+		virtual RESULTS_TYPE zset_range_score(std::string&& key, std::string&& min, std::string&& max,
+			bool with_scores, bool limit, std::string&& limit_min, std::string&& limit_max)
+		{
+			return { {} };
+		}
+
+		virtual RESULTS_TYPE zset_revrange_score(std::string&& key, std::string&& max, std::string&& min,
+			bool with_scores, bool limit, std::string&& limit_min,std::string&&limit_max)
+		{
+			return { {} };
+		}
+		
+		virtual int zset_rank(std::string&& key, std::string&& member)
+		{
+			return -1;
+		}
+
+		virtual int zset_revrank(std::string&& key, std::string&& member)
+		{
+			return -1;
 		}
 	private:
 		bool select_db(int&& num)

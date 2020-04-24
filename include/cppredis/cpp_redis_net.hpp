@@ -187,9 +187,9 @@ namespace cpp_redis {
 				{
 				case '*':
 				{
-					int l = unit::string_to_int(data.c_str() + 1);
-					loop_times = l;
-					if (l == -1)
+					int len = unit::string_to_int(data.c_str() + 1);
+					loop_times = len;
+					if (len == -1)
 					{
 						set_nil();
 					}
@@ -197,12 +197,12 @@ namespace cpp_redis {
 				}
 				case '$':
 				{
-					int l = unit::string_to_int(data.c_str() + 1);
-					if (l > 0)
+					int cmd_len = unit::string_to_int(data.c_str() + 1);
+					if (cmd_len > 0)
 					{
-						read_bytes(response, l);
+						read_bytes(response);
 					}
-					else if (l == -1 || l == 0)
+					else if (cmd_len == -1 ||cmd_len == 0)
 					{
 						set_nil();
 					}
@@ -235,7 +235,7 @@ namespace cpp_redis {
 		{
 			set_timer();
 			boost::system::error_code e;
-			boost::asio::read_until(*socket_, response,g_crlf, e);
+			size_t bytes_transferred = boost::asio::read_until(*socket_, response,g_crlf, e);
 			if (e.value() != 0){
 				cancle_timer();
 				response_->set_result_code(status::unconnected_);
@@ -243,15 +243,29 @@ namespace cpp_redis {
 			}
 
 			cancle_timer();
-			std::istream response_stream(&response);
-			response_stream >> data;
+			if (bytes_transferred >0){
+				data.assign(boost::asio::buffers_begin(response.data()), boost::asio::buffers_begin(response.data()) + bytes_transferred);
+				auto pos = data.find(g_crlf);
+				if (pos !=std::string::npos){
+					data = data.substr(0, pos);
+				}
+			}else {
+				data = "-ERR read bytes is error";
+			}
+
+			// Consume bytes_transferred bytes from the input sequence.  The input sequence is
+			// now empty.
+			response.consume(bytes_transferred);
+			//ÄáÂêÓÐ¿Ó£¬Óöµ½\t½Ø¶ÏÁË
+			//std::istream response_stream(&response);
+			//response_stream >> data;
 		}
 
-		void read_bytes(boost::asio::streambuf& response, int read_size)
+		void read_bytes(boost::asio::streambuf& response)
 		{
 			set_timer();
 			boost::system::error_code e;
-			boost::asio::read_until(*socket_, response,g_crlf, e);
+			size_t bytes_transferred = boost::asio::read_until(*socket_, response,g_crlf, e);
 
 			if (e.value() != 0){
 				cancle_timer();
@@ -260,23 +274,40 @@ namespace cpp_redis {
 			}
 			
 			cancle_timer();
-			read_size += 2;
+			std::string data;
 
-			std::istreambuf_iterator<char> i(&response);
-			std::istreambuf_iterator<char> eos;
-			std::string v;
-
-			int index = 0;
-			while (i != eos && index++ < read_size)
-			{
-				char c = *i++;
-				if ((c != '\r') && (c != '\n'))
-				{
-					v.push_back(c);
+			if (bytes_transferred > 0) {
+				data.assign(boost::asio::buffers_begin(response.data()), boost::asio::buffers_begin(response.data()) + bytes_transferred);
+				auto pos = data.find(g_crlf);
+				if (pos != std::string::npos) {
+					data = data.substr(0, pos);
 				}
 			}
+			else {
+				data = "-ERR read bytes is error";
+			}
 
-			response_->set_results(std::move(v));
+			// Consume bytes_transferred bytes from the input sequence.  The input sequence is
+			// now empty.
+			response.consume(bytes_transferred);
+			response_->set_results(std::move(data));
+			//read_size += 2;
+
+			//std::istreambuf_iterator<char> i(&response);
+			//std::istreambuf_iterator<char> eos;
+			//std::string v;
+
+			//int index = 0;
+			//while (i != eos && index++ < read_size)
+			//{
+			//	char c = *i++;
+			//	if ((c != '\r') && (c != '\n'))
+			//	{
+			//		v.push_back(c);
+			//	}
+			//}
+
+			//response_->set_results(std::move(v));
 		}
 
 		void set_nil()

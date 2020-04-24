@@ -61,9 +61,18 @@ namespace cpp_redis {
 	const std::string g_sdiff_cmd = "SDIFF";
 	const std::string g_sdiff_store_cmd = "SDIFFSTORE";
 	/*********************zset²Ù×÷*********************************/
-	const std::string g_zset_add_cmd     = "ZADD";
-	const std::string g_zset_score_cmd   = "ZSCORE";
-	const std::string g_zset_incrby_cmd =  "ZINCRBY";
+	const std::string g_zset_add_cmd          = "ZADD";
+	const std::string g_zset_score_cmd        = "ZSCORE";
+	const std::string g_zset_incrby_cmd       =  "ZINCRBY";
+	const std::string g_zset_card_cmd         = "ZCARD";
+	const std::string g_zset_count_cmd        = "ZCOUNT";
+	const std::string g_zset_range_cmd        = "ZRANGE";
+	const std::string g_zset_revrane_cmd      = "ZREVRANGE";
+	const std::string g_zset_range_score_cmd  = "ZRANGEBYSCORE";
+	const std::string g_zset_rerange_score_cmd = "ZREVRANGEBYSCORE";
+	const std::string g_zset_rank_cmd          = "ZRANK";
+	const std::string g_zset_revrank_cmd       = "ZREVRANK";
+	const std::string g_zset_rem_cmd           = "ZREM";
 
 	typedef std::string BYTES;
 	typedef std::string KEY;
@@ -135,6 +144,16 @@ namespace cpp_redis {
 		zset_add = 48,
 		zset_score =49,
 		zset_incrby =50,
+		zset_card =51,
+		zset_count =52,
+		zset_range=53,
+		zset_rank=54,
+		zset_rem = 55,
+		zset_revrank = 56,
+		zset_revrange =57,
+		zset_range_score =58,
+		zset_rerange_score =59,
+
 	};
 
 	enum request_type

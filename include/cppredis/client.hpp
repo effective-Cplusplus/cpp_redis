@@ -22,11 +22,14 @@ namespace cpp_redis {
 			}
 			else if (constexpr (is_set_)) {
 				request_type_ = request_type::set_request;
-			}else if (constexpr (is_zset)){
+			}
+			else if (constexpr (is_zset)) {
 				request_type_ = request_type::zset_request;
-			}else if (constexpr (is_hash)){
+			}
+			else if (constexpr (is_hash)) {
 				request_type_ = request_type::hash_request;
-			}else if (constexpr(is_none)) {
+			}
+			else if (constexpr(is_none)) {
 				request_type_ = request_type_::none;
 			}
 #else
@@ -38,11 +41,14 @@ namespace cpp_redis {
 			}
 			else if constexpr (is_set_) {
 				request_type_ = request_type::set_request;
-			}else if constexpr (is_zset){
+			}
+			else if constexpr (is_zset) {
 				request_type_ = request_type::zset_request;
-			}else if constexpr(is_hash){
+			}
+			else if constexpr (is_hash) {
 				request_type_ = request_type::hash_request;
-			}else if constexpr(is_none){
+			}
+			else if constexpr (is_none) {
 				request_type_ = request_type_::none;
 			}
 #endif
@@ -603,7 +609,7 @@ namespace cpp_redis {
 		}
 
 		template<typename...Args>
-		int set_diff_store(std::string&&dst_key,Args&&...key)
+		int set_diff_store(std::string&& dst_key, Args&&...key)
 		{
 			static_assert(is_set_, "This API Support Set Request");
 			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
@@ -611,7 +617,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
-			return ptr->set_diff_store(std::forward<std::string>(dst_key),std::forward<Args>(key)...);
+			return ptr->set_diff_store(std::forward<std::string>(dst_key), std::forward<Args>(key)...);
 		}
 
 		/***********此接口存在问题，还没测试**********/
@@ -630,41 +636,8 @@ namespace cpp_redis {
 		template<typename T>
 		std::string zset_score(std::string&& key, T&& member)
 		{
-			constexpr bool is_none = cpp_redis::traits::contains<T, double, std::string, float,int>::value;
+			check_pass_args(std::forward<T>(member));
 			static_assert(is_zset, "This API Support ZSet Request");
-			static_assert(is_none, "T only support double string float int");
-
-			std::string value;
-#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
-			if (constexpr (std::is_same<T, float>::value)) {
-				value = cpp_redis::unit::float_to_string(member);
-			}else if  constexpr (cpp_redis::traits::is_stdstring<T>::value) {
-				value = std::move(member);
-			}else if (constexpr(std::is_same<T, int>::value)){
-				value = cpp_redis::unit::int_to_string(member);
-			}
-#else
-			if constexpr (std::is_same<T,float>::value) {
-				value = cpp_redis::unit::float_to_string(member);
-			}else if constexpr(std::is_same<T,double>::value){
-				value = cpp_redis::unit::double_to_string(member);
-			}else if  constexpr (cpp_redis::traits::is_stdstring<T>::value){
-				value = std::move(member);
-			}else if constexpr(std::is_same<T,int>::value){
-				value = cpp_redis::unit::int_to_string(member);
-			}
-
-			return client_->zset_score(std::forward<std::string>(key), std::move(value));
-#endif
-		}
-
-		//获取指定zset成员增加值
-		template<typename T>
-		std::string zset_incrby(std::string&& key, T&& member)
-		{
-			constexpr bool is_none = cpp_redis::traits::contains<T, double, std::string, float>::value;
-			static_assert(is_zset, "This API Support ZSet Request");
-			static_assert(is_none, "T only support double string float");
 
 			std::string value;
 #if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
@@ -673,6 +646,9 @@ namespace cpp_redis {
 			}
 			else if  constexpr (cpp_redis::traits::is_stdstring<T>::value) {
 				value = std::move(member);
+			}
+			else if (constexpr(std::is_same<T, int>::value)) {
+				value = cpp_redis::unit::int_to_string(member);
 			}
 #else
 			if constexpr (std::is_same<T, float>::value) {
@@ -684,10 +660,135 @@ namespace cpp_redis {
 			else if  constexpr (cpp_redis::traits::is_stdstring<T>::value) {
 				value = std::move(member);
 			}
+			else if constexpr (std::is_same<T, int>::value) {
+				value = cpp_redis::unit::int_to_string(member);
+			}
 
-			return client_->zset_incrby(std::forward<std::string>(key), std::move(value));
+			return client_->zset_score(std::forward<std::string>(key), std::move(value));
 #endif
 		}
+
+		//获取指定zset成员增加值
+		//member:就是数据库中的value字段
+		template<typename T>
+		std::string zset_incrby(std::string&& key, int increment, T&& member)
+		{
+			check_pass_args(std::forward<T>(member));
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			std::string value;
+#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
+			if (constexpr (std::is_same<T, float>::value)) {
+				value = cpp_redis::unit::float_to_string(member);
+			}
+			else if  constexpr (cpp_redis::traits::is_stdstring<T>::value) {
+				value = std::move(member);
+			}
+			else if (constexpr(std::is_same<T, int>::value)) {
+				value = cpp_redis::unit::int_to_string(member);
+			}
+#else
+			if constexpr (std::is_same<T, float>::value) {
+				value = cpp_redis::unit::float_to_string(member);
+			}
+			else if constexpr (std::is_same<T, double>::value) {
+				value = cpp_redis::unit::double_to_string(member);
+			}
+			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
+				value = buid_string(member);
+			}
+			else if constexpr (std::is_same<T, int>::value) {
+				value = cpp_redis::unit::int_to_string(member);
+			}
+
+			return client_->zset_incrby(std::forward<std::string>(key), unit::int_to_string(increment), std::move(value));
+#endif
+		}
+
+		//返回有序集 key的总数
+		int zset_counts(std::string&& key)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			return client_->zset_card(std::forward<std::string>(key));
+		}
+
+		//返回有序集 key的 min和max区间总数
+		int zset_range_counts(std::string&& key, int min, int max)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			return client_->zset_count(std::forward<std::string>(key), unit::int_to_string(min), unit::int_to_string(max));
+		}
+
+		//返回列表以 value1, score1, ..., valueN, scoreN 的格式表示。
+		//with_scores:false不带score返回
+		//递增排序
+		RESULTS_TYPE zset_range(std::string&& key, int begin, int end, bool with_scores = true)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			return client_->zset_range(std::forward<std::string>(key), unit::int_to_string(begin), unit::int_to_string(end), with_scores);
+		}
+
+		//其中成员的位置按 score 值递减(从大到小)来排列,命令和zrange相似
+		//递减排序
+		//字典序的逆序
+		RESULTS_TYPE zset_rerange(std::string&& key, int begin, int end, bool with_scores = true)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			return client_->zset_revrange(std::forward<std::string>(key), unit::int_to_string(begin), unit::int_to_string(end), with_scores);
+		}
+
+		//求区间内的score排序
+		RESULTS_TYPE zset_range_score(std::string&& key, int min, int max,
+			bool with_scores = true, bool limit = false, int limit_min = 0, int limit_max = 1)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			return client_->zset_range_score(std::forward<std::string>(key), unit::int_to_string(min),
+				unit::int_to_string(max), with_scores, limit, unit::int_to_string(limit_min), unit::int_to_string(limit_max));
+		}
+
+		//求区间内的score从数据库中逆向取值并排序
+		RESULTS_TYPE zset_revrange_score(std::string&& key, int max, int min,
+			bool with_scores = true, bool limit = false, int limit_min = 0, int limit_max = 1)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			return client_->zset_revrange_score(std::forward<std::string>(key), unit::int_to_string(max),
+				unit::int_to_string(min), with_scores, limit, unit::int_to_string(limit_min), unit::int_to_string(limit_max));
+		}
+
+		//升序，从0开始
+		int zset_rank(std::string&& key, std::string&& member)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			return client_->zset_rank(std::forward<std::string>(key), std::forward<std::string>(member));
+		}
+
+		//降序，从0开始，到从大的开始排
+		int zset_revrank(std::string&& key, std::string&& member)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+
+			return client_->zset_revrank(std::forward<std::string>(key), std::forward<std::string>(member));
+		}
+
+		template<typename...Args>
+		bool zset_rem(std::string&& key, Args&&...args)
+		{
+			static_assert(is_zset, "This API Support ZSet Request");
+			auto ptr = std::dynamic_pointer_cast<zset_client>(client_);
+			if (ptr == nullptr) {
+				return false;
+			}
+
+			return ptr->zset_rem(std::forward<std::string>(key), std::forward<Args>(args)...);
+		}
+
 	private:
 		void create_object()
 		{
@@ -696,23 +797,89 @@ namespace cpp_redis {
 			}
 			else if (request_type_ == cpp_redis::list_request) {
 				client_ = std::make_shared<list_client>();
-			}else if (request_type_ ==cpp_redis::set_request){
+			}
+			else if (request_type_ == cpp_redis::set_request) {
 				client_ = std::make_shared<set_client>();
-			}else if (request_type_ == cpp_redis::zset_request){
+			}
+			else if (request_type_ == cpp_redis::zset_request) {
 				client_ = std::make_shared<zset_client>();
-			}else if (request_type_ == cpp_redis::hash_request){
+			}
+			else if (request_type_ == cpp_redis::hash_request) {
 				client_ = std::make_shared<hash_client>();
-			}else{
-				static_assert(is_none, "Please pass String List set_request Set Hash");		
+			}
+			else {
+				static_assert(is_none, "Please pass String List set_request Set Hash");
 			}
 		}
+
+		template<typename T>
+		std::string buid_string(T&& value)
+		{
+			constexpr bool is_string = cpp_redis::traits::is_string<T>::value;
+			static_assert(is_string, "T only string ");
+
+			std::string str;
+			size_t size = 0;
+
+#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
+			if (constexpr (std::is_same<char*, typename std::decay<T>::type>::value)) {
+				size = strlen(value);
+				std::copy(value, value + size, str.begin());
+			}
+			else if (constexpr (std::is_same<const char*, typename std::decay<T>::type>::value)) {
+				size = strlen(value);
+				std::copy(value, value + size, str.begin());
+			}
+			else {
+				str = std::move(value);
+			}
+#else
+			if constexpr (std::is_same<char*, typename std::decay<T>::type>::value) {
+				size = strlen(value);
+				memcpy(&str[0], value, size);
+			}
+			else if constexpr (std::is_same<const char*, typename std::decay<T>::type>::value) {
+				size = strlen(value);
+				str.resize(size);
+				memcpy(&str[0], value, size);
+			}
+			else {
+				str = std::move(value);
+			}
+#endif
+			return std::move(str);
+		}
+
+		template<typename T>
+		void check_pass_args(T&& value)
+		{
+#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
+			if (constexpr (cpp_redis::traits::is_string<T>::value))) {
+			constexpr bool is_string = cpp_redis::traits::is_string<T>::value;
+			static_assert(is_string, "T only support double string float int ");
+			}
+			else {
+				constexpr bool is_none = cpp_redis::traits::contains<T, double, float, int>::value;
+				static_assert(is_none, "T only support double string float int ");
+			}
+#else
+			if constexpr (cpp_redis::traits::is_string<T>::value) {
+				constexpr bool is_string = cpp_redis::traits::is_string<T>::value;
+				static_assert(is_string, "T only support double string float int ");
+			}
+			else {
+				constexpr bool is_none = cpp_redis::traits::contains<T, double, float, int>::value;
+				static_assert(is_none, "T only support double string float int ");
+			}
+#endif
+		}
 	private:
-		static constexpr bool is_sting_  = std::is_same<type, String>::value;
-		static constexpr bool is_list_   = std::is_same<type, List>::value;
-		static constexpr bool is_set_    = std::is_same<type, Set>::value;
-		static constexpr bool is_zset    = std::is_same<type, ZSet>::value;
-		static constexpr bool is_hash    = std::is_same<type, Hash>::value;
-		static constexpr bool is_none    = cpp_redis::traits::contains<type, String, List, Set, ZSet, Hash>::value;
+		static constexpr bool is_sting_ = std::is_same<type, String>::value;
+		static constexpr bool is_list_ = std::is_same<type, List>::value;
+		static constexpr bool is_set_ = std::is_same<type, Set>::value;
+		static constexpr bool is_zset = std::is_same<type, ZSet>::value;
+		static constexpr bool is_hash = std::is_same<type, Hash>::value;
+		static constexpr bool is_none = cpp_redis::traits::contains<type, String, List, Set, ZSet, Hash>::value;
 		int request_type_ = request_type::none;
 		std::shared_ptr<client>client_;
 	};

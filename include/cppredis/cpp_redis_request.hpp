@@ -170,6 +170,33 @@ namespace cpp_redis {
 			case cpp_redis::zset_incrby:
 				cmd_str = g_zset_incrby_cmd;
 				break;
+			case cpp_redis::zset_card:
+				cmd_str = g_zset_card_cmd;
+				break;
+			case cpp_redis::zset_count:
+				cmd_str = g_zset_count_cmd;
+				break;
+			case cpp_redis::zset_range:
+				cmd_str = g_zset_range_cmd;
+				break;
+			case cpp_redis::zset_revrange:
+				cmd_str = g_zset_revrane_cmd;
+				break;
+			case cpp_redis::zset_range_score:
+				cmd_str = g_zset_range_score_cmd;
+				break;
+			case cpp_redis::zset_rerange_score:
+				cmd_str = g_zset_rerange_score_cmd;
+				break;
+			case cpp_redis::zset_rank:
+				cmd_str = g_zset_rank_cmd;
+				break;
+			case cpp_redis::zset_revrank:
+				cmd_str = g_zset_revrank_cmd;
+				break;
+			case cpp_redis::zset_rem:
+				cmd_str = g_zset_rem_cmd;
+				break;
 			default:
 				break;
 			}
