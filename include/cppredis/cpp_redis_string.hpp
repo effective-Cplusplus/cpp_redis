@@ -13,14 +13,30 @@ namespace cpp_redis {
 
 		}
 
-		virtual bool setex(std::string&& key, std::string&& value, size_t seconds)
+		virtual bool setex(std::string&& key, std::string&& value,std::string && seconds)
+		{
+			check_args();
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::setex),
+				std::forward<std::string>(key),std::forward<std::string>(seconds),std::forward<std::string>(value));
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::status_)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		virtual bool psetex(std::string&& key, std::string&& value, std::string&& milliseconds)
 		{
 			check_args();
 
-			auto p = make_pair(key, value);
-			auto data = request_->req_key_value_has_senconds(request_->get_cmd(redis_cmd::setex), std::move(p), seconds);
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::psetex),std::forward<std::string>(key),
+				std::forward<std::string>(milliseconds), std::forward<std::string>(value));
 
-			socket_->send_msg(std::move(data));
+			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::status_)
 			{
@@ -42,6 +58,100 @@ namespace cpp_redis {
 			}
 
 			return true;
+		}
+
+		virtual bool set_has_seconds(std::string&& key, std::string&& value, std::string&& seconds)
+		{
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
+				std::forward<std::string>(key), std::forward<std::string>(value),"EX",std::forward<std::string>(seconds));
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::status_)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		virtual bool set_has_seconds_if(std::string&& key, std::string&& value, std::string&& seconds, bool is_exist)
+		{
+			std::string msg;
+			if (is_exist){
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
+					std::forward<std::string>(key), std::forward<std::string>(value), "EX", std::forward<std::string>(seconds),"XX");
+			}else {
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
+					std::forward<std::string>(key), std::forward<std::string>(value), "EX", std::forward<std::string>(seconds), "NX");
+			}
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::status_)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		virtual bool set_has_milliseconds(std::string&& key, std::string&& value, std::string&& milliseconds)
+		{
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
+				std::forward<std::string>(key), std::forward<std::string>(value), "PX", std::forward<std::string>(milliseconds));
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::status_)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		virtual bool set_has_milliseconds_if(std::string&& key, std::string&& value,
+			std::string&& milliseconds, bool is_exist)
+		{
+			std::string msg;
+			if (is_exist){
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
+					std::forward<std::string>(key), std::forward<std::string>(value), "PX", std::forward<std::string>(milliseconds),"XX");
+			}else {
+				msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
+					std::forward<std::string>(key), std::forward<std::string>(value), "PX", std::forward<std::string>(milliseconds),"NX");
+			}
+			
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::status_)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		//sub_str;//2.0Ö®Ç°½ÐSUBSTR 
+		virtual std::string get_range(std::string&& key, std::string&& start, std::string&& end)
+		{
+			check_args();
+			
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::strsub),std::forward<std::string>(key),
+				std::forward<std::string>(start),std::forward<std::string>(end));
+
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::results_){
+				return "";
+			}
+
+			const auto results = res->get_results();
+
+			return ((results.empty() ||results[0] == g_nil) ? "": results[0]);
 		}
 
 		virtual std::tuple<bool, int> incr(std::string&& key, int increment = 1)

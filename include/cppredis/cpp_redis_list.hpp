@@ -254,12 +254,13 @@ namespace cpp_redis {
 		}
 
 		//指定索引上设置元素值
-		virtual bool list_set(std::string&& key, std::string&& value, int index)
+		virtual bool list_set(std::string&& key, std::string&& value,std::string&& index)
 		{
 			check_args();
 
-			auto pair = request_->make_pair(std::forward<std::string>(key), std::forward<std::string>(value));
-			std::string msg = request_->req_key_value_has_index(request_->get_cmd(cpp_redis::lset), std::move(pair), std::forward<std::string>(unit::int_to_string(index)));
+			std::string msg = request_->req_n_key(request_->get_cmd(cpp_redis::lset),std::forward<std::string>(key),
+				std::forward<std::string>(index),std::forward<std::string>(value));
+
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
 
@@ -270,15 +271,17 @@ namespace cpp_redis {
 			return false;
 		}
 
-		//没有移除就为0 ，有移除就大于0，index表示list的起始位置,一般从0开始删除,-1表示最后一个元素删除
+		//没有移除就为0 ，有移除就大于0，count表示list的起始位置,一般从0开始删除,-1表示最后一个元素删除
 		//如果从0开始删除，有多少删除多少
 		//如果从-1开始删除,就只会删除一个元素
-		virtual std::tuple<bool, int> list_del_elem(std::string&& key, std::string&& value, int index = 0)
+		//数量为>=|count|
+		virtual std::tuple<bool, int> list_del_elem(std::string&& key, std::string&& value,std::string &&count)
 		{
 			check_args();
 
-			auto pair = request_->make_pair(std::forward<std::string>(key), std::forward<std::string>(value));
-			std::string msg = request_->req_key_value_has_index(request_->get_cmd(cpp_redis::lrem), std::move(pair), std::forward<std::string>(unit::int_to_string(index)));
+			std::string msg = request_->req_n_key(request_->get_cmd(cpp_redis::lrem),std::forward<std::string>(key),
+				std::forward<std::string>(count),std::forward<std::string>(value));
+
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();

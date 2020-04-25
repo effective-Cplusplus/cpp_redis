@@ -30,6 +30,12 @@ namespace cpp_redis {
 			case cpp_redis::setex:
 				cmd_str = g_setx_cmd;
 				break;
+			case cpp_redis::psetex:
+				cmd_str = g_psetx_cmd;
+				break;
+			case cpp_redis::strsub:
+				cmd_str = g_strsub_cmd;
+				break;
 			case cpp_redis::incrby:
 				cmd_str = g_incrby_cmd;
 				break;
@@ -332,27 +338,6 @@ namespace cpp_redis {
 		std::string req_n_keys(std::string&& command, KEYS&& keys)
 		{
 			return build_respone(std::move(command), std::forward<KEYS>(keys));
-		}
-
-		std::string req_key_value_has_senconds(std::string&& command, PAIR&& p, size_t seconds = 0)
-		{
-			std::vector<BYTES> cmds;
-			cmds.push_back(std::move(p.first));
-			if (seconds > 0) {
-				cmds.push_back(std::move(unit::int_to_string(seconds)));
-			}
-
-			cmds.push_back(std::move(p.second));
-			return build_respone(std::move(command), std::move(cmds));
-		}
-
-		std::string req_key_value_has_index(std::string&& command, PAIR&& p, std::string&& index)
-		{
-			std::vector<BYTES> cmds;
-			cmds.push_back(std::move(p.first));
-			cmds.push_back(std::move(index));
-			cmds.push_back(std::move(p.second));
-			return build_respone(std::move(command), std::move(cmds));
 		}
 
 		template<typename T>

@@ -145,7 +145,73 @@ namespace cpp_redis {
 				return false;
 			}
 
-			return client_->setex(std::forward<std::string>(key), std::forward<std::string>(value), seconds);
+			return client_->setex(std::forward<std::string>(key), 
+				std::forward<std::string>(value),unit::int_to_string(seconds));
+		}
+
+		bool psetex(std::string&& key, std::string&& value, size_t milliseconds)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+
+			if (client_ == nullptr || key.empty()) {
+				return false;
+			}
+
+			return client_->psetex(std::forward<std::string>(key), 
+				std::forward<std::string>(value),unit::int_to_string(milliseconds));
+		}
+
+		//提高这以下四个接口，主要防止，有些版本不支持setex的接口
+		bool set_has_seconds(std::string&& key, std::string&& value,std::size_t seconds)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+
+			if (client_ == nullptr || key.empty()) {
+				return false;
+			}
+
+			return client_->set_has_seconds(std::forward<std::string>(key),
+				std::forward<std::string>(value), unit::int_to_string(seconds));
+		}
+
+		//此接口相当于setnx 加上秒，is_exist:true(NX) false(XX)
+		bool set_has_seconds_if(std::string&& key, std::string&& value, std::size_t seconds,bool is_exist)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+
+			if (client_ == nullptr || key.empty()) {
+				return false;
+			}
+
+			return client_->set_has_seconds_if(std::forward<std::string>(key),
+				std::forward<std::string>(value), unit::int_to_string(seconds),is_exist);
+		}
+	
+		bool set_has_milliseconds(std::string&& key, std::string&& value, std::size_t milliseconds)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+
+			if (client_ == nullptr || key.empty()) {
+				return false;
+			}
+
+
+			return client_->set_has_milliseconds(std::forward<std::string>(key),
+				std::forward<std::string>(value), unit::int_to_string(milliseconds));
+		}
+
+		//is_exist:true(NX)false(XX)
+		bool set_has_milliseconds_if(std::string&& key, std::string&& value, std::size_t milliseconds,bool is_exist)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+
+			if (client_ == nullptr || key.empty()) {
+				return false;
+			}
+
+
+			return client_->set_has_milliseconds_if(std::forward<std::string>(key),
+				std::forward<std::string>(value), unit::int_to_string(milliseconds), is_exist);
 		}
 
 		bool set(std::string&& key, std::string&& value)
@@ -157,6 +223,18 @@ namespace cpp_redis {
 
 			return client_->set(std::forward<std::string>(key), std::forward<std::string>(value));
 		}
+
+		std::string get_range(std::string&& key,int start,int end)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+			if (client_ == nullptr || key.empty()) {
+				return "";
+			}
+
+			return client_->get_range(std::forward<std::string>(key),
+				unit::int_to_string(start),unit::int_to_string(end));
+		}
+
 
 		std::tuple<bool, int> incr(std::string&& key, int increment = 1)
 		{
@@ -402,10 +480,16 @@ namespace cpp_redis {
 				return false;
 			}
 
-			return client_->list_set(std::forward<std::string>(key), std::forward<std::string>(value), index);
+			return client_->list_set(std::forward<std::string>(key), 
+				std::forward<std::string>(value),unit::int_to_string(index));
 		}
 
-		std::tuple<bool, int> list_del_elem(std::string&& key, std::string&& value, int index = 0)
+
+		//没有移除就为0 ，有移除就大于0，count表示list的起始位置,一般从0开始删除,-1表示最后一个元素删除
+		//如果从0开始删除，有多少删除多少
+		//如果从-1开始删除,就只会删除一个元素
+		//数量为>=|count|
+		std::tuple<bool, int> list_del_elem(std::string&& key, std::string&& value, int count = 0)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
@@ -413,7 +497,8 @@ namespace cpp_redis {
 				return { false,-1 };
 			}
 
-			return client_->list_del_elem(std::forward<std::string>(key), std::forward<std::string>(value), index);
+			return client_->list_del_elem(std::forward<std::string>(key), 
+				std::forward<std::string>(value),unit::int_to_string(count));
 		}
 
 		std::string list_rpoplpush(std::string&& src_key, std::string&& dst_key)

@@ -168,7 +168,12 @@ namespace cpp_redis {
 			return int_results[0];
 		}
 
-		virtual bool setex(std::string&& key, std::string&& value, size_t seconds)
+		virtual bool setex(std::string&& key, std::string&& value,std::string && seconds)
+		{
+			return false;
+		}
+
+		virtual bool psetex(std::string&& key, std::string&& value,std::string && milliseconds)
 		{
 			return false;
 		}
@@ -176,6 +181,34 @@ namespace cpp_redis {
 		virtual bool set(std::string&& key, std::string&& value)
 		{
 			return false;
+		}
+
+		virtual bool set_has_seconds(std::string&& key, std::string&& value,std::string&&seconds)
+		{
+			return false;
+		}
+
+
+		virtual bool set_has_seconds_if(std::string&& key, std::string&& value, 
+			std::string&& seconds,bool is_exist)
+		{
+			return false;
+		}
+
+		virtual bool set_has_milliseconds(std::string&& key, std::string&& value,std::string&&milliseconds)
+		{
+			return false;
+		}
+
+		virtual bool set_has_milliseconds_if(std::string&& key, std::string&& value, 
+			std::string&& milliseconds,bool is_exist)
+		{
+			return false;
+		}
+
+		virtual std::string get_range(std::string&&key, std::string&& start, std::string&& end)
+		{
+			return "";
 		}
 
 		virtual std::tuple<bool, int> incr(std::string&& key, int increment = 1)
@@ -269,12 +302,12 @@ namespace cpp_redis {
 			return "";
 		}
 
-		virtual bool list_set(std::string&& key, std::string&& value, int index)
+		virtual bool list_set(std::string&& key, std::string&& value,std::string && index)
 		{
 			return "";
 		}
 
-		virtual std::tuple<bool, int> list_del_elem(std::string&& key, std::string&& value, int index = 0)
+		virtual std::tuple<bool, int> list_del_elem(std::string&& key, std::string&& value,std::string&&count)
 		{
 			return { false,-1 };
 		}
