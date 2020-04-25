@@ -26,7 +26,7 @@ namespace cpp_redis {
 
 		int get_result_code()const 
 		{
-			return std::move(result_code_);
+			return result_code_;
 		}
 
 		void set_error(std::string &&error) 

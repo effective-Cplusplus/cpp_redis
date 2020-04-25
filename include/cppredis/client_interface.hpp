@@ -327,7 +327,7 @@ namespace cpp_redis {
 			return {};
 		}
 		
-		virtual int zset_add(std::string&& key, KEYS&& keys) 
+		virtual int zset_add(KEYS&& keys) 
 		{
 			return -1;
 		}
@@ -382,7 +382,7 @@ namespace cpp_redis {
 			return -1;
 		}
 
-		virtual bool zset_rem(std::string&& key, KEYS&& keys)
+		virtual bool zset_rem(KEYS&& keys)
 		{
 			return false;
 		}
@@ -435,7 +435,62 @@ namespace cpp_redis {
 		{
 			return 0;
 		}
-	private:
+
+		virtual std::string hash_get(std::string&& key, std::string&& field)
+		{
+			return "";
+		}
+
+		virtual int hash_del(KEYS&& fields)
+		{
+			return -1;
+		}
+
+		virtual int hash_len(std::string&& key)
+		{
+			return 0;
+		}
+
+		virtual int hash_strlen(std::string&& key, std::string&& field)
+		{
+			return 0;
+		}
+
+		virtual int hash_incrby(std::string&& key, std::string && field, std::string&& increment)
+		{
+			return 0;
+		}
+
+		virtual std::string hash_incrby_float(std::string&& key, std::string&& field, std::string&& increment)
+		{
+			return "";
+		}
+
+		virtual bool hash_mset(KEYS&& keys)
+		{
+			return false;
+		}
+
+		virtual RESULTS_TYPE hash_mget(KEYS&& keys)
+		{
+			return { {} };
+		}
+
+		virtual RESULTS_TYPE hash_keys(std::string&& key)
+		{
+			return{ {} };
+		}
+
+		virtual RESULTS_TYPE hash_vals(std::string&& key)
+		{
+			return{ {} };
+		}
+
+		virtual  RESULTS_TYPE hash_get_all(std::string&& key)
+		{
+			return{ {} };
+		}
+private:
 		bool select_db(int&& num)
 		{
 			check_args();

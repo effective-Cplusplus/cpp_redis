@@ -12,7 +12,7 @@ namespace cpp_redis {
 		}
 
 		//score Ö»ÄÜÎªdouble,int float
-		int zset_add(std::string&& key,KEYS&&keys) {
+		int zset_add(KEYS&&keys) {
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_add),std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
@@ -277,7 +277,7 @@ namespace cpp_redis {
 		}
 
 
-		virtual bool zset_rem(std::string&& key,KEYS &&keys)
+		virtual bool zset_rem(KEYS &&keys)
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_rem),std::forward<KEYS>(keys));

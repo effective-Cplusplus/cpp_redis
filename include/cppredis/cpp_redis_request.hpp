@@ -227,6 +227,39 @@ namespace cpp_redis {
 			case cpp_redis::hash_exists:
 				cmd_str = g_hash_exists_cmd;
 				break;
+			case cpp_redis::hash_get:
+				cmd_str = g_hash_get_cmd;
+				break;
+			case cpp_redis::hash_del:
+				cmd_str =g_hash_del_cmd;
+				break;
+			case cpp_redis::hash_len:
+				cmd_str = g_hash_len_cmd;
+				break;
+			case cpp_redis::hash_mset:
+				cmd_str = g_hash_mset_cmd;
+				break;
+			case cpp_redis::hash_mget:
+				cmd_str = g_hash_mget_cmd;
+				break;
+			case  cpp_redis::hash_vals:
+				cmd_str = g_hash_vals_cmd;
+				break;
+			case cpp_redis::hash_keys:
+				cmd_str = g_hash_keys_cmd;
+				break;
+			case cpp_redis::hash_strlen:
+				cmd_str = g_hash_strlen_cmd;
+				break;
+			case cpp_redis::hash_incrby:
+				cmd_str = g_hash_incrby_cmd;
+				break;
+			case cpp_redis::hash_incrby_float:
+				cmd_str =g_hash_incrby_float_cmd;
+				break;
+			case cpp_redis::hash_get_all:
+				cmd_str = g_hash_get_all_cmd;
+				break;
 			default:
 				break;
 			}

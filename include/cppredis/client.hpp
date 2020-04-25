@@ -76,7 +76,7 @@ namespace cpp_redis {
 
 		bool auth(std::string&& password)
 		{
-			if (client_ == nullptr) {
+			if (client_== nullptr) {
 				return false;
 			}
 
@@ -94,7 +94,7 @@ namespace cpp_redis {
 
 		bool delete_key(std::string&& key)
 		{
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return false;
 			}
 
@@ -103,7 +103,7 @@ namespace cpp_redis {
 
 		bool is_key_exist(std::string&& key)
 		{
-			if (client_ == nullptr) {
+			if (client_  == nullptr || key.empty()) {
 				return false;
 			}
 
@@ -112,7 +112,7 @@ namespace cpp_redis {
 
 		bool expire(std::string&& key, std::size_t seconds)
 		{
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return false;
 			}
 
@@ -121,7 +121,7 @@ namespace cpp_redis {
 
 		bool expire_at(std::string&& key, std::size_t unix_timestamp)
 		{
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty) {
 				return false;
 			}
 
@@ -130,7 +130,7 @@ namespace cpp_redis {
 
 		int  remainder_ttl(std::string&& key)
 		{
-			if (client_ == nullptr) {
+			if (client_  == nullptr || key.empty()) {
 				return INT32_MAX;
 			}
 
@@ -141,7 +141,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return false;
 			}
 
@@ -151,7 +151,7 @@ namespace cpp_redis {
 		bool set(std::string&& key, std::string&& value)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return false;
 			}
 
@@ -161,7 +161,7 @@ namespace cpp_redis {
 		std::tuple<bool, int> incr(std::string&& key, int increment = 1)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return { false,-1 };
 			}
 
@@ -171,7 +171,7 @@ namespace cpp_redis {
 		std::tuple<bool, int> decr(std::string&& key, int increment = 1)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr) {
+			if (client_                 == nullptr || key.empty()) {
 				return { false,-1 };
 			}
 
@@ -181,7 +181,7 @@ namespace cpp_redis {
 		std::string get_reflect_value(std::string&& key)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr) {
+			if (client_  == nullptr || key.empty()) {
 				return "";
 			}
 
@@ -191,7 +191,7 @@ namespace cpp_redis {
 		std::string get_set_key(std::string&& key, std::string&& value)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return "";
 			}
 
@@ -201,7 +201,7 @@ namespace cpp_redis {
 		std::string substr_reflect_value(std::string&& key, int start, int end)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return "";
 			}
 
@@ -211,9 +211,10 @@ namespace cpp_redis {
 		template<typename...Args>
 		VALUES multi_get_keys(Args&&...key)
 		{
+			constexpr auto Size = sizeof...(key);
 			static_assert(is_sting_, "This API Support String Request");
 			auto ptr = std::dynamic_pointer_cast<string_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr == nullptr || Size ==0) {
 				return{};
 			}
 
@@ -223,9 +224,10 @@ namespace cpp_redis {
 		template<typename...Args>
 		bool multi_set_keys(Args&&...key_value)
 		{
+			constexpr auto Size = sizeof...(key_value);
 			static_assert(is_sting_, "This API Support String Request");
 			auto ptr = std::dynamic_pointer_cast<string_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr == nullptr|| Size ==0) {
 				return{};
 			}
 
@@ -235,9 +237,10 @@ namespace cpp_redis {
 		template<typename...Args>
 		int multi_set_if_not_set(Args...key_value)
 		{
+			constexpr auto Size = sizeof...(key_value);
 			static_assert(is_sting_, "This API Support String Request");
 			auto ptr = std::dynamic_pointer_cast<string_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr == nullptr || Size == 0) {
 				return{};
 			}
 
@@ -247,7 +250,8 @@ namespace cpp_redis {
 		std::tuple<bool, int> append_value(std::string&& key, std::string&& new_value)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty() 
+				|| new_value.empty) {
 				return { false,-1 };
 			}
 
@@ -258,7 +262,8 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_ == nullptr || 
+				key.empty() || value.empty()) {
 				return { false,-1 };
 			}
 
@@ -269,7 +274,8 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_ == nullptr || 
+				key.empty() || value.empty) {
 				return { false,-1 };
 			}
 
@@ -280,7 +286,8 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_ == nullptr || 
+				key.empty() || value.empty()) {
 				return { false,-1 };
 			}
 
@@ -291,7 +298,8 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_ == nullptr || 
+				key.empty() || value.empty()) {
 				return { false,-1 };
 			}
 
@@ -302,8 +310,8 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
-				return INT32_MAX;
+			if (client_== nullptr || key.empty()) {
+				return 0;
 			}
 
 			return client_->list_size(std::forward<std::string>(key));
@@ -313,7 +321,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return {};
 			}
 
@@ -324,7 +332,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_  == nullptr) {
 				return "";
 			}
 
@@ -335,7 +343,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_  == nullptr || key.empty()) {
 				return "";
 			}
 
@@ -346,7 +354,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return "";
 			}
 
@@ -357,7 +365,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_== nullptr || key.empty()) {
 				return "";
 			}
 
@@ -368,7 +376,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_  == nullptr || key.empty()) {
 				return "";
 			}
 
@@ -379,7 +387,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return "";
 			}
 
@@ -390,7 +398,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_  == nullptr || key.empty()) {
 				return false;
 			}
 
@@ -401,7 +409,7 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_  == nullptr || key.empty()) {
 				return { false,-1 };
 			}
 
@@ -412,7 +420,8 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_   == nullptr ||
+				src_key.empty() || dst_key.empty()) {
 				return "";
 			}
 
@@ -423,7 +432,8 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
+			if (client_ == nullptr ||
+				src_key.empty() || dst_key.empty()) {
 				return "";
 			}
 
@@ -434,8 +444,8 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
-				return INT32_MAX;
+			if (client_ == nullptr || key.empty()) {
+				return -1;
 			}
 
 			return client_->list_insert_before(std::forward<std::string>(key),
@@ -446,8 +456,8 @@ namespace cpp_redis {
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr) {
-				return INT32_MAX;
+			if (client_== nullptr || key.empty()) {
+				return -1;
 			}
 
 			return client_->list_insert_after(std::forward<std::string>(key),
@@ -457,9 +467,11 @@ namespace cpp_redis {
 		template<typename...Args>
 		std::tuple<bool, int>set_add(std::string&& key, Args&&...args)
 		{
+			constexpr auto Size = sizeof...(args);
 			static_assert(is_set_, "This API Support Set Request");
 			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr  == nullptr || 
+				key.empty() || Size     ==0) {
 				return { false,-1 };
 			}
 
@@ -469,9 +481,11 @@ namespace cpp_redis {
 		template<typename...Args>
 		std::tuple<bool, int>set_delete_elem(std::string&& key, Args&&...args)
 		{
+			constexpr auto Size = sizeof...(args);
 			static_assert(is_set_, "This API Support Set Request");
 			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr  == nullptr 
+				|| key.empty() || Size  ==0) {
 				return { false,-1 };
 			}
 
@@ -481,7 +495,7 @@ namespace cpp_redis {
 		bool set_is_member(std::string&& key, std::string&& value)
 		{
 			static_assert(is_set_, "This API Support Set Request");
-			if (client_ == nullptr) {
+			if (client_  == nullptr || key.empty() || value.empty()) {
 				return false;
 			}
 
@@ -491,7 +505,7 @@ namespace cpp_redis {
 		std::string set_rdel_elem(std::string&& key)
 		{
 			static_assert(is_set_, "This API Support Set Request");
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return "";
 			}
 
@@ -502,7 +516,7 @@ namespace cpp_redis {
 		RESULTS_TYPE set_rand_elem(std::string&& key, int count)
 		{
 			static_assert(is_set_, "This API Support Set Request");
-			if (client_ == nullptr) {
+			if (client_  == nullptr || key.empty()) {
 				return {};
 			}
 
@@ -512,7 +526,8 @@ namespace cpp_redis {
 		bool set_move_elem(std::string&& src_key, std::string&& dst_key, std::string&& member)
 		{
 			static_assert(is_set_, "This API Support Set Request");
-			if (client_ == nullptr) {
+			if (client_== nullptr ||
+				src_key.empty() || dst_key.empty() ||member.empty()) {
 				return false;
 			}
 
@@ -523,7 +538,7 @@ namespace cpp_redis {
 		size_t set_get_size(std::string&& key)
 		{
 			static_assert(is_set_, "This API Support Set Request");
-			if (client_ == nullptr) {
+			if (client_ == nullptr || key.empty()) {
 				return 0;
 
 			}
@@ -533,7 +548,7 @@ namespace cpp_redis {
 		RESULTS_TYPE set_get_all_member(std::string&& key)
 		{
 			static_assert(is_set_, "This API Support Set Request");
-			if (client_ == nullptr) {
+			if (client_== nullptr || key.empty()) {
 				return {};
 
 			}
@@ -545,9 +560,10 @@ namespace cpp_redis {
 		template<typename...Args>
 		RESULTS_TYPE set_sinter(Args&&...keys)
 		{
+			constexpr auto Size = sizeof...(keys);
 			static_assert(is_set_, "This API Support Set Request");
 			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr == nullptr || Size ==0) {
 				return {};
 			}
 
@@ -558,9 +574,11 @@ namespace cpp_redis {
 		template<typename...Args>
 		int set_inter_store(std::string&& dst_key, Args&&...keys)
 		{
+			constexpr auto Size = sizeof...(keys);
 			static_assert(is_set_, "This API Support Set Request");
 			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr   == nullptr ||
+				Size  ==0 || dst_key.empty()) {
 				return -1;
 			}
 
@@ -572,9 +590,10 @@ namespace cpp_redis {
 		template<typename...Args>
 		RESULTS_TYPE set_union(Args&&...key)
 		{
+			constexpr auto Size = sizeof...(key);
 			static_assert(is_set_, "This API Support Set Request");
 			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr  == nullptr || Size ==0) {
 				return {};
 			}
 
@@ -585,9 +604,11 @@ namespace cpp_redis {
 		template<typename...Args>
 		int set_union_store(std::string&& dst_key, Args&&...keys)
 		{
+			constexpr auto Size = sizeof...(keys);
 			static_assert(is_set_, "This API Support Set Request");
 			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr == nullptr || 
+				dst_key.empty() || Size ==0) {
 				return -1;
 			}
 
@@ -599,9 +620,10 @@ namespace cpp_redis {
 		template<typename...Args>
 		RESULTS_TYPE set_diff(Args&&...key)
 		{
+			constexpr auto Size = sizeof...(key);
 			static_assert(is_set_, "This API Support Set Request");
 			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr == nullptr || Size ==0) {
 				return{};
 			}
 
@@ -611,9 +633,11 @@ namespace cpp_redis {
 		template<typename...Args>
 		int set_diff_store(std::string&& dst_key, Args&&...key)
 		{
+			constexpr auto Size = sizeof...(key);
 			static_assert(is_set_, "This API Support Set Request");
 			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr) {
+			if (ptr == nullptr || 
+				dst_key.empty() || Size == 0) {
 				return -1;
 			}
 
@@ -629,11 +653,12 @@ namespace cpp_redis {
 			keys_.push_back(std::forward<std::string>(key));
 			make_keys(std::forward<Args>(args)...);
 
-			if (keys_.size() == 1 || keys_.size()!= Size) {
-				return false;
+			if (client_ == nullptr ||
+				keys_.size() == 1 || keys_.size()!= Size) {
+				return -1;
 			}
 
-			return client_->zset_add(std::forward<std::string>(key),std::move(keys_));
+			return client_->zset_add(std::move(keys_));
 		}
 
 		//获取指定zset成员的值
@@ -643,33 +668,17 @@ namespace cpp_redis {
 			check_pass_args(std::forward<T>(member));
 			static_assert(is_zset, "This API Support ZSet Request");
 
-			std::string value;
-#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
-			if (constexpr (std::is_same<T, float>::value)) {
-				value = cpp_redis::unit::float_to_string(member);
+			if (client_== nullptr){
+				return "";
 			}
-			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = build_string(member);
-			}
-			else if (constexpr(std::is_same<T, int>::value)) {
-				value = cpp_redis::unit::int_to_string(member);
-			}
-#else
-			if constexpr (std::is_same<T, float>::value) {
-				value = cpp_redis::unit::float_to_string(member);
-			}
-			else if constexpr (std::is_same<T, double>::value) {
-				value = cpp_redis::unit::double_to_string(member);
-			}
-			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = build_string(member);
-			}
-			else if constexpr (std::is_same<T, int>::value) {
-				value = cpp_redis::unit::int_to_string(member);
+
+			std::string value = to_string(member);
+
+			if (value.empty()){
+				return "";
 			}
 
 			return client_->zset_score(std::forward<std::string>(key), std::move(value));
-#endif
 		}
 
 		//获取指定zset成员增加值
@@ -680,39 +689,27 @@ namespace cpp_redis {
 			check_pass_args(std::forward<T>(member));
 			static_assert(is_zset, "This API Support ZSet Request");
 
-			std::string value;
-#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
-			if (constexpr (std::is_same<T, float>::value)) {
-				value = cpp_redis::unit::float_to_string(member);
+			if (client_ == nullptr){
+				return "";
 			}
-			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = build_string(member);
-			}
-			else if (constexpr(std::is_same<T, int>::value)) {
-				value = cpp_redis::unit::int_to_string(member);
-			}
-#else
-			if constexpr (std::is_same<T, float>::value) {
-				value = cpp_redis::unit::float_to_string(member);
-			}
-			else if constexpr (std::is_same<T, double>::value) {
-				value = cpp_redis::unit::double_to_string(member);
-			}
-			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = build_string(member);
-			}
-			else if constexpr (std::is_same<T, int>::value) {
-				value = cpp_redis::unit::int_to_string(member);
+
+			std::string value = to_string(member);
+
+			if (value.empty()){
+				return "";
 			}
 
 			return client_->zset_incrby(std::forward<std::string>(key), unit::int_to_string(increment), std::move(value));
-#endif
+
 		}
 
 		//返回有序集 key的总数
 		int zset_counts(std::string&& key)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+			if (client_ == nullptr){
+				return -1;
+			}
 
 			return client_->zset_card(std::forward<std::string>(key));
 		}
@@ -721,6 +718,9 @@ namespace cpp_redis {
 		int zset_range_counts(std::string&& key, int min, int max)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+			if (client_  == nullptr){
+				return -1;
+			}
 
 			return client_->zset_count(std::forward<std::string>(key), unit::int_to_string(min), unit::int_to_string(max));
 		}
@@ -732,6 +732,10 @@ namespace cpp_redis {
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
+			if (client_ == nullptr){
+				return { {} };
+			}
+
 			return client_->zset_range(std::forward<std::string>(key), unit::int_to_string(begin), unit::int_to_string(end), with_scores);
 		}
 
@@ -741,6 +745,9 @@ namespace cpp_redis {
 		RESULTS_TYPE zset_rerange(std::string&& key, int begin, int end, bool with_scores = true)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+			if (client_ == nullptr){
+				return { {} };
+			}
 
 			return client_->zset_revrange(std::forward<std::string>(key), unit::int_to_string(begin), unit::int_to_string(end), with_scores);
 		}
@@ -750,6 +757,10 @@ namespace cpp_redis {
 			bool with_scores = true, bool limit = false, int limit_min = 0, int limit_max = 1)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+
+			if (client_ == nullptr) {
+				return { {} };
+			}
 
 			return client_->zset_range_score(std::forward<std::string>(key), unit::int_to_string(min),
 				unit::int_to_string(max), with_scores, limit, unit::int_to_string(limit_min), unit::int_to_string(limit_max));
@@ -761,6 +772,10 @@ namespace cpp_redis {
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
+			if (client_== nullptr) {
+				return { {} };
+			}
+
 			return client_->zset_revrange_score(std::forward<std::string>(key), unit::int_to_string(max),
 				unit::int_to_string(min), with_scores, limit, unit::int_to_string(limit_min), unit::int_to_string(limit_max));
 		}
@@ -770,6 +785,10 @@ namespace cpp_redis {
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
+			if (client_== nullptr) {
+				return -1;
+			}
+
 			return client_->zset_rank(std::forward<std::string>(key), std::forward<std::string>(member));
 		}
 
@@ -777,6 +796,10 @@ namespace cpp_redis {
 		int zset_revrank(std::string&& key, std::string&& member)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+
+			if (client_ == nullptr) {
+				return -1;
+			}
 
 			return client_->zset_revrank(std::forward<std::string>(key), std::forward<std::string>(member));
 		}
@@ -799,13 +822,17 @@ namespace cpp_redis {
 				return false;
 			}
 
-			return ptr->zset_rem(std::forward<std::string>(key),std::move(keys_));
+			return ptr->zset_rem(std::move(keys_));
 		}
 
 		//移除有序集 key 中，指定排名(rank)区间内的所有成员
 		int zset_remrangeby_rank(std::string&& key,int begin,int end)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+
+			if (client_== nullptr) {
+				return -1;
+			}
 
 			return client_->zset_remrangeby_rank(std::forward<std::string>(key), unit::int_to_string(begin), unit::int_to_string(end));
 		}
@@ -814,6 +841,11 @@ namespace cpp_redis {
 		int zset_remrangebyscore(std::string&& key,int min,int max)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+			
+			if (client_== nullptr) {
+				return -1;
+			}
+
 			return client_->zset_remrangebyscore(std::forward<std::string>(key), unit::int_to_string(min), unit::int_to_string(max));
 		}
 		
@@ -824,6 +856,11 @@ namespace cpp_redis {
 		RESULTS_TYPE zset_rangebylex(std::string&& key,std::string&&min,std::string&& max,bool limit=false,int limit_min=0,int limit_max=1)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+
+			if (client_ == nullptr){
+				return { {}};
+			}
+
 			return client_->zset_rangebylex(std::forward<std::string>(key),std::forward<std::string>(min),std::forward<std::string>(max), 
 				limit,unit::int_to_string(limit_max),unit::int_to_string(limit_max));
 		}
@@ -832,6 +869,11 @@ namespace cpp_redis {
 		int zset_lexcount(std::string&& key, std::string&& min, std::string&& max)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+
+			if (client_== nullptr) {
+				return -1;
+			}
+
 			return client_->zset_lexcount(std::forward<std::string>(key), std::forward<std::string>(min), std::forward<std::string>(max));
 		}
 
@@ -839,6 +881,11 @@ namespace cpp_redis {
 		int zset_remrangebylex(std::string&& key, std::string&& min, std::string&& max)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
+
+			if (client_ == nullptr) {
+				return -1;
+			}
+
 			return client_->zset_remrangebylex(std::forward<std::string>(key),std::forward<std::string>(min), std::forward<std::string>(max));
 		}
 		
@@ -858,8 +905,9 @@ namespace cpp_redis {
 
 			make_keys(std::forward<Args>(args)...);
 
-			if (keys_.size() == 1 || keys_.size() != Size) {
-				return false;
+			if (client_ == nullptr || 
+				keys_.size() == 1 || keys_.size() != Size) {
+				return -1;
 			}
 
 			keys_.emplace_back("WEIGHTS");
@@ -881,8 +929,9 @@ namespace cpp_redis {
 
 			make_keys(std::forward<Args>(args)...);
 
-			if (keys_.size() == 1 || keys_.size() != Size) {
-				return false;
+			if (client_ == nullptr ||
+				keys_.size() == 1 || keys_.size() != Size) {
+				return -1;
 			}
 
 			keys_.emplace_back("WEIGHTS");
@@ -898,6 +947,10 @@ namespace cpp_redis {
 		{
 			static_assert(is_hash, "This API Support hash Request");
 
+			if (client_ == nullptr || key.empty()){
+				return -1;
+			}
+
 			return client_->hash_set(std::forward<std::string>(key), 
 				hash_build_string(std::forward<T1>(field)), hash_build_string(std::forward<T2>(value)));
 		}
@@ -909,6 +962,10 @@ namespace cpp_redis {
 		{
 			static_assert(is_hash, "This API Support hash Request");
 
+			if (client_ == nullptr || key.empty()) {
+				return -1;
+			}
+
 			return client_->hash_setx(std::forward<std::string>(key),
 				hash_build_string(std::forward<T1>(field)), hash_build_string(std::forward<T2>(value)));
 		}
@@ -917,9 +974,198 @@ namespace cpp_redis {
 		int hash_exists(std::string&& key,T&& field)
 		{
 			static_assert(is_hash, "This API Support hash Request");
+
+			if (client_ == nullptr || key.empty()) {
+				return -1;
+			}
+
 			return client_->hash_exists(std::forward<std::string>(key),hash_build_string(std::forward<T>(field)));
 		}
+
+		template<typename T>
+		std::string hash_get(std::string&& key,T&& field)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+
+			if (client_ == nullptr && key.empty()) {
+				return "";
+			}
+
+			return client_->hash_get(std::forward<std::string>(key),hash_build_string(std::forward<T>(field)));
+		}
+		
+		template<typename...Args>
+		int hash_del(std::string&& key, Args&&...fields)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			constexpr auto Size = sizeof...(fields)+1;
+
+			if (client_ == nullptr || key.empty()){
+				return -1;
+			}
+
+			keys_.push_back(std::forward<std::string>(key));
+			hash_make_keys(std::forward<Args>(fields)...);
+			if ( keys_.empty() || keys_.size() != Size){
+				return -1;
+			}
+
+			return client_->hash_del(std::move(keys_));
+		}
+
+		int hash_len(std::string&& key)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_ == nullptr || key.empty()){
+				return 0;
+			}
+
+			return client_->hash_len(std::forward<std::string>(key));
+		}
+
+		template<typename T>
+		int hash_strlen(std::string&& key,T&& field)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_== nullptr) {
+				return 0;
+			}
+
+			return client_->hash_strlen(std::forward<std::string>(key), 
+				hash_build_string(std::forward<T>(field)));
+		}
+
+		//返回增加值
+		//一个新的哈希表被创建并执行HINCRBY 命令(注意地方)
+		template<typename T>
+		int hash_incrby(std::string&& key, T&& field, int increment)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_  == nullptr || key.empty()) {
+				return 0;
+			}
+
+			return client_->hash_incrby(std::forward<std::string>(key),hash_build_string(std::forward<T>(field)),
+				unit::int_to_string(increment));
+		}
+
+		template<typename T>
+		std::string hash_incrby_float(std::string&& key, T&& field, double increment)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_ == nullptr || key.empty()) {
+				return "";
+			}
+
+			return client_->hash_incrby_float(std::forward<std::string>(key), hash_build_string(std::forward<T>(field)),
+				unit::double_to_string(increment));
+		}
+
+		template<typename T>
+		std::string hash_incrby_float(std::string&& key, T&& field, float increment)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_ == nullptr || key.empty()) {
+				return "";
+			}
+
+			return client_->hash_incrby_float(std::forward<std::string>(key), hash_build_string(std::forward<T>(field)),
+				unit::float_to_string(increment));
+		}
+
+		template<typename...Args>
+		bool hash_mset(std::string&& key, Args&&...keys)
+		{
+			const auto Size = sizeof...(keys) + 1;
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_ == nullptr || key.empty()) {
+				return false;
+			}
+
+			keys_.push_back(std::forward<std::string>(key));
+			hash_make_keys(std::forward<Args>(keys)...);
+
+			if (keys_.size() != Size) {
+				return false;
+			}
+
+			return client_->hash_mset(std::move(keys_));
+		}
+
+		template<typename...Args>
+		RESULTS_TYPE hash_mget(std::string&& key, Args&&...keys)
+		{
+			const auto Size = sizeof...(keys) + 1;
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_ == nullptr || key.empty()) {
+				return { {} };
+			}
+
+			keys_.push_back(std::forward<std::string>(key));
+			hash_make_keys(std::forward<Args>(keys)...);
+
+			if (keys_.size() != Size) {
+				return { {} };
+			}
+
+			return client_->hash_mget(std::move(keys_));
+		}
+
+		//返回所有的keys
+		RESULTS_TYPE hash_keys(std::string&& key)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_ == nullptr || key.empty()) {
+				return { {} };
+			}
+			
+			return client_->hash_keys(std::forward<std::string>(key));
+		}
+
+		//返回key中的所有值
+		RESULTS_TYPE hash_vals(std::string&& key)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_ == nullptr || key.empty()) {
+				return { {} };
+			}
+
+			return client_->hash_vals(std::forward<std::string>(key));
+		}
+
+		//返回key中的域和值
+		RESULTS_TYPE hash_get_all(std::string&& key)
+		{
+			static_assert(is_hash, "This API Support hash Request");
+			if (client_ == nullptr || key.empty()) {
+				return { {} };
+			}
+
+			return client_->hash_get_all(std::forward<std::string>(key));
+		}
 	private:
+		void hash_make_keys()
+		{
+
+		}
+
+		template<typename T, typename...Args>
+		void hash_make_keys(T&& header, Args&&...args)
+		{
+			std::string value;
+#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
+#else
+			if constexpr(std::is_same<T,bool>::value){
+				value = header ? "true" : "false";
+			}else{
+				value = to_string(header);
+			}
+#endif
+			keys_.push_back(std::move(value));
+			hash_make_keys(std::forward<Args>(args)...);
+
+		}
+
 		void make_keys()
 		{
 
@@ -928,54 +1174,92 @@ namespace cpp_redis {
 		template<typename T,typename...Args>
 		void make_keys(T&&header,Args&&...args)
 		{
-			std::string value;
-#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
-			if (constexpr (std::is_same<T, float>::value)) {
-				value = cpp_redis::unit::float_to_string(header);
-			}
-			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = build_string(header);
-			}
-			else if (constexpr(std::is_integral<typename std::decay<T>::type>::value)) {
-				value = cpp_redis::unit::int_to_string(header);
-			}
-#else
-			if constexpr (std::is_same<T, float>::value) {
-				value = cpp_redis::unit::float_to_string(header);
-			}
-			else if constexpr (std::is_same<T, double>::value) {
-				value = cpp_redis::unit::double_to_string(header);
-			}
-			else if  constexpr (cpp_redis::traits::is_string<T>::value) {
-				value = build_string(header);
-			}
-			else if constexpr (std::is_integral<typename std::decay<T>::type>::value) {
-				value = cpp_redis::unit::int_to_string(header);
-			}
+			std::string value = to_string(std::forward<T>(header));
 
 			if (!value.empty()){
 				keys_.push_back(std::move(value));
 			}
 
 			make_keys(std::forward<Args>(args)...);
-#endif
 		}
 
+		template<typename T>
+		std::string to_string(T&& t)
+		{
+			std::string value;
+#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
+			if (constexpr (std::is_same< std::is_same<typename std::decay<decltype(t)>::type, float>::value)) {
+				value = cpp_redis::unit::float_to_string(t);
+			}
+			else if (constexpr (std::is_same< std::is_same<typename std::decay<decltype(t)>::type, double>::value)) {
+				value = cpp_redis::unit::double_to_string(t);
+			}
+			else if (constexpr (cpp_redis::traits::is_string<T>::value)) {
+				value = build_string(t);
+			}
+			else if (constexpr (cpp_redis::traits::contains<typename std::decay<decltype(t)>::type, std::int16_t,
+				std::uint16_t, std::uint32_t, std::int32_t, std::int64_t, std::uint64_t>::value)) {
+				value = cpp_redis::unit::int_to_string(t);
+			}
+			else if (constexpr (std::is_enum<decltype(value)>::value)) {
+				value = cpp_redis::unit::int_to_string(static_cast<int>(t));
+			}else if (constexpr (cpp_redis::traits::contains<typename std::decay<decltype(t)>::type, char, unsigned char>::value)) {
+				value.append("\'");
+				value.append(cpp_redis::unit::char_to_str(t));
+				value.append("\'");
+		    }else if (constexpr (std::is_same<typename std::decay<decltype(t)>::type, std::uint8_t>::value)) {
+				value.append("\'");
+				value.append(cpp_redis::unit::char_to_str(t));
+				value.append("\'");
+			}else if (constexpr (std::is_same<typename std::decay<decltype(t)>::type, std::int8_t>::value)) {
+				value.append("\'");
+				value.append(cpp_redis::unit::char_to_str(t));
+				value.append("\'");
+			}
+#else
+			//加上std::decay之后，不管是常引用还是变量都可以变检索到
+			if constexpr (std::is_same<typename std::decay<decltype(t)>::type, float>::value) {
+				value = cpp_redis::unit::float_to_string(t);
+			}else if constexpr (std::is_same<typename std::decay<decltype(t)>::type, double>::value) {
+				value = cpp_redis::unit::double_to_string(t);
+			}else if  constexpr (cpp_redis::traits::is_string<T>::value) {
+				value = build_string(t);
+			}else if constexpr (cpp_redis::traits::contains<typename std::decay<decltype(t)>::type,std::int16_t,
+				std::uint16_t,std::uint32_t,std::int32_t,std::int64_t,std::uint64_t>::value) {
+				value = cpp_redis::unit::int_to_string(t);
+			}else if constexpr (std::is_enum<decltype(value)>::value) {
+				value = cpp_redis::unit::int_to_string(static_cast<int>(t));
+			}else if constexpr (cpp_redis::traits::contains<typename std::decay<decltype(t)>::type,char,unsigned char>::value) {
+				value.append("\'");
+				value.append(cpp_redis::unit::char_to_str(t));
+				value.append("\'");
+			}else if constexpr(std::is_same<typename std::decay<decltype(t)>::type,std::uint8_t>::value){
+				value.append("\'");
+				value.append(cpp_redis::unit::char_to_str(t));
+				value.append("\'");
+			}else if constexpr (std::is_same<typename std::decay<decltype(t)>::type, std::int8_t>::value) {
+				value.append("\'");
+				value.append(cpp_redis::unit::char_to_str(t));
+				value.append("\'");
+			}
+#endif
+			return std::move(value);
+		}
 		void create_object()
 		{
-			if (request_type_ == cpp_redis::string_request) {
+			if (request_type_           == cpp_redis::string_request) {
 				client_ = std::make_shared<string_client>();
 			}
-			else if (request_type_ == cpp_redis::list_request) {
+			else if (request_type_      == cpp_redis::list_request) {
 				client_ = std::make_shared<list_client>();
 			}
-			else if (request_type_ == cpp_redis::set_request) {
+			else if (request_type_      == cpp_redis::set_request) {
 				client_ = std::make_shared<set_client>();
 			}
-			else if (request_type_ == cpp_redis::zset_request) {
+			else if (request_type_      == cpp_redis::zset_request) {
 				client_ = std::make_shared<zset_client>();
 			}
-			else if (request_type_ == cpp_redis::hash_request) {
+			else if (request_type_      == cpp_redis::hash_request) {
 				client_ = std::make_shared<hash_client>();
 			}
 			else {
@@ -995,7 +1279,7 @@ namespace cpp_redis {
 			if constexpr (std::is_same<T,bool>::value){
 				str = value ? "true" : "false";
 			}else{
-				str = build_string(value);
+				str = to_string(value);
 			}
 
 			return std::move(str);
@@ -1012,14 +1296,11 @@ namespace cpp_redis {
 				size_t size = strlen(value);
 				str.resize(size);
 				std::copy(value, value + size, str.begin());
-			}
-			else if (constexpr (std::is_same<const char*, typename std::decay<T>::type>::value)) {
+			}else if (constexpr (std::is_same<const char*, typename std::decay<T>::type>::value)) {
 				size_t size = strlen(value);
 				str.resize(size);
 				std::copy(value, value + size, str.begin());
-			}else if constexpr (std::is_integral<typename std::decay<T>::type>::value) {
-				str = unit::int_to_string(value);
-			}else {
+			}else if (constexpr (std::is_same<std::string,typename std:decay<T>::type>::value)){
 				str = std::move(value);
 			}
 #else
@@ -1032,9 +1313,7 @@ namespace cpp_redis {
 				size_t size = strlen(value);
 				str.resize(size);
 				memcpy(&str[0], value, size);
-			}else if constexpr(std::is_integral<typename std::decay<T>::type>::value){
-				str = unit::int_to_string(value);
-			}else {
+			}else if constexpr (std::is_same<std::string, typename std::decay<T>::type>::value) {
 				str = std::move(value);
 			}
 #endif
@@ -1046,8 +1325,8 @@ namespace cpp_redis {
 		{
 #if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
 			if (constexpr (cpp_redis::traits::is_string<T>::value))) {
-			constexpr bool is_string = cpp_redis::traits::is_string<T>::value;
-			static_assert(is_string, "T only support double string float int ");
+			     constexpr bool is_string = cpp_redis::traits::is_string<T>::value;
+			     static_assert(is_string, "T only support double string float int ");
 			}
 			else {
 				constexpr bool is_none = cpp_redis::traits::contains<T, double, float, int>::value;
@@ -1066,11 +1345,11 @@ namespace cpp_redis {
 		}
 	private:
 		static constexpr bool is_sting_ = std::is_same<type, String>::value;
-		static constexpr bool is_list_ = std::is_same<type, List>::value;
-		static constexpr bool is_set_ = std::is_same<type, Set>::value;
-		static constexpr bool is_zset = std::is_same<type, ZSet>::value;
-		static constexpr bool is_hash = std::is_same<type, Hash>::value;
-		static constexpr bool is_none = cpp_redis::traits::contains<type, String, List, Set, ZSet, Hash>::value;
+		static constexpr bool is_list_  = std::is_same<type, List>::value;
+		static constexpr bool is_set_   = std::is_same<type, Set>::value;
+		static constexpr bool is_zset   = std::is_same<type, ZSet>::value;
+		static constexpr bool is_hash   = std::is_same<type, Hash>::value;
+		static constexpr bool is_none   = cpp_redis::traits::contains<type, String, List, Set, ZSet, Hash>::value;
 		int request_type_ = request_type::none;
 		std::shared_ptr<client>client_;
 		std::vector<std::string>keys_;

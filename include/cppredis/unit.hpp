@@ -39,14 +39,42 @@ namespace cpp_redis {
 			return (std::regex_match(ip_addr_dot_format, expression));
 		}
 
-		static std::string int_to_string(std::size_t value)
+		static std::string int_to_string(std::uint32_t value)
 		{
 			std::ostringstream ostr;
 			ostr << value;
 			return std::move(ostr.str());
 		}
 
-		static std::string int_to_string(int value)
+		static std::string int_to_string(std::int32_t value)
+		{
+			std::ostringstream ostr;
+			ostr << value;
+			return std::move(ostr.str());
+		}
+
+		static std::string int_to_string(std::int16_t value)
+		{
+			std::ostringstream ostr;
+			ostr << value;
+			return std::move(ostr.str());
+		}
+
+		static std::string int_to_string(std::uint16_t value)
+		{
+			std::ostringstream ostr;
+			ostr << value;
+			return std::move(ostr.str());
+		}
+
+		static std::string int_to_string(std::int64_t value)
+		{
+			std::ostringstream ostr;
+			ostr << value;
+			return std::move(ostr.str());
+		}
+
+		static std::string int_to_string(std::uint64_t value)
 		{
 			std::ostringstream ostr;
 			ostr << value;
@@ -61,6 +89,20 @@ namespace cpp_redis {
 		}
 
 		static std::string double_to_string(double value)
+		{
+			std::ostringstream ostr;
+			ostr << value;
+			return std::move(ostr.str());
+		}
+
+		static std::string char_to_str(char value)
+		{
+			std::ostringstream ostr;
+			ostr << value;
+			return std::move(ostr.str());
+		}
+
+		static std::string char_to_str(unsigned char value)
 		{
 			std::ostringstream ostr;
 			ostr << value;
