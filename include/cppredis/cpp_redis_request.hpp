@@ -345,7 +345,7 @@ namespace cpp_redis {
 		{
 			auto key_cmds = std::move(cmds);
 			BYTES v;
-			add_number(get_command_size(key_cmds), v, '*');
+			add_number(get_commands(key_cmds), v, '*');
 			add_value_with_size(command, v);
 
 			for (auto i = key_cmds.begin(); i != key_cmds.end(); ++i) {
@@ -357,75 +357,13 @@ namespace cpp_redis {
 			return std::move(v);
 		}
 
-		template <class T>
-		PAIR make_pair(T&& key, std::string&& value)
-		{
-			PAIR u;
-			u.first = std::move(key);
-			u.second = std::move(value);
-			return std::move(u);
-		}
-
-		template <class T>
-		PAIR  make_pair(T&& key, const char* value)
-		{
-			PAIR u;
-			u.first = std::move(key);
-			u.second = std::move(std::string(value, strlen(value)));
-			return std::move(u);
-		}
-
-		template <class T>
-		PAIR  make_pair(T&& key, const unsigned char* value, size_t length)
-		{
-			PAIR u;
-			u.first = std::move(key);
-			u.second = std::move(std::string(value, length));
-			return std::move(u);
-		}
-
-		template <class T>
-		PAIR  make_pair(T&& key, const std::int32_t value)
-		{
-			std::stringstream str;
-			str << value;
-			return std::move(make_pair(std::move(key), str.str()));
-		}
-
-		template <class T>
-		PAIR  make_pair(T&& key, const std::uint32_t value)
-		{
-			std::stringstream str;
-			str << value;
-			return std::move(make_pair(std::move(key), str.str()));
-		}
-
-		template<class T>
-		void make_pairs(PAIR&& cmd, T& p)
-		{
-			if (cmd.first.empty()) {
-				return;
-			}
-
-			p.push_back(std::move(cmd));
-		}
-
-		void makePairs(PAIR&& cmd, std::map<KEY, BYTES>& p)
-		{
-			if (cmd.first.empty()) {
-				return;
-			}
-
-			p.insert(std::move(cmd));
-		}
-
 		template<typename T>
-		int get_command_size(const T& cmds)
+		int get_commands(const T& cmds)
 		{
 			return cmds.size() + 1;
 		}
 
-		int get_command_size(const PAIRS& cmds)
+		int get_commands(const PAIRS& cmds)
 		{
 			return cmds.size() * 2 + 1;
 		}
