@@ -165,5 +165,3 @@ auto res = client.hash_keys(std::move(key));
 auto res = client.hash_vals(std::move(key));
 
 auto res = client.hash_get_all(std::move(key));
-## Author
-[YinPingHua]
