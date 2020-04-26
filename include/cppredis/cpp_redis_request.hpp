@@ -327,7 +327,7 @@ private:
 		std::string build_respone(std::string&& command, std::vector<std::string>&& cmds)
 		{
 			std::vector<std::string> key_cmds = std::move(cmds);
-			size_t cmd_size = cmds.size();
+			size_t cmd_size = key_cmds.size();
 			
 			std::string v;
 			add_number(cmd_size+1, v, '*');
