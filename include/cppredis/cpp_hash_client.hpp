@@ -217,7 +217,7 @@ namespace cpp_redis
 			return true;
 		}
 
-		virtual RESULTS_TYPE hash_mget(std::vector<std::string>&& keys)
+		virtual std::vector <std::string> hash_mget(std::vector<std::string>&& keys)
 		{
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::hash_mget), std::forward<std::vector<std::string>>(keys));
 			socket_->send_msg(std::move(msg));
@@ -232,7 +232,7 @@ namespace cpp_redis
 		}
 
 		//返回所有的keys
-		virtual RESULTS_TYPE hash_keys(std::string&& key)
+		virtual std::vector <std::string> hash_keys(std::string&& key)
 		{
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::hash_keys), std::forward<std::string>(key));
 			socket_->send_msg(std::move(msg));
@@ -248,7 +248,7 @@ namespace cpp_redis
 
 
 		//返回key中的所有值
-		virtual RESULTS_TYPE hash_vals(std::string&& key)
+		virtual std::vector <std::string> hash_vals(std::string&& key)
 		{
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::hash_vals),
 				std::forward<std::string>(key));
@@ -264,7 +264,7 @@ namespace cpp_redis
 		}
 		
 		//返回key中的域和值
-		virtual  RESULTS_TYPE hash_get_all(std::string&& key)
+		virtual  std::vector <std::string> hash_get_all(std::string&& key)
 		{
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::hash_get_all), 
 				std::forward<std::string>(key));

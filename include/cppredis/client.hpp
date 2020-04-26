@@ -627,7 +627,7 @@ namespace cpp_redis {
 		}
 
 		template<typename T>
-		RESULTS_TYPE list_range(T&& key, int start, int end)
+		std::vector <std::string> list_range(T&& key, int start, int end)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
@@ -930,7 +930,7 @@ namespace cpp_redis {
 
 		//只是随机，不会发生删除
 		template<typename T>
-		RESULTS_TYPE set_rand_elem(T&& key, int count)
+		std::vector <std::string> set_rand_elem(T&& key, int count)
 		{
 			static_assert(is_set_, "This API Support Set Request");
 			if (client_  == nullptr) {
@@ -982,7 +982,7 @@ namespace cpp_redis {
 		}
 
 		template<typename T>
-		RESULTS_TYPE set_get_all_member(T&& key)
+		std::vector <std::string> set_get_all_member(T&& key)
 		{
 			static_assert(is_set_, "This API Support Set Request");
 			if (client_== nullptr) {
@@ -1001,7 +1001,7 @@ namespace cpp_redis {
 
 		//求集合的交集，如果一个为空，就返回空
 		template<typename T,typename...Args>
-		RESULTS_TYPE set_sinter(T&&key,Args&&...keys)
+		std::vector <std::string> set_sinter(T&&key,Args&&...keys)
 		{
 			constexpr auto Size = sizeof...(keys)+1;
 			static_assert(is_set_, "This API Support Set Request");
@@ -1036,7 +1036,7 @@ namespace cpp_redis {
 		//求集合的并集合,不存在key就视为空 
 		//(返回一个集合的全部成员，该集合是所有给定集合的并集)
 		template<typename...Args>
-		RESULTS_TYPE set_union(Args&&...key)
+		std::vector <std::string> set_union(Args&&...key)
 		{
 			constexpr auto Size = sizeof...(key);
 			static_assert(is_set_, "This API Support Set Request");
@@ -1075,7 +1075,7 @@ namespace cpp_redis {
 		//返回一个集合的全部成员，该集合是所有给定集合之间的差集。
 		//不存在的 key 被视为空集。
 		template<typename...Args>
-		RESULTS_TYPE set_diff(Args&&...key)
+		std::vector <std::string> set_diff(Args&&...key)
 		{
 			constexpr auto Size = sizeof...(key);
 			static_assert(is_set_, "This API Support Set Request");
@@ -1206,7 +1206,7 @@ namespace cpp_redis {
 		//with_scores:false不带score返回
 		//递增排序
 		template<typename T>
-		RESULTS_TYPE zset_range(T&& key, int begin, int end, bool with_scores = true)
+		std::vector <std::string> zset_range(T&& key, int begin, int end, bool with_scores = true)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
@@ -1226,7 +1226,7 @@ namespace cpp_redis {
 		//递减排序
 		//字典序的逆序
 		template<typename T>
-		RESULTS_TYPE zset_rerange(T&& key, int begin, int end, bool with_scores = true)
+		std::vector <std::string> zset_rerange(T&& key, int begin, int end, bool with_scores = true)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 			if (client_ == nullptr){
@@ -1243,7 +1243,7 @@ namespace cpp_redis {
 
 		//求区间内的score排序
 		template<typename T>
-		RESULTS_TYPE zset_range_score(T&& key, int min, int max,
+		std::vector <std::string> zset_range_score(T&& key, int min, int max,
 			bool with_scores = true, bool limit = false, int limit_min = 0, int limit_max = 1)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
@@ -1264,7 +1264,7 @@ namespace cpp_redis {
 
 		//求区间内的score从数据库中逆向取值并排序
 		template<typename T>
-		RESULTS_TYPE zset_revrange_score(T&& key, int max, int min,
+		std::vector <std::string> zset_revrange_score(T&& key, int max, int min,
 			bool with_scores = true, bool limit = false, int limit_min = 0, int limit_max = 1)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
@@ -1388,7 +1388,7 @@ namespace cpp_redis {
 		//因此， 向一个所有成员的分值都相同的有序集合发送命令 ZRANGEBYLEX <zset> -+， 命令将返回有序集合中的所有元素。
 
 		template<typename T>
-		RESULTS_TYPE zset_rangebylex(T&& key,std::string&&min,std::string&& max,bool limit=false,int limit_min=0,int limit_max=1)
+		std::vector <std::string> zset_rangebylex(T&& key,std::string&&min,std::string&& max,bool limit=false,int limit_min=0,int limit_max=1)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
@@ -1695,7 +1695,7 @@ namespace cpp_redis {
 		}
 
 		template<typename T,typename...Args>
-		RESULTS_TYPE hash_mget(T&& key, Args&&...keys)
+		std::vector <std::string> hash_mget(T&& key, Args&&...keys)
 		{
 			const auto Size = sizeof...(keys) + 1;
 			static_assert(is_hash, "This API Support hash Request");
@@ -1715,7 +1715,7 @@ namespace cpp_redis {
 
 		//返回所有的keys
 		template<typename T>
-		RESULTS_TYPE hash_keys(T&& key)
+		std::vector <std::string> hash_keys(T&& key)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 			if (client_ == nullptr) {
@@ -1733,7 +1733,7 @@ namespace cpp_redis {
 
 		//返回key中的所有值
 		template<typename T>
-		RESULTS_TYPE hash_vals(T&& key)
+		std::vector <std::string> hash_vals(T&& key)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 			if (client_ == nullptr) {
@@ -1751,7 +1751,7 @@ namespace cpp_redis {
 
 		//返回key中的域和值
 		template<typename T>
-		RESULTS_TYPE hash_get_all(T&& key)
+		std::vector <std::string> hash_get_all(T&& key)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 			if (client_ == nullptr) {

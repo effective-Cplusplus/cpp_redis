@@ -95,7 +95,7 @@ namespace cpp_redis {
 		}
 
 		//count >0表示元素不会重复, <0表示元素会重复
-		virtual RESULTS_TYPE set_rand_elem(std::string&& key, int count)
+		virtual std::vector <std::string> set_rand_elem(std::string&& key, int count)
 		{
 			check_args();
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::srandmember), std::forward<std::string>(key), std::move(unit::int_to_string(count)));
@@ -155,7 +155,7 @@ namespace cpp_redis {
 			return resulut[0];
 		}
 
-		virtual RESULTS_TYPE set_get_all_member(std::string&& key)
+		virtual std::vector <std::string> set_get_all_member(std::string&& key)
 		{
 			check_args();
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::smembers), std::forward<std::string>(key));
@@ -175,7 +175,7 @@ namespace cpp_redis {
 		}
 
 		//求集合的交集，如果一个为空，就返回空
-		virtual RESULTS_TYPE set_sinter(std::vector<std::string>&& keys)
+		virtual std::vector <std::string> set_sinter(std::vector<std::string>&& keys)
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sinter),std::forward<std::vector<std::string>>(keys));
@@ -211,7 +211,7 @@ namespace cpp_redis {
 		//(返回一个集合的全部成员，该集合是所有给定集合的并集)
 		//A{1:1234,2:5678,37895,4:910245} B{1:1234,2:7895,3:78945}
 		//A U B={1234,5678,7895,10245}
-		virtual RESULTS_TYPE set_union(std::vector<std::string>&&keys)
+		virtual std::vector <std::string> set_union(std::vector<std::string>&&keys)
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sunion), std::forward<std::vector<std::string>>(keys));
@@ -252,7 +252,7 @@ namespace cpp_redis {
 		//返回一个集合的全部成员，该集合是所有给定集合之间的差集。
 	   //不存在的 key 被视为空集。
 
-		virtual RESULTS_TYPE set_diff(std::vector<std::string>&& keys)
+		virtual std::vector <std::string> set_diff(std::vector<std::string>&& keys)
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sdiff), std::forward<std::vector<std::string>>(keys));
@@ -265,7 +265,7 @@ namespace cpp_redis {
 
 			auto results = res->get_results();
 
-			return  ((!results.empty()) ? std::move(results) : std::move(RESULTS_TYPE()));
+			return  ((!results.empty()) ? std::move(results) : std::move(std::vector <std::string>()));
 		}
 
 		//返回一个集合的全部成员，该集合是所有给定集合之间的差集。

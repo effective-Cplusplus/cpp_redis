@@ -296,7 +296,7 @@ namespace cpp_redis {
 			return -1;
 		}
 
-		virtual  RESULTS_TYPE list_range(std::string&& key, int start, int end)
+		virtual std::vector<std::string> list_range(std::string&& key, int start, int end)
 		{
 			return {};
 		}
@@ -380,7 +380,7 @@ namespace cpp_redis {
 			return "";
 		}
 
-		virtual RESULTS_TYPE set_sinter(std::vector<std::string>&& keys)
+		virtual std::vector <std::string> set_sinter(std::vector<std::string>&& keys)
 		{
 			return {};
 		}
@@ -390,7 +390,7 @@ namespace cpp_redis {
 			return 0;
 		}
 
-		virtual RESULTS_TYPE set_union(std::vector<std::string>&& keys)
+		virtual std::vector <std::string> set_union(std::vector<std::string>&& keys)
 		{
 			return {};
 		}
@@ -400,7 +400,7 @@ namespace cpp_redis {
 			return 0;
 		}
 
-		virtual RESULTS_TYPE set_rand_elem(std::string&& key, int count)
+		virtual std::vector <std::string> set_rand_elem(std::string&& key, int count)
 		{
 			return {};
 		}
@@ -410,7 +410,7 @@ namespace cpp_redis {
 			return false;
 		}
 
-		virtual RESULTS_TYPE set_diff(std::vector<std::string>&& keys)
+		virtual std::vector <std::string> set_diff(std::vector<std::string>&& keys)
 		{
 			return {};
 		}
@@ -419,7 +419,7 @@ namespace cpp_redis {
 		{
 			return 0;
 		}
-		virtual RESULTS_TYPE set_get_all_member(std::string&& key)
+		virtual std::vector <std::string> set_get_all_member(std::string&& key)
 		{
 			return {};
 		}
@@ -452,23 +452,23 @@ namespace cpp_redis {
 			return 0;
 		}
 
-		virtual RESULTS_TYPE zset_range(std::string&& key, std::string&& begin, std::string&& end,bool with_scores)
+		virtual std::vector <std::string> zset_range(std::string&& key, std::string&& begin, std::string&& end,bool with_scores)
 		{
 			return { {} };
 		}
 
-		virtual RESULTS_TYPE zset_revrange(std::string&& key, std::string&& begin, std::string&& end, bool with_scores)
+		virtual std::vector <std::string> zset_revrange(std::string&& key, std::string&& begin, std::string&& end, bool with_scores)
 		{
 			return { {} };
 		}
 
-		virtual RESULTS_TYPE zset_range_score(std::string&& key, std::string&& min, std::string&& max,
+		virtual std::vector <std::string> zset_range_score(std::string&& key, std::string&& min, std::string&& max,
 			bool with_scores, bool limit, std::string&& limit_min, std::string&& limit_max)
 		{
 			return { {} };
 		}
 
-		virtual RESULTS_TYPE zset_revrange_score(std::string&& key, std::string&& max, std::string&& min,
+		virtual std::vector <std::string> zset_revrange_score(std::string&& key, std::string&& max, std::string&& min,
 			bool with_scores, bool limit, std::string&& limit_min,std::string&&limit_max)
 		{
 			return { {} };
@@ -497,7 +497,7 @@ namespace cpp_redis {
 		{
 			return -1;
 		}
-		virtual RESULTS_TYPE zset_rangebylex(std::string&& key, std::string&& min,
+		virtual std::vector <std::string> zset_rangebylex(std::string&& key, std::string&& min,
 			std::string&& max, bool limit, std::string&& limit_min, std::string&& limit_max)
 		{
 			return { {} };
@@ -573,22 +573,22 @@ namespace cpp_redis {
 			return false;
 		}
 
-		virtual RESULTS_TYPE hash_mget(std::vector<std::string>&& keys)
+		virtual std::vector <std::string> hash_mget(std::vector<std::string>&& keys)
 		{
 			return { {} };
 		}
 
-		virtual RESULTS_TYPE hash_keys(std::string&& key)
+		virtual std::vector <std::string> hash_keys(std::string&& key)
 		{
 			return{ {} };
 		}
 
-		virtual RESULTS_TYPE hash_vals(std::string&& key)
+		virtual std::vector <std::string> hash_vals(std::string&& key)
 		{
 			return{ {} };
 		}
 
-		virtual  RESULTS_TYPE hash_get_all(std::string&& key)
+		virtual  std::vector <std::string> hash_get_all(std::string&& key)
 		{
 			return{ {} };
 		}

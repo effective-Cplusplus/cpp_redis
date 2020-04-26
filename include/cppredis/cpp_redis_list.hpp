@@ -109,7 +109,7 @@ namespace cpp_redis {
 		}
 
 		/************和数组一样,下标从零开始**************************************/
-		virtual  RESULTS_TYPE list_range(std::string&& key, int start, int end)
+		virtual  std::vector <std::string> list_range(std::string&& key, int start, int end)
 		{
 			check_args();
 

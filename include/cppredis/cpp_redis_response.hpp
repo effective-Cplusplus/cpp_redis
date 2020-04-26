@@ -4,10 +4,6 @@
 #include "cpp_define.h"
 
 namespace cpp_redis {
-	using RESULTS_TYPE = std::vector<std::string>;
-
-	using INT_RESULTS_TYPE = std::vector<int>;
-
 	class cpp_redis_response {
 	public:
 		void reset()
@@ -44,7 +40,7 @@ namespace cpp_redis {
 			int_results_.emplace_back(value);
 		}
 
-		INT_RESULTS_TYPE get_int_results()
+		std::vector<int> get_int_results()
 		{
 			return std::move(int_results_);
 		}
@@ -54,7 +50,7 @@ namespace cpp_redis {
 			results_.emplace_back(value);
 		}
 
-		RESULTS_TYPE get_results()
+		std::vector<std::string> get_results()
 		{
 			return std::move(results_);
 		}
@@ -72,8 +68,8 @@ namespace cpp_redis {
 		int result_code_; //-1: unconnected, 0: results_; 2: int ; 4: err_;  8: status_
 		std::string err_;
 		std::string status_;
-		INT_RESULTS_TYPE int_results_;
-		RESULTS_TYPE results_;
+		std::vector<int> int_results_;
+		std::vector<std::string> results_;
 	};
 }
 #endif // cpp_redis_response_h__

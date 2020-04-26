@@ -111,7 +111,7 @@ namespace cpp_redis {
 		//返回列表以 value1, score1, ..., valueN, scoreN 的格式表示。
 		//客户端库可能会返回一些更复杂的数据类型，比如数组、元组等。
 		//递增排列
-		virtual RESULTS_TYPE zset_range(std::string&& key, std::string&& begin, std::string&& end,bool with_scores)
+		virtual std::vector <std::string> zset_range(std::string&& key, std::string&& begin, std::string&& end,bool with_scores)
 		{
 			check_args();
 
@@ -138,7 +138,7 @@ namespace cpp_redis {
 		//返回列表以 value1, score1, ..., valueN, scoreN 的格式表示。
 		//客户端库可能会返回一些更复杂的数据类型，比如数组、元组等。
 		//递减排列
-		virtual RESULTS_TYPE zset_revrange(std::string&& key, std::string&& begin, std::string&& end, bool with_scores)
+		virtual std::vector <std::string> zset_revrange(std::string&& key, std::string&& begin, std::string&& end, bool with_scores)
 		{
 			check_args();
 
@@ -163,7 +163,7 @@ namespace cpp_redis {
 		}
 
 		//求区间内的score
-		virtual RESULTS_TYPE zset_range_score(std::string&& key, std::string&& min, std::string&& max,
+		virtual std::vector <std::string> zset_range_score(std::string&& key, std::string&& min, std::string&& max,
 			bool with_scores, bool limit, std::string&& limit_min, std::string &&limit_max)
 		{
 			check_args();
@@ -199,7 +199,7 @@ namespace cpp_redis {
 			return std::move(res->get_results());
 		}
 
-		virtual RESULTS_TYPE zset_revrange_score(std::string&& key, std::string&& max, std::string&& min,
+		virtual std::vector <std::string> zset_revrange_score(std::string&& key, std::string&& max, std::string&& min,
 			bool with_scores, bool limit, std::string&& limit_min, std::string&& limit_max)
 		{
 			check_args();
@@ -389,7 +389,7 @@ namespace cpp_redis {
 		//合法的 min 和 max 参数必须包含(或者[， 其中(表示开区间（指定的值不会被包含在范围之内）， 而[则表示闭区间（指定的值会被包含在范围之内）。
 		//特殊值 + 和 - 在 min 参数以及 max 参数中具有特殊的意义， 其中 + 表示正无限， 而 - 表示负无限。 
 		//因此， 向一个所有成员的分值都相同的有序集合发送命令 ZRANGEBYLEX <zset> -+， 命令将返回有序集合中的所有元素。
-		virtual RESULTS_TYPE zset_rangebylex(std::string&& key, std::string&& min, 
+		virtual std::vector <std::string> zset_rangebylex(std::string&& key, std::string&& min,
 			std::string&& max, bool limit, std::string&& limit_min, std::string&& limit_max)
 		{
 			check_args();
