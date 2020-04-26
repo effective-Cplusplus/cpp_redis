@@ -276,7 +276,7 @@ namespace cpp_redis {
 			return client_->decr(std::forward<std::string>(key));
 		}
 
-		virtual int decr_increment(std::string&& key,int increment)
+		int decr_increment(std::string&& key,int increment)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 			if (client_ == nullptr || key.empty()) {
@@ -367,52 +367,77 @@ namespace cpp_redis {
 				std::forward<std::string>(append_value));
 		}
 
-		std::tuple<bool, int> list_rpush(std::string&& key, std::string&& value)
+		template<typename T>
+		int list_rpush(std::string&& key, T&& value)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr || 
-				key.empty() || value.empty()) {
-				return { false,-1 };
+			if (client_ == nullptr || key.empty()) {
+				return 0;
 			}
 
-			return client_->list_rpush(std::forward<std::string>(key), std::forward<std::string>(value));
+			any_type_to_string(value);
+
+			if (keys_.empty()){
+				return 0;
+			}
+
+			return client_->list_rpush(std::forward<std::string>(key),std::move(keys_[0]));
 		}
 
-		std::tuple<bool, int> list_rpush_if(std::string&& key, std::string&& value)
+		template<typename T>
+		int list_rpush_if(std::string&& key,T&& value)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr || 
-				key.empty() || value.empty) {
-				return { false,-1 };
+			if (client_ == nullptr || key.empty()) {
+				return 0;
 			}
 
-			return client_->list_rpush_if(std::forward<std::string>(key), std::forward<std::string>(value));
+			any_type_to_string(value);
+
+			if (keys_.empty()) {
+				return 0;
+			}
+
+			return client_->list_rpush_if(std::forward<std::string>(key),std::move(keys_[0]));
 		}
 
-		std::tuple<bool, int> list_lpush(std::string&& key, std::string&& value)
+		template<typename T>
+		int list_lpush(std::string&& key,T&& value)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr || 
-				key.empty() || value.empty()) {
-				return { false,-1 };
+			if (client_ == nullptr || key.empty()) {
+				return 0;
 			}
 
-			return client_->list_lpush(std::forward<std::string>(key), std::forward<std::string>(value));
+			any_type_to_string(value);
+
+			if (keys_.empty()) {
+				return 0;
+			}
+
+			return client_->list_lpush(std::forward<std::string>(key), std::move(keys_[0]));
 		}
 
-		std::tuple<bool, int> list_lpush_if(std::string&& key, std::string&& value)
+		template<typename T>
+		int list_lpush_if(std::string&& key,T&& value)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr || 
-				key.empty() || value.empty()) {
-				return { false,-1 };
+			if (client_ == nullptr || key.empty()) {
+				return 0;
 			}
 
-			return client_->list_lpush_if(std::forward<std::string>(key), std::forward<std::string>(value));
+			any_type_to_string(value);
+
+			if (keys_.empty()) {
+				return 0;
+			}
+
+
+			return client_->list_lpush_if(std::forward<std::string>(key),std::move(keys_[0]));
 		}
 
 		int32_t list_size(std::string&& key)
@@ -503,7 +528,8 @@ namespace cpp_redis {
 			return client_->list_index(std::forward<std::string>(key), index);
 		}
 
-		bool list_set(std::string&& key, std::string&& value, int index)
+		template<typename T>
+		bool list_set(std::string&& key, T&& value, int index)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
@@ -511,8 +537,13 @@ namespace cpp_redis {
 				return false;
 			}
 
+			any_type_to_string(value);
+			if (keys_.empty()){
+				return false;
+			}
+
 			return client_->list_set(std::forward<std::string>(key), 
-				std::forward<std::string>(value),unit::int_to_string(index));
+				std::move(keys_[0]),unit::int_to_string(index));
 		}
 
 
@@ -520,16 +551,22 @@ namespace cpp_redis {
 		//如果从0开始删除，有多少删除多少
 		//如果从-1开始删除,就只会删除一个元素
 		//数量为>=|count|
-		std::tuple<bool, int> list_del_elem(std::string&& key, std::string&& value, int count = 0)
+		template<typename T>
+		int list_del_elem(std::string&& key,T&& value, int count = 0)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
 			if (client_  == nullptr || key.empty()) {
-				return { false,-1 };
+				return 0;
 			}
 
-			return client_->list_del_elem(std::forward<std::string>(key), 
-				std::forward<std::string>(value),unit::int_to_string(count));
+			any_type_to_string(value);
+			if (keys_.empty()) {
+				return 0;
+			}
+
+			return client_->list_del_elem(std::forward<std::string>(key),std::move(keys_[0]),
+				unit::int_to_string(count));
 		}
 
 		std::string list_rpoplpush(std::string&& src_key, std::string&& dst_key)
@@ -556,28 +593,43 @@ namespace cpp_redis {
 			return client_->list_brpoplpush(std::forward<std::string>(src_key), std::forward<std::string>(dst_key), timeout);
 		}
 
-		int list_insert_before(std::string&& key, std::string&& dst_value, std::string&& insert_value)
+		template<typename T1, typename T2>
+		int list_insert_before(std::string&& key,T1&& dst_value, T2&& insert_value)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
 			if (client_ == nullptr || key.empty()) {
-				return -1;
+				return 0;
 			}
 
-			return client_->list_insert_before(std::forward<std::string>(key),
-				std::forward<std::string>(dst_value), std::forward<std::string>(insert_value));
+
+			any_type_to_string(dst_value);
+			any_type_to_string(insert_value);
+
+			if (keys_.empty() || keys_.size() < 2) {
+				return 0;
+			}
+
+			return client_->list_insert_before(std::forward<std::string>(key), std::move(keys_[0]), std::move(keys_[1]));
 		}
 
-		int list_insert_after(std::string&& key, std::string&& dst_value, std::string&& insert_value)
+		template<typename T1,typename T2>
+		int list_insert_after(std::string&& key,T1&& dst_value,T2&& insert_value)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
 			if (client_== nullptr || key.empty()) {
-				return -1;
+				return 0;
 			}
 
-			return client_->list_insert_after(std::forward<std::string>(key),
-				std::forward<std::string>(dst_value), std::forward<std::string>(insert_value));
+			any_type_to_string(dst_value);
+			any_type_to_string(insert_value);
+
+			if (keys_.empty() || keys_.size()<2){
+				return 0;
+			}
+
+			return client_->list_insert_after(std::forward<std::string>(key),std::move(keys_[0]),std::move(keys_[1]));
 		}
 
 		template<typename...Args>
@@ -1121,7 +1173,7 @@ namespace cpp_redis {
 			}
 
 			keys_.push_back(std::forward<std::string>(key));
-			hash_make_keys(std::forward<Args>(fields)...);
+			any_type_to_string(std::forward<Args>(fields)...);
 			if ( keys_.empty() || keys_.size() != Size){
 				return -1;
 			}
@@ -1199,7 +1251,7 @@ namespace cpp_redis {
 			}
 
 			keys_.push_back(std::forward<std::string>(key));
-			hash_make_keys(std::forward<Args>(keys)...);
+			any_type_to_string(std::forward<Args>(keys)...);
 
 			if (keys_.size() != Size) {
 				return false;
@@ -1218,7 +1270,7 @@ namespace cpp_redis {
 			}
 
 			keys_.push_back(std::forward<std::string>(key));
-			hash_make_keys(std::forward<Args>(keys)...);
+			any_type_to_string(std::forward<Args>(keys)...);
 
 			if (keys_.size() != Size) {
 				return { {} };
@@ -1260,25 +1312,25 @@ namespace cpp_redis {
 			return client_->hash_get_all(std::forward<std::string>(key));
 		}
 	private:
-		void hash_make_keys()
+		void any_type_to_string()
 		{
 
 		}
 
 		template<typename T, typename...Args>
-		void hash_make_keys(T&& header, Args&&...args)
+		void any_type_to_string(T&& header, Args&&...args)
 		{
 			std::string value;
 #if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
 #else
-			if constexpr(std::is_same<T,bool>::value){
+			if constexpr(std::is_same<typename std::decay<decltype(header)>::type, bool>::value){
 				value = header ? "true" : "false";
 			}else{
 				value = to_string(header);
 			}
 #endif
 			keys_.push_back(std::move(value));
-			hash_make_keys(std::forward<Args>(args)...);
+			any_type_to_string(std::forward<Args>(args)...);
 
 		}
 

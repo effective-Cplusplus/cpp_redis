@@ -257,29 +257,29 @@ namespace cpp_redis {
 			return -1;
 		}
 
-		virtual std::tuple<bool, int> list_rpush(std::string&& key, std::string&& value)
+		virtual int list_rpush(std::string&& key, std::string&& value)
 		{
-			return { false,-1 };
+			return -1 ;
 		}
 
-		virtual std::tuple<bool, int> list_rpush_if(std::string&& key, std::string&& value)
+		virtual int list_rpush_if(std::string&& key, std::string&& value)
 		{
-			return { false,-1 };
+			return -1;
 		}
 
-		virtual std::tuple<bool, int> list_lpush(std::string&& key, std::string&& value)
+		virtual int list_lpush(std::string&& key, std::string&& value)
 		{
-			return { false,-1 };
+			return -1;
 		}
 
-		virtual std::tuple<bool, int> list_lpush_if(std::string&& key, std::string&& value)
+		virtual int list_lpush_if(std::string&& key, std::string&& value)
 		{
-			return { false,-1 };
+			return -1;
 		}
 
 		virtual int32_t list_size(std::string&& key)
 		{
-			return INT32_MAX;
+			return -1;
 		}
 
 		virtual  RESULTS_TYPE list_range(std::string&& key, int start, int end)
@@ -322,9 +322,9 @@ namespace cpp_redis {
 			return "";
 		}
 
-		virtual std::tuple<bool, int> list_del_elem(std::string&& key, std::string&& value,std::string&&count)
+		virtual int list_del_elem(std::string&& key, std::string&& value,std::string&&count)
 		{
-			return { false,-1 };
+			return 0;
 		}
 
 		virtual std::string list_rpoplpush(std::string&& src_key, std::string&& dst_key)
