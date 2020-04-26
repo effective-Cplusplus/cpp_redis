@@ -463,7 +463,7 @@ namespace cpp_redis {
 		}
 
 		template<typename...Args>
-		VALUES multi_get_keys(Args&&...key)
+		std::vector<std::string> multi_get_keys(Args&&...key)
 		{
 			constexpr auto Size = sizeof...(key);
 			static_assert(is_sting_, "This API Support String Request");
@@ -471,7 +471,7 @@ namespace cpp_redis {
 				return {};
 			}
 
-			for_each_args(key);
+			for_each_args(std::forward<Args>(key)...);
 			if (keys_.empty()){
 				return {};
 			}
@@ -489,7 +489,7 @@ namespace cpp_redis {
 				return false;
 			}
 
-			for_each_args(key_value);
+			for_each_args(std::forward<Args>(key_value)...);
 			if (keys_.empty()) {
 				return false;
 			}
@@ -506,7 +506,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
-			for_each_args(key_value);
+			for_each_args(std::forward<Args>(key_value)...);
 			if (keys_.empty()) {
 				return 0;
 			}

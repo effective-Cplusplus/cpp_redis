@@ -188,17 +188,17 @@ namespace cpp_redis {
 			return false;
 		}
 
-		virtual VALUES multi_get_keys(KEYS&& keys)
+		virtual std::vector<std::string> multi_get_keys(std::vector<std::string>&& keys)
 		{
 			return {};
 		}
 
-		virtual bool multi_set_keys(KEYS&& keys)
+		virtual bool multi_set_keys(std::vector<std::string>&& keys)
 		{
 			return false;
 		}
 
-		virtual int multi_set_if_not_set(KEYS&& keys)
+		virtual int multi_set_if_not_set(std::vector<std::string>&& keys)
 		{
 			return false;
 		}
@@ -360,12 +360,12 @@ namespace cpp_redis {
 			return INT32_MAX;
 		}
 
-		virtual int set_add(KEYS&& keys)
+		virtual int set_add(std::vector<std::string>&& keys)
 		{
 			return 0;
 		}
 
-		virtual int set_delete_elem(KEYS&& keys)
+		virtual int set_delete_elem(std::vector<std::string>&& keys)
 		{
 			return 0;
 		}
@@ -380,22 +380,22 @@ namespace cpp_redis {
 			return "";
 		}
 
-		virtual RESULTS_TYPE set_sinter(KEYS&& keys)
+		virtual RESULTS_TYPE set_sinter(std::vector<std::string>&& keys)
 		{
 			return {};
 		}
 
-		virtual int set_inter_store(KEYS&& keys)
+		virtual int set_inter_store(std::vector<std::string>&& keys)
 		{
 			return 0;
 		}
 
-		virtual RESULTS_TYPE set_union(KEYS&& keys)
+		virtual RESULTS_TYPE set_union(std::vector<std::string>&& keys)
 		{
 			return {};
 		}
 
-		virtual int set_union_store(KEYS&& keys)
+		virtual int set_union_store(std::vector<std::string>&& keys)
 		{
 			return 0;
 		}
@@ -410,7 +410,7 @@ namespace cpp_redis {
 			return false;
 		}
 
-		virtual RESULTS_TYPE set_diff(KEYS&& keys)
+		virtual RESULTS_TYPE set_diff(std::vector<std::string>&& keys)
 		{
 			return {};
 		}
@@ -424,12 +424,12 @@ namespace cpp_redis {
 			return {};
 		}
 		
-		virtual int set_diff_store(KEYS&& keys)
+		virtual int set_diff_store(std::vector<std::string>&& keys)
 		{
 			return -1;
 		}
 
-		virtual int zset_add(KEYS&& keys) 
+		virtual int zset_add(std::vector<std::string>&& keys)
 		{
 			return -1;
 		}
@@ -484,7 +484,7 @@ namespace cpp_redis {
 			return -1;
 		}
 
-		virtual bool zset_rem(KEYS&& keys)
+		virtual bool zset_rem(std::vector<std::string>&& keys)
 		{
 			return false;
 		}
@@ -513,12 +513,12 @@ namespace cpp_redis {
 			return 0;
 		}
 
-		virtual int zset_union_store(KEYS&& keys,aggregate_mothod mothod)
+		virtual int zset_union_store(std::vector<std::string>&& keys,aggregate_mothod mothod)
 		{
 			return -1;
 		}
 
-		virtual int zset_inter_store(KEYS&& keys, aggregate_mothod mothod)
+		virtual int zset_inter_store(std::vector<std::string>&& keys, aggregate_mothod mothod)
 		{
 			return -1;
 		}
@@ -543,7 +543,7 @@ namespace cpp_redis {
 			return "";
 		}
 
-		virtual int hash_del(KEYS&& fields)
+		virtual int hash_del(std::vector<std::string>&& fields)
 		{
 			return -1;
 		}
@@ -568,12 +568,12 @@ namespace cpp_redis {
 			return "";
 		}
 
-		virtual bool hash_mset(KEYS&& keys)
+		virtual bool hash_mset(std::vector<std::string>&& keys)
 		{
 			return false;
 		}
 
-		virtual RESULTS_TYPE hash_mget(KEYS&& keys)
+		virtual RESULTS_TYPE hash_mget(std::vector<std::string>&& keys)
 		{
 			return { {} };
 		}

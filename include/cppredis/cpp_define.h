@@ -106,14 +106,6 @@ namespace cpp_redis {
 	const std::string g_hash_incrby_float_cmd      = "HINCRBYFLOAT";
 	/*******************************************************************/
 
-	typedef std::string BYTES;
-	typedef std::string KEY;
-	typedef std::vector<KEY> KEYS;
-	typedef std::vector<std::pair<KEY, BYTES> > PAIRS;//多个key一起发
-	typedef PAIRS::value_type PAIR;
-	typedef std::pair<int, BYTES> INT_VALUE;
-	typedef std::vector<BYTES>VALUES;
-
 	enum status
 	{
 		unconnected_                               = -1,

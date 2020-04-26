@@ -310,7 +310,7 @@ namespace cpp_redis {
 		{
 			auto tp = std::make_tuple<Args...>(std::forward<Args>(key)...);
 
-			KEYS cmds;
+			std::vector<std::string> cmds;
 			cpp_redis::unit::for_each_tuple_front(tp, [this, &cmds](std::string str, const int& index) {
 				cmds.push_back(std::move(str));
 				});
@@ -319,76 +319,48 @@ namespace cpp_redis {
 			return build_respone(std::move(command), std::move(cmds));
 		}
 
-		std::string req_n_keys(std::string&& command, KEYS&& keys)
+		std::string req_n_keys(std::string&& command, std::vector<std::string>&& keys)
 		{
-			return build_respone(std::move(command), std::forward<KEYS>(keys));
+			return build_respone(std::move(command), std::forward<std::vector<std::string>>(keys));
 		}
-
-		template<typename T>
-		std::string build_respone(std::string&& command, T&& cmds)
+private:
+		std::string build_respone(std::string&& command, std::vector<std::string>&& cmds)
 		{
-			auto key_cmds = std::move(cmds);
-			BYTES v;
-			add_number(get_commands(key_cmds), v, '*');
-			add_value_with_size(command, v);
-
-			for (auto i = key_cmds.begin(); i != key_cmds.end(); ++i) {
-				auto& p = *i;
-				
-				add_pair(p, v);
+			std::vector<std::string> key_cmds = std::move(cmds);
+			size_t cmd_size = cmds.size();
+			
+			std::string v;
+			add_number(cmd_size+1, v, '*');
+			add_value_with_size(std::forward<std::string>(command), v);
+			
+			for (size_t index =0;index < cmd_size;++index){
+				add_pair(std::move(key_cmds[index]), v);
 			}
 
 			return std::move(v);
 		}
 
-		template<typename T>
-		int get_commands(const T& cmds)
+		void add_value(std::string&& s, std::string& v)
 		{
-			return cmds.size() + 1;
+			std::string str = std::move(s);
+			v.append(str).append(g_crlf);
 		}
 
-		int get_commands(const PAIRS& cmds)
+		void add_number(int k, std::string& v, char start = '$')
 		{
-			return cmds.size() * 2 + 1;
-		}
-
-		template <class T>
-		void add_value(T* x, size_t sz, BYTES& v)
-		{
-			std::copy(x, x + sz, std::back_inserter(v));
-			std::copy(g_crlf.begin(), g_crlf.begin() + 2, std::back_inserter(v));
-		}
-
-		template<class T>
-		void add_value(T& s, BYTES& v)
-		{
-			add_value(&s[0], s.size(), v);
-		}
-
-		void add_number(int k, BYTES& v, char start = '$')
-		{
-			std::string n = unit::int_to_string(k);
 			v.push_back(start);
-			add_value(n, v);
+			add_value(unit::int_to_string(k), v);
 		}
 
-		template<class T>
-		void add_value_with_size(T& s, BYTES& v)
+		void add_value_with_size(std::string&& s, std::string& v)
 		{
 			add_number(s.size(), v);
-			add_value(&s[0], s.size(), v);
+			add_value(std::forward<std::string>(s),v);
 		}
 
-		void add_pair(PAIR& p, BYTES& v)
+		void add_pair(std::string&& p, std::string& v)
 		{
-			add_value_with_size(p.first, v);
-			add_value_with_size(p.second, v);
-		}
-
-		template <class T>
-		void add_pair(T& p, BYTES& v)
-		{
-			add_value_with_size(p, v);
+			add_value_with_size(std::forward<std::string>(p), v);
 		}
 	};
 }//cpp_redis

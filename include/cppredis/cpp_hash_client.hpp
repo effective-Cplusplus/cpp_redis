@@ -96,11 +96,11 @@ namespace cpp_redis
 			return ((results[0] == g_nil) ? "" : results[0]);
 		}
 
-		virtual int hash_del(KEYS&& fields)
+		virtual int hash_del(std::vector<std::string>&& fields)
 		{
 			check_args();
 
-			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::hash_del), std::forward<KEYS>(fields));
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::hash_del), std::forward<std::vector<std::string>>(fields));
 
 			socket_->send_msg(std::move(msg));
 
@@ -203,9 +203,9 @@ namespace cpp_redis
 		}
 
 
-		virtual bool hash_mset(KEYS&& keys)
+		virtual bool hash_mset(std::vector<std::string>&& keys)
 		{
-			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::hash_mset), std::forward<KEYS>(keys));
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::hash_mset), std::forward<std::vector<std::string>>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -217,9 +217,9 @@ namespace cpp_redis
 			return true;
 		}
 
-		virtual RESULTS_TYPE hash_mget(KEYS&& keys)
+		virtual RESULTS_TYPE hash_mget(std::vector<std::string>&& keys)
 		{
-			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::hash_mget), std::forward<KEYS>(keys));
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::hash_mget), std::forward<std::vector<std::string>>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
