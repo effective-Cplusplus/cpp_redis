@@ -319,34 +319,6 @@ namespace cpp_redis {
 			return build_respone(std::move(command), std::move(cmds));
 		}
 
-		template<typename...Args>
-		std::string req_n_key_value(std::string&& command, Args&&...key_value)
-		{
-			auto tuple = std::make_tuple<Args...>(std::forward<Args>(key_value)...);
-			PAIRS pairs;
-
-			int count = 0;
-			PAIR pair;
-			cpp_redis::unit::for_each_tuple_front(tuple, [this, &pairs, &count, &pair](std::string str, const int& index) {
-				if (count < 2) {
-					if (count == 0) {
-						pair.first = std::move(str);
-					}
-					else
-					{
-						pair.second = std::move(str);
-						pairs.push_back(std::move(pair));
-						count = 0;
-						return;
-					}
-				}
-
-				++count;
-				});
-
-			return build_respone(std::move(command), std::move(pairs));
-		}
-
 		std::string req_n_keys(std::string&& command, KEYS&& keys)
 		{
 			return build_respone(std::move(command), std::forward<KEYS>(keys));

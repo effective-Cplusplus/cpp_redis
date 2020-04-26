@@ -46,7 +46,8 @@ namespace cpp_redis {
 
 		virtual bool set(std::string&& key, std::string&& value)
 		{
-			std::string msg = request_->req_n_key_value(request_->get_cmd(redis_cmd::set), std::forward<std::string>(key), std::forward<std::string>(value));
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
+				std::forward<std::string>(key), std::forward<std::string>(value));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -260,7 +261,8 @@ namespace cpp_redis {
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key_value(request_->get_cmd(redis_cmd::get_set), std::forward<std::string>(key), std::forward <std::string>(value));
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::get_set), 
+				std::forward<std::string>(key), std::forward <std::string>(value));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();

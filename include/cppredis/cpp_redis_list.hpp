@@ -19,7 +19,7 @@ namespace cpp_redis {
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key_value(request_->get_cmd(cpp_redis::rpush),
+			std::string msg = request_->req_n_key(request_->get_cmd(cpp_redis::rpush),
 				std::forward<std::string>(key), std::forward<std::string>(value));
 			socket_->send_msg(std::move(msg));
 
@@ -38,7 +38,7 @@ namespace cpp_redis {
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key_value(request_->get_cmd(cpp_redis::rpushx),
+			std::string msg = request_->req_n_key(request_->get_cmd(cpp_redis::rpushx),
 				std::forward<std::string>(key), std::forward<std::string>(value));
 			socket_->send_msg(std::move(msg));
 
@@ -57,7 +57,7 @@ namespace cpp_redis {
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key_value(request_->get_cmd(cpp_redis::lpush),
+			std::string msg = request_->req_n_key(request_->get_cmd(cpp_redis::lpush),
 				std::forward<std::string>(key), std::forward<std::string>(value));
 			socket_->send_msg(std::move(msg));
 
@@ -76,7 +76,7 @@ namespace cpp_redis {
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key_value(request_->get_cmd(cpp_redis::lpushx), 
+			std::string msg = request_->req_n_key(request_->get_cmd(cpp_redis::lpushx), 
 				std::forward<std::string>(key), std::forward<std::string>(value));
 			socket_->send_msg(std::move(msg));
 
