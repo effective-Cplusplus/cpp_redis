@@ -47,7 +47,8 @@ namespace cpp_redis {
 
 		void set_results(std::string &&value)
 		{
-			results_.emplace_back(value);
+			std::string copy_value = std::move(value);
+			results_.push_back(std::move(copy_value));
 		}
 
 		std::vector<std::string> get_results()
