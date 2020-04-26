@@ -211,14 +211,29 @@ namespace cpp_redis {
 			return "";
 		}
 
-		virtual std::tuple<bool, int> incr(std::string&& key, int increment = 1)
+		virtual int incr_by_increment(std::string&& key,std::string&& increment)
 		{
-			return { false,-1 };
+			return -1 ;
 		}
 
-		virtual std::tuple<bool, int> decr(std::string&& key, int increment = 1)
+		virtual std::string incr_by_float(std::string&& key, std::string&& increment)
 		{
-			return { false,-1 };
+			return "";
+		}
+
+		virtual int incr(std::string&& key)
+		{
+			return -1;
+		}
+
+		virtual int decr(std::string&& key)
+		{
+			return -1;
+		}
+
+		virtual int decr_increment(std::string&& key,std::string && increment)
+		{
+			return -1;
 		}
 
 		virtual std::string get_reflect_value(std::string&& key)
@@ -237,9 +252,9 @@ namespace cpp_redis {
 		}
 
 		//在指定key追加值
-		virtual std::tuple<bool, int> append_value(std::string&& key, std::string&& new_value)
+		virtual int append_value(std::string&& key, std::string&& append_value)
 		{
-			return { false,-1 };
+			return -1;
 		}
 
 		virtual std::tuple<bool, int> list_rpush(std::string&& key, std::string&& value)

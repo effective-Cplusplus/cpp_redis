@@ -39,6 +39,18 @@ namespace cpp_redis {
 			case cpp_redis::incrby:
 				cmd_str = g_incrby_cmd;
 				break;
+			case cpp_redis::incr:
+				cmd_str = g_incr_cmd;
+				break;
+			case cpp_redis::incr_by_float:
+				cmd_str = g_incr_by_float_cmd;
+				break;
+			case cpp_redis::decr:
+				cmd_str = g_decr_cmd;
+				break;
+			case redis_cmd::decyby:
+				cmd_str = g_decrby_cmd;
+				break;
 			case cpp_redis::del:
 				cmd_str = g_del_cmd;
 				break;

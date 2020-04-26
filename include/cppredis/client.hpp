@@ -235,25 +235,55 @@ namespace cpp_redis {
 				unit::int_to_string(start),unit::int_to_string(end));
 		}
 
-
-		std::tuple<bool, int> incr(std::string&& key, int increment = 1)
+		int incr(std::string&& key)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 			if (client_ == nullptr || key.empty()) {
-				return { false,-1 };
+				return -1;
 			}
 
-			return client_->incr(std::forward<std::string>(key), increment);
+			return client_->incr(std::forward<std::string>(key));
 		}
 
-		std::tuple<bool, int> decr(std::string&& key, int increment = 1)
+		//若key不存在直接创建，并执行增加
+		int  incr_by_increment(std::string&& key, int increment)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_                 == nullptr || key.empty()) {
-				return { false,-1 };
+			if (client_ == nullptr || key.empty()) {
+				return -1;
 			}
 
-			return client_->decr(std::forward<std::string>(key), increment);
+			return client_->incr_by_increment(std::forward<std::string>(key),unit::int_to_string(increment));
+		}
+
+		std::string incr_by_float(std::string&& key,float increment)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+			if (client_ == nullptr || key.empty()) {
+				return "";
+			}
+
+			return client_->incr_by_float(std::forward<std::string>(key), unit::float_to_string(increment));
+		}
+
+		int decr(std::string&& key)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+			if (client_ == nullptr || key.empty()) {
+				return -1;
+			}
+
+			return client_->decr(std::forward<std::string>(key));
+		}
+
+		virtual int decr_increment(std::string&& key,int increment)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+			if (client_ == nullptr || key.empty()) {
+				return -1 ;
+			}
+
+			return client_->decr_increment(std::forward<std::string>(key),unit::int_to_string(increment));
 		}
 
 		std::string get_reflect_value(std::string&& key)
@@ -325,15 +355,16 @@ namespace cpp_redis {
 			return ptr->multi_set_if_not_set(std::forward<Args>(key_value)...);
 		}
 
-		std::tuple<bool, int> append_value(std::string&& key, std::string&& new_value)
+		//key不存，会直接创建key
+		int append_value(std::string&& key, std::string&& append_value)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty() 
-				|| new_value.empty) {
-				return { false,-1 };
+			if (client_ == nullptr || key.empty() || append_value.empty()) {
+				return 1 ;
 			}
 
-			return client_->append_value(std::forward<std::string>(key), std::forward<std::string>(new_value));
+			return client_->append_value(std::forward<std::string>(key), 
+				std::forward<std::string>(append_value));
 		}
 
 		std::tuple<bool, int> list_rpush(std::string&& key, std::string&& value)

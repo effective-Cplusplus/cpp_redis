@@ -21,8 +21,7 @@ namespace cpp_redis {
 
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_)
-			{
+			if (res->get_result_code() != status::status_){
 				return false;
 			}
 
@@ -38,8 +37,7 @@ namespace cpp_redis {
 
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_)
-			{
+			if (res->get_result_code() != status::status_){
 				return false;
 			}
 
@@ -52,8 +50,7 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_)
-			{
+			if (res->get_result_code() != status::status_){
 				return false;
 			}
 
@@ -67,8 +64,7 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_)
-			{
+			if (res->get_result_code() != status::status_){
 				return false;
 			}
 
@@ -88,8 +84,7 @@ namespace cpp_redis {
 
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_)
-			{
+			if (res->get_result_code() != status::status_){
 				return false;
 			}
 
@@ -103,8 +98,7 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_)
-			{
+			if (res->get_result_code() != status::status_){
 				return false;
 			}
 
@@ -125,8 +119,7 @@ namespace cpp_redis {
 			
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_)
-			{
+			if (res->get_result_code() != status::status_){
 				return false;
 			}
 
@@ -154,41 +147,96 @@ namespace cpp_redis {
 			return ((results.empty() ||results[0] == g_nil) ? "": results[0]);
 		}
 
-		virtual std::tuple<bool, int> incr(std::string&& key, int increment = 1)
+		//若不存在,就创建key,然后再增加1
+		virtual int incr(std::string&& key)
+		{
+			check_args();
+			
+			std::string  msg = request_->req_n_key(request_->get_cmd(cpp_redis::incr),
+				std::forward<std::string>(key));
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::int_result_){
+				return -1;
+			}
+
+			const auto results = res->get_int_results();
+
+			return ((!results.empty()) ? results[0] : -1);
+		}
+
+		//若不存在,就创建key,然后再增加
+		virtual int incr_by_increment(std::string&& key,std::string&& increment)
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::incrby), std::forward<std::string>(key), std::move(unit::int_to_string(increment)));
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::incrby), std::forward<std::string>(key), 
+				std::forward<std::string>(increment));
+
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::int_result_) {
-				return std::make_tuple(false, -1);
+				return -1;
 			}
 
-			const auto int_results = res->get_int_results();
-			if (int_results.empty()) {
-				return std::make_tuple(false, -1);
-			}
+			const auto results = res->get_int_results();
 
-			return std::make_tuple(true, int_results[0]);
+			return ((!results.empty()) ? results[0] : -1);
 		}
 
-		virtual std::tuple<bool, int> decr(std::string&& key, int increment = 1)
+		virtual std::string incr_by_float(std::string&& key, std::string&& increment)
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::incrby), std::forward<std::string>(key), std::move(unit::int_to_string(unit::turn(increment))));
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::incr_by_float), std::forward<std::string>(key),
+				std::forward<std::string>(increment));
+
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
 
-
-			const auto int_results = res->get_int_results();
-			if (int_results.empty()) {
-				return std::make_tuple(false, -1);
+			if (res->get_result_code() != status::results_){
+				return "";
 			}
 
-			return std::make_tuple(true, int_results[0]);
+			const auto results = res->get_results();
+
+			return (!results.empty() && results[0] != g_nil ? results[0] : "");
+		}
+
+		virtual int decr(std::string&& key)
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::decr),
+				std::forward<std::string>(key));
+			
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+			
+			if (res->get_result_code() != status::int_result_){
+				return -1;
+			}
+
+			const auto int_results = res->get_int_results();
+
+			return ((!int_results.empty()) ? int_results[0] : -1);
+		}
+
+		virtual int decr_increment(std::string&& key,std::string&& increment)
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::decyby),
+				std::forward<std::string>(key),std::forward<std::string>(increment));
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			const auto int_results = res->get_int_results();
+
+			return ((!int_results.empty()) ? int_results[0]: -1);
 		}
 
 		virtual std::string get_reflect_value(std::string&& key)
@@ -204,11 +252,8 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_results();
-			if (results.empty()) {
-				return "";
-			}
 
-			return std::move(std::string(results[0].c_str(), strlen(results[0].c_str())));
+			return ((!results.empty()) ? results[0] : "");
 		}
 
 		virtual std::string get_set_key(std::string&& key, std::string&& value)
@@ -221,11 +266,8 @@ namespace cpp_redis {
 			const auto res = socket_->get_responese();
 
 			const auto results = res->get_results();
-			if (results.empty()) {
-				return "";
-			}
 
-			return std::move(std::string(results[0].c_str(), strlen(results[0].c_str())));
+			return ((!results.empty()) ? results[0] : "");
 		}
 
 		virtual std::string substr_reflect_value(std::string&& key, int start, int end)
@@ -239,11 +281,8 @@ namespace cpp_redis {
 			const auto res = socket_->get_responese();
 
 			const auto results = res->get_results();
-			if (results.empty()) {
-				return "";
-			}
-
-			return std::move(std::string(results[0].c_str(), strlen(results[0].c_str())));
+			
+			return ((!results.empty()) ? results[0] : "");
 		}
 
 		template<typename...Args>
@@ -292,30 +331,26 @@ namespace cpp_redis {
 				return 0;
 			}
 
-			const auto result = res->get_int_results();
-			return result[0];
+			const auto results = res->get_int_results();
+			return ((!results.empty()) ? results[0] : -1);
 		}
 
 		//在指定key追加值
-		virtual std::tuple<bool, int> append_value(std::string&& key, std::string&& new_value)
+		virtual int append_value(std::string&& key, std::string&& append_value)
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key_value(request_->get_cmd(cpp_redis::append),
-				std::forward<std::string>(key), std::forward<std::string>(new_value));
+			std::string msg = request_->req_n_key(request_->get_cmd(cpp_redis::append),
+				std::forward<std::string>(key), std::forward<std::string>(append_value));
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return { false,0 };
+				return -1;
 			}
 
-			const auto int_results = res->get_int_results();
+			const auto results = res->get_int_results();
 
-			if (int_results.empty()) {
-				return { false,0 };
-			}
-
-			return std::make_tuple(true, int_results[0]);
+			return ((!results.empty()) ? results[0]:-1);
 		}
 	};
 }
