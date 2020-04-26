@@ -63,11 +63,20 @@ namespace cpp_redis {
 			case cpp_redis::expire:
 				cmd_str = g_expire_cmd;
 				break;
+			case cpp_redis::pexpire:
+				cmd_str = g_pexpire_cmd;
+				break;
 			case cpp_redis::expire_at:
 				cmd_str = g_expire_at_cmd;
 				break;
+			case cpp_redis::remove_expire:
+				cmd_str = g_remove_expire_cmd;
+				break;
 			case cpp_redis::ttl:
 				cmd_str = g_ttl_cmd;
+				break;
+			case cpp_redis::rename:
+				cmd_str = g_rename_cmd;
 				break;
 			case cpp_redis::get_set:
 				cmd_str = g_get_set_cmd;

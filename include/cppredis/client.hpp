@@ -99,6 +99,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()){
@@ -115,6 +116,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -131,6 +133,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -141,12 +144,31 @@ namespace cpp_redis {
 		}
 
 		template<typename T>
+		bool pexpire(std::string&& key, std::size_t milliseconds)
+		{
+			if (client_ == nullptr) {
+				return false;
+			}
+
+			reset();
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return false;
+			}
+
+			return client_->pexpire(std::move(keys_[0]), milliseconds);
+		}
+
+
+		template<typename T>
 		bool expire_at(T&& key, std::size_t unix_timestamp)
 		{
 			if (client_ == nullptr) {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -157,20 +179,88 @@ namespace cpp_redis {
 		}
 
 		template<typename T>
-		int  remainder_ttl(T&& key)
+		bool pexpire_at(T&& key, int64_t unix_milli_timestamp)
 		{
-			if (client_  == nullptr) {
-				return -1;
+			if (client_ == nullptr) {
+				return false;
 			}
 
-
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
 				return false;
 			}
 
+			return client_->pexpire_at(std::move(keys_), unix_milli_timestamp);
+		}
+
+		template<typename T>
+		bool remove_expire(T&& key)
+		{
+			if (client_ == nullptr) {
+				return false;
+			}
+
+			reset();
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return false;
+			}
+
+			return client_->remove_expire(std::move(keys_[0]));
+		}
+
+
+		template<typename T>
+		int  remainder_ttl(T&& key)
+		{
+			if (client_  == nullptr) {
+				return -1;
+			}
+
+			reset();
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return -1;
+			}
+
 			return client_->remainder_ttl(std::move(keys_[0]));
+		}
+
+		template<typename T1,typename T2>
+		bool rename_key(T1&& src_key, T2&&new_key){
+			if (client_ == nullptr) {
+				return false;
+			}
+
+			reset();
+			any_type_to_string(src_key);
+			any_type_to_string(new_key);
+			if (keys_.size() !=2) {
+				return false;
+			}
+
+			client_->rename_key(std::move(keys_[0]), std::move(keys_[1]));
+		}
+
+		//ª·≈–∂œnew_key «∑Ò¥Ê‘⁄ 
+		template<typename T1, typename T2>
+		bool renamenx_key(T1&& src_key, T2&& new_key) {
+			if (client_ == nullptr) {
+				return false;
+			}
+
+			reset();
+			any_type_to_string(src_key);
+			any_type_to_string(new_key);
+			if (keys_.size() != 2) {
+				return false;
+			}
+
+			client_->renamenx_key(std::move(keys_[0]), std::move(keys_[1]));
 		}
 
 		template<typename T1,typename T2>
@@ -182,6 +272,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -201,6 +292,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -221,6 +313,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -241,6 +334,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -260,6 +354,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -280,6 +375,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -298,6 +394,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -316,6 +413,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			
 			if (keys_.empty()){
@@ -333,6 +431,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -351,6 +450,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -368,6 +468,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -385,6 +486,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -402,6 +504,7 @@ namespace cpp_redis {
 				return -1 ;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -419,6 +522,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -436,6 +540,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 			if (keys_.size()!=2) {
@@ -453,6 +558,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return "";
@@ -471,6 +577,7 @@ namespace cpp_redis {
 				return {};
 			}
 
+			reset();
 			for_each_args(std::forward<Args>(key)...);
 			if (keys_.empty()){
 				return {};
@@ -489,6 +596,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			for_each_args(std::forward<Args>(key_value)...);
 			if (keys_.empty()) {
 				return false;
@@ -506,6 +614,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			for_each_args(std::forward<Args>(key_value)...);
 			if (keys_.empty()) {
 				return 0;
@@ -523,6 +632,7 @@ namespace cpp_redis {
 				return 1;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(new_value);
 
@@ -542,6 +652,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -561,6 +672,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -580,6 +692,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -599,6 +712,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -618,6 +732,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()){
 				return 0;
@@ -635,6 +750,7 @@ namespace cpp_redis {
 				return {};
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()){
 				return{};
@@ -652,6 +768,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return"";
@@ -669,6 +786,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return"";
@@ -686,6 +804,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return"";
@@ -703,6 +822,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return"";
@@ -720,6 +840,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return"";
@@ -737,6 +858,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return"";
@@ -754,6 +876,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 			if (keys_.size() !=2){
@@ -777,6 +900,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 			if (keys_.size()!=2) {
@@ -795,6 +919,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(src_key);
 			any_type_to_string(dst_key);
 
@@ -814,6 +939,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(src_key);
 			any_type_to_string(dst_key);
 
@@ -833,6 +959,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(dst_value);
 			any_type_to_string(insert_value);
@@ -853,6 +980,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(dst_value);
 			any_type_to_string(insert_value);
@@ -869,6 +997,7 @@ namespace cpp_redis {
 		{
 			constexpr auto Size = sizeof...(args)+1;
 			static_assert(is_set_, "This API Support Set Request");
+			reset();
 			any_type_to_string(key);
 
 			for_each_args(std::forward<Args>(args)...);
@@ -884,6 +1013,7 @@ namespace cpp_redis {
 		{
 			constexpr auto Size = sizeof...(args)+1;
 			static_assert(is_set_, "This API Support Set Request");
+			reset();
 			any_type_to_string(key);
 
 			for_each_args(std::forward<Args>(args)...);
@@ -902,6 +1032,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(value);
 
@@ -920,6 +1051,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return "";
@@ -937,6 +1069,7 @@ namespace cpp_redis {
 				return {};
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return "";
@@ -953,6 +1086,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(src_key);
 			any_type_to_string(dst_key);
 			any_type_to_string(member);
@@ -972,6 +1106,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()){
@@ -990,6 +1125,7 @@ namespace cpp_redis {
 
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -1005,6 +1141,7 @@ namespace cpp_redis {
 		{
 			constexpr auto Size = sizeof...(keys)+1;
 			static_assert(is_set_, "This API Support Set Request");
+			reset();
 			any_type_to_string(key);
 
 			for_each_args(std::forward<Args>(keys)...);
@@ -1023,6 +1160,7 @@ namespace cpp_redis {
 			constexpr auto Size = sizeof...(keys)+1;
 			static_assert(is_set_, "This API Support Set Request");
 
+			reset();
 			any_type_to_string(dst_key);
 			for_each_args(std::forward<Args>(keys)...);
 
@@ -1044,6 +1182,7 @@ namespace cpp_redis {
 				return {};
 			}
 
+			reset();
 			for_each_args(std::forward<Args>(key)...);
 			if (keys_.size() != Size){
 				return {};
@@ -1062,6 +1201,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(dst_key);
 			for_each_args(std::forward<Args>(keys)...);
 
@@ -1083,6 +1223,7 @@ namespace cpp_redis {
 				return{};
 			}
 
+			reset();
 			for_each_args(std::forward<Args>(key)...);
 
 			if (keys_.size() != Size){
@@ -1101,6 +1242,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(dst_key);
 			for_each_args(std::forward<Args>(key)...);
 			if (keys_.size() != Size){
@@ -1116,6 +1258,7 @@ namespace cpp_redis {
 			constexpr auto Size = sizeof...(args)+1;
 			static_assert(is_zset, "This API Support ZSet Request");
 
+			reset();
 			any_type_to_string(key);
 			for_each_zset_args(std::forward<Args>(args)...);
 
@@ -1136,6 +1279,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(member);
 
@@ -1157,6 +1301,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(member);
 
@@ -1177,6 +1322,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return 0;
@@ -1194,6 +1340,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()){
 				return 0;
@@ -1214,6 +1361,7 @@ namespace cpp_redis {
 				return { {} };
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()){
 				return {};
@@ -1233,6 +1381,7 @@ namespace cpp_redis {
 				return { {} };
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return {};
@@ -1252,6 +1401,7 @@ namespace cpp_redis {
 				return {} ;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()){
@@ -1273,6 +1423,7 @@ namespace cpp_redis {
 				return {} ;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -1293,6 +1444,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(member);
 
@@ -1313,6 +1465,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(member);
 
@@ -1335,6 +1488,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			for_each_args(std::forward<Args>(args)...);
 
@@ -1355,6 +1509,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()){
@@ -1374,6 +1529,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -1396,6 +1552,7 @@ namespace cpp_redis {
 				return {};
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()){
@@ -1416,6 +1573,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()){
 				return -1;
@@ -1434,6 +1592,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 			if (keys_.empty()) {
 				return -1;
@@ -1453,6 +1612,7 @@ namespace cpp_redis {
 			constexpr auto Size = sizeof...(args) + 2;
 			static_assert(is_zset, "This API Support ZSet Request");
 
+			reset();
 			any_type_to_string(dst_store_key);
 			keys_.emplace_back(unit::int_to_string(num_keys));
 
@@ -1476,6 +1636,7 @@ namespace cpp_redis {
 			constexpr auto Size = sizeof...(args) + 2;
 			static_assert(is_zset, "This API Support ZSet Request");
 
+			reset();
 			any_type_to_string(dst_store_key);
 			keys_.emplace_back(unit::int_to_string(num_keys));
 
@@ -1502,6 +1663,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(field);
 			any_type_to_string(value);
@@ -1523,7 +1685,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
-
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(field);
 			any_type_to_string(value);
@@ -1543,6 +1705,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(field);
 
@@ -1558,7 +1721,15 @@ namespace cpp_redis {
 		{
 			static_assert(is_hash, "This API Support hash Request");
 
-			if (client_ == nullptr && key.empty()) {
+			if (client_ == nullptr) {
+				return "";
+			}
+
+			reset();
+			any_type_to_string(key);
+			any_type_to_string(field);
+
+			if (keys_.size() != 2) {
 				return "";
 			}
 
@@ -1575,6 +1746,7 @@ namespace cpp_redis {
 				return -1;
 			}
 
+			reset();
 			any_type_to_string(key);
 			for_each_args(std::forward<Args>(fields)...);
 			if ( keys_.empty() || keys_.size() != Size){
@@ -1592,6 +1764,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -1609,6 +1782,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(field);
 
@@ -1629,6 +1803,7 @@ namespace cpp_redis {
 				return 0;
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(field);
 
@@ -1647,6 +1822,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(field);
 
@@ -1665,6 +1841,7 @@ namespace cpp_redis {
 				return "";
 			}
 
+			reset();
 			any_type_to_string(key);
 			any_type_to_string(field);
 
@@ -1684,6 +1861,7 @@ namespace cpp_redis {
 				return false;
 			}
 
+			reset();
 			any_type_to_string(key);
 			for_each_args(std::forward<Args>(keys)...);
 
@@ -1703,6 +1881,7 @@ namespace cpp_redis {
 				return {} ;
 			}
 
+			reset();
 			any_type_to_string(key);
 			for_each_args(std::forward<Args>(keys)...);
 
@@ -1722,6 +1901,7 @@ namespace cpp_redis {
 				return {};
 			}
 			
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -1740,6 +1920,7 @@ namespace cpp_redis {
 				return {} ;
 			}
 
+			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
@@ -1758,6 +1939,7 @@ namespace cpp_redis {
 				return {} ;
 			}
 
+			reset();
 			any_type_to_string(key);
 			
 			if (keys_.empty()){
@@ -1923,6 +2105,11 @@ namespace cpp_redis {
 #endif
 			return std::move(str);
 		}
+
+		void reset() {
+			keys_.clear();
+		}
+
 	private:
 		static constexpr bool is_sting_ = std::is_same<type, String>::value;
 		static constexpr bool is_list_  = std::is_same<type, List>::value;

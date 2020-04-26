@@ -131,6 +131,24 @@ namespace cpp_redis {
 			return true;
 		}
 
+		bool pexpire(std::string&& key, std::size_t milliseconds)
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::pexpire), 
+				std::forward<std::string>(key), unit::int_to_string(milliseconds));
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::int_result_) {
+				return false;
+			}
+
+			const auto results = res->get_int_results();
+			return ((!results.empty())  ? (results[0] ==1):false);
+		}
+
 		//给key加上在什么时间过期
 		bool expire_at(std::string&& key, std::size_t unix_timestamp)
 		{
@@ -144,7 +162,27 @@ namespace cpp_redis {
 				return false;
 			}
 
-			return true;
+			const auto results = res->get_int_results();
+			return ((!results.empty()) ? (results[0] == 1) : false);
+		}
+
+		//给key加上在什么时间过期
+		bool pexpire_at(std::string&& key, std::size_t unix_milli_timestamp)
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::pexpire_at),
+				std::forward<std::string>(key), unit::int_to_string(unix_milli_timestamp));
+
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::int_result_) {
+				return false;
+			}
+
+			const auto results = res->get_int_results();
+			return ((!results.empty()) ? (results[0] == 1) : false);
 		}
 
 		//key的剩余时间 -1:表示永久 -2:表示不存在
@@ -166,6 +204,63 @@ namespace cpp_redis {
 			}
 
 			return int_results[0];
+		}
+
+		bool rename_key(std::string&& key,std::string &&new_key)
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::rename),
+				std::forward<std::string>(key),std::forward<std::string>(new_key));
+
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::status_){
+				return false;
+			}
+
+			return true;
+		}
+
+
+		bool renamenx_key(std::string&& key, std::string&& new_key)
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::renamenx),
+				std::forward<std::string>(key), std::forward<std::string>(new_key));
+
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::status_) {
+				return false;
+			}
+
+			return true;
+		}
+
+		bool remove_expire(std::string&& key)
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::remove_expire),std::forward<std::string>(key));
+
+			socket_->send_msg(std::move(msg));
+			
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() !=status::int_result_){
+				return false;
+			}
+
+			const auto results = res->get_int_results();
+
+			return ((!results.empty()) ? results[0] ==1 :false);
+
 		}
 
 		virtual bool setex(std::string&& key, std::string&& value,std::string && seconds)
