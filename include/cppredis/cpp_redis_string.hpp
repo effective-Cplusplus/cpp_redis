@@ -285,13 +285,12 @@ namespace cpp_redis {
 			return ((!results.empty()) ? results[0] : "");
 		}
 
-		template<typename...Args>
-		VALUES multi_get_keys(Args&&...key)
+		virtual VALUES multi_get_keys(KEYS &&keys)
 		{
 			check_args();
 
 			VALUES values;
-			std::string msg = request_->req_n_key(request_->get_cmd(cpp_redis::mget), std::forward<Args>(key)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(cpp_redis::mget), std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
 
@@ -303,11 +302,10 @@ namespace cpp_redis {
 		}
 
 		/****************此接口需要传key,value,key,value....*************************/
-		template<typename...Args>
-		bool multi_set_keys(Args&&...key_value)
+		virtual bool multi_set_keys(KEYS && keys)
 		{
 			check_args();
-			std::string msg = request_->req_n_key_value(request_->get_cmd(cpp_redis::mset), std::forward<Args>(key_value)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(cpp_redis::mset), std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::status_) {
@@ -319,12 +317,11 @@ namespace cpp_redis {
 
 		/****************此接口需要传key,value,key,value....*************************/
 		//当所有 key 都成功设置，返回 1 。 如果所有给定 key 都设置失败(至少有一个 key 已经存在)，那么返回 0,表示失败
-		template<typename...Args>
-		int multi_set_if_not_set(Args...key_value)
+		virtual int multi_set_if_not_set(KEYS&&keys)
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key_value(request_->get_cmd(cpp_redis::msetnx), std::forward<Args>(key_value)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(cpp_redis::msetnx), std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {

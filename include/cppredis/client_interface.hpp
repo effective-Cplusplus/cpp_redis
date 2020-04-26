@@ -188,6 +188,20 @@ namespace cpp_redis {
 			return false;
 		}
 
+		virtual VALUES multi_get_keys(KEYS&& keys)
+		{
+			return {};
+		}
+
+		virtual bool multi_set_keys(KEYS&& keys)
+		{
+			return false;
+		}
+
+		virtual int multi_set_if_not_set(KEYS&& keys)
+		{
+			return false;
+		}
 
 		virtual bool set_has_seconds_if(std::string&& key, std::string&& value, 
 			std::string&& seconds,bool is_exist)
@@ -346,6 +360,16 @@ namespace cpp_redis {
 			return INT32_MAX;
 		}
 
+		virtual int set_add(KEYS&& keys)
+		{
+			return 0;
+		}
+
+		virtual int set_delete_elem(KEYS&& keys)
+		{
+			return 0;
+		}
+
 		virtual bool  set_is_member(std::string&& key, std::string&& value)
 		{
 			return false;
@@ -354,6 +378,26 @@ namespace cpp_redis {
 		virtual std::string set_rdel_elem(std::string&& key)
 		{
 			return "";
+		}
+
+		virtual RESULTS_TYPE set_sinter(KEYS&& keys)
+		{
+			return {};
+		}
+
+		virtual int set_inter_store(KEYS&& keys)
+		{
+			return 0;
+		}
+
+		virtual RESULTS_TYPE set_union(KEYS&& keys)
+		{
+			return {};
+		}
+
+		virtual int set_union_store(KEYS&& keys)
+		{
+			return 0;
 		}
 
 		virtual RESULTS_TYPE set_rand_elem(std::string&& key, int count)
@@ -366,6 +410,11 @@ namespace cpp_redis {
 			return false;
 		}
 
+		virtual RESULTS_TYPE set_diff(KEYS&& keys)
+		{
+			return {};
+		}
+
 		virtual size_t set_get_size(std::string&& key)
 		{
 			return 0;
@@ -375,6 +424,11 @@ namespace cpp_redis {
 			return {};
 		}
 		
+		virtual int set_diff_store(KEYS&& keys)
+		{
+			return -1;
+		}
+
 		virtual int zset_add(KEYS&& keys) 
 		{
 			return -1;

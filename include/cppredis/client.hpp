@@ -92,228 +92,374 @@ namespace cpp_redis {
 			return client_->connect_to(std::forward<std::string>(ip), std::forward<Args>(args)...);
 		}
 
-		bool delete_key(std::string&& key)
+		template<typename T>
+		bool delete_key(T&& key)
 		{
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return false;
 			}
 
-			return client_->delete_key(std::forward<std::string>(key));
-		}
+			any_type_to_string(key);
 
-		bool is_key_exist(std::string&& key)
-		{
-			if (client_  == nullptr || key.empty()) {
+			if (keys_.empty()){
 				return false;
 			}
 
-			return client_->is_key_exist(std::forward<std::string>(key));
+			return client_->delete_key(std::move(keys_[0]));
 		}
 
+		template<typename T>
+		bool is_key_exist(T&& key)
+		{
+			if (client_  == nullptr) {
+				return false;
+			}
+
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return false;
+			}
+
+			return client_->is_key_exist(std::move(keys_[0]));
+		}
+
+		template<typename T>
 		bool expire(std::string&& key, std::size_t seconds)
 		{
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return false;
 			}
 
-			return client_->expire(std::forward<std::string>(key), seconds);
-		}
+			any_type_to_string(key);
 
-		bool expire_at(std::string&& key, std::size_t unix_timestamp)
-		{
-			if (client_ == nullptr || key.empty) {
+			if (keys_.empty()) {
 				return false;
 			}
 
-			return client_->expire_at(std::forward<std::string>(key), unix_timestamp);
+			return client_->expire(std::move(keys_[0]), seconds);
 		}
 
-		int  remainder_ttl(std::string&& key)
+		template<typename T>
+		bool expire_at(T&& key, std::size_t unix_timestamp)
 		{
-			if (client_  == nullptr || key.empty()) {
-				return INT32_MAX;
+			if (client_ == nullptr) {
+				return false;
 			}
 
-			return client_->remainder_ttl(std::forward<std::string>(key));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return false;
+			}
+
+			return client_->expire_at(std::move(keys_), unix_timestamp);
 		}
 
-		bool setex(std::string&& key, std::string&& value, size_t seconds)
+		template<typename T>
+		int  remainder_ttl(T&& key)
+		{
+			if (client_  == nullptr) {
+				return -1;
+			}
+
+
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return false;
+			}
+
+			return client_->remainder_ttl(std::move(keys_[0]));
+		}
+
+		template<typename T1,typename T2>
+		bool setex(T1&& key,T2 &&value, size_t seconds)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return false;
 			}
 
-			return client_->setex(std::forward<std::string>(key), 
-				std::forward<std::string>(value),unit::int_to_string(seconds));
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size()!=2){
+				return false;
+			}
+
+			return client_->setex(std::move(keys_[0]),std::move(keys_[1]),unit::int_to_string(seconds));
 		}
 
-		bool psetex(std::string&& key, std::string&& value, size_t milliseconds)
+		template<typename T1, typename T2>
+		bool psetex(T1&& key, T2&& value,size_t milliseconds)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return false;
 			}
 
-			return client_->psetex(std::forward<std::string>(key), 
-				std::forward<std::string>(value),unit::int_to_string(milliseconds));
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() != 2) {
+				return false;
+			}
+
+			return client_->psetex(std::move(keys_[0]), std::move(keys_[1]),unit::int_to_string(milliseconds));
 		}
 
 		//提高这以下四个接口，主要防止，有些版本不支持setex的接口
-		bool set_has_seconds(std::string&& key, std::string&& value,std::size_t seconds)
+		template<typename T1, typename T2>
+		bool set_has_seconds(T1&& key, T2&& value,std::size_t seconds)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return false;
 			}
 
-			return client_->set_has_seconds(std::forward<std::string>(key),
-				std::forward<std::string>(value), unit::int_to_string(seconds));
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() != 2) {
+				return false;
+			}
+
+			return client_->set_has_seconds(std::move(keys_[0]), std::move(keys_[1]), unit::int_to_string(seconds));
 		}
 
 		//此接口相当于setnx 加上秒，is_exist:true(NX) false(XX)
-		bool set_has_seconds_if(std::string&& key, std::string&& value, std::size_t seconds,bool is_exist)
+		template<typename T1,typename T2>
+		bool set_has_seconds_if(T1&& key,T2&& value, std::size_t seconds,bool is_exist)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return false;
 			}
 
-			return client_->set_has_seconds_if(std::forward<std::string>(key),
-				std::forward<std::string>(value), unit::int_to_string(seconds),is_exist);
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() != 2) {
+				return false;
+			}
+
+			return client_->set_has_seconds_if(std::move(keys_[0]), std::move(keys_[1]),unit::int_to_string(seconds),is_exist);
 		}
 	
-		bool set_has_milliseconds(std::string&& key, std::string&& value, std::size_t milliseconds)
+		template<typename T1,typename T2>
+		bool set_has_milliseconds(T1&& key,T2&& value, std::size_t milliseconds)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return false;
 			}
 
+			any_type_to_string(key);
+			any_type_to_string(value);
 
-			return client_->set_has_milliseconds(std::forward<std::string>(key),
-				std::forward<std::string>(value), unit::int_to_string(milliseconds));
+			if (keys_.size() != 2) {
+				return false;
+			}
+
+			return client_->set_has_milliseconds(std::move(keys_[0]), std::move(keys_[1]),unit::int_to_string(milliseconds));
 		}
 
 		//is_exist:true(NX)false(XX)
-		bool set_has_milliseconds_if(std::string&& key, std::string&& value, std::size_t milliseconds,bool is_exist)
+		template<typename T1, typename T2>
+		bool set_has_milliseconds_if(T1&& key, T2&& value,std::size_t milliseconds,bool is_exist)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return false;
 			}
 
+			any_type_to_string(key);
+			any_type_to_string(value);
 
-			return client_->set_has_milliseconds_if(std::forward<std::string>(key),
-				std::forward<std::string>(value), unit::int_to_string(milliseconds), is_exist);
-		}
-
-		bool set(std::string&& key, std::string&& value)
-		{
-			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty()) {
+			if (keys_.size() != 2) {
 				return false;
 			}
 
-			return client_->set(std::forward<std::string>(key), std::forward<std::string>(value));
+			return client_->set_has_milliseconds_if(std::move(keys_[0]), std::move(keys_[1]), unit::int_to_string(milliseconds), is_exist);
 		}
 
-		std::string get_range(std::string&& key,int start,int end)
+		template<typename T1,typename T2>
+		bool set(T1&& key,T2&& value)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
+				return false;
+			}
+
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() != 2) {
+				return false;
+			}
+
+			return client_->set(std::move(keys_[0]), std::move(keys_[1]));
+		}
+
+		template<typename T>
+		std::string get_range(T&& key,int start,int end)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+			if (client_ == nullptr) {
 				return "";
 			}
 
-			return client_->get_range(std::forward<std::string>(key),
-				unit::int_to_string(start),unit::int_to_string(end));
+			any_type_to_string(key);
+			
+			if (keys_.empty()){
+				return "";
+			}
+
+			return client_->get_range(std::move(keys_[0]),unit::int_to_string(start),unit::int_to_string(end));
 		}
 
-		int incr(std::string&& key)
+		template<typename T>
+		int incr(T&& key)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return -1;
 			}
 
-			return client_->incr(std::forward<std::string>(key));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return -1;
+			}
+
+			return client_->incr(std::move(keys_[0]));
 		}
 
 		//若key不存在直接创建，并执行增加
-		int  incr_by_increment(std::string&& key, int increment)
+		template<typename T>
+		int  incr_by_increment(T&& key, int increment)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return -1;
 			}
 
-			return client_->incr_by_increment(std::forward<std::string>(key),unit::int_to_string(increment));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return -1;
+			}
+
+			return client_->incr_by_increment(std::move(keys_[0]),unit::int_to_string(increment));
 		}
 
-		std::string incr_by_float(std::string&& key,float increment)
+		template<typename T>
+		std::string incr_by_float(T&& key,float increment)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return "";
 			}
 
-			return client_->incr_by_float(std::forward<std::string>(key), unit::float_to_string(increment));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return "";
+			}
+
+			return client_->incr_by_float(std::move(keys_[0]), unit::float_to_string(increment));
 		}
 
+		template<typename T>
 		int decr(std::string&& key)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return -1;
 			}
 
-			return client_->decr(std::forward<std::string>(key));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return -1;
+			}
+
+			return client_->decr(std::move(keys_[0]));
 		}
 
-		int decr_increment(std::string&& key,int increment)
+		template<typename T>
+		int decr_increment(T&& key,int increment)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return -1 ;
 			}
 
-			return client_->decr_increment(std::forward<std::string>(key),unit::int_to_string(increment));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return -1;
+			}
+
+			return client_->decr_increment(std::move(keys_[0]),unit::int_to_string(increment));
 		}
 
-		std::string get_reflect_value(std::string&& key)
+		template<typename T>
+		std::string get_reflect_value(T&& key)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_  == nullptr || key.empty()) {
+			if (client_  == nullptr) {
 				return "";
 			}
 
-			return client_->get_reflect_value(std::forward<std::string>(key));
-		}
+			any_type_to_string(key);
 
-		std::string get_set_key(std::string&& key, std::string&& value)
-		{
-			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty()) {
+			if (keys_.empty()) {
 				return "";
 			}
 
-			return client_->get_set_key(std::forward<std::string>(key), std::forward<std::string>(value));
+			return client_->get_reflect_value(std::move(keys_[0]));
 		}
 
-		std::string substr_reflect_value(std::string&& key, int start, int end)
+		template<typename T1,typename T2>
+		std::string get_set_key(T1&& key, T2&& value)
 		{
 			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr ) {
 				return "";
 			}
 
-			return client_->substr_reflect_value(std::forward<std::string>(key), start, end);
+			any_type_to_string(key);
+			any_type_to_string(value);
+			if (keys_.size()!=2) {
+				return "";
+			}
+
+			return client_->get_set_key(std::move(keys_[0]), std::move(keys_[1]));
+		}
+
+		template<typename T>
+		std::string substr_reflect_value(T&& key, int start, int end)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+			if (client_ == nullptr) {
+				return "";
+			}
+
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return "";
+			}
+
+
+			return client_->substr_reflect_value(std::move(keys_[0]), start, end);
 		}
 
 		template<typename...Args>
@@ -321,12 +467,16 @@ namespace cpp_redis {
 		{
 			constexpr auto Size = sizeof...(key);
 			static_assert(is_sting_, "This API Support String Request");
-			auto ptr = std::dynamic_pointer_cast<string_client>(client_);
-			if (ptr == nullptr || Size ==0) {
-				return{};
+			if (Size ==0){
+				return {};
 			}
 
-			return ptr->multi_get_keys(std::forward<Args>(key)...);
+			for_each_args(key);
+			if (keys_.empty()){
+				return {};
+			}
+
+			return client_->multi_get_keys(std::move(keys_));
 		}
 
 		template<typename...Args>
@@ -334,12 +484,17 @@ namespace cpp_redis {
 		{
 			constexpr auto Size = sizeof...(key_value);
 			static_assert(is_sting_, "This API Support String Request");
-			auto ptr = std::dynamic_pointer_cast<string_client>(client_);
-			if (ptr == nullptr|| Size ==0) {
-				return{};
+
+			if (Size ==0) {
+				return false;
 			}
 
-			return ptr->multi_set_keys(std::forward<Args>(key_value)...);
+			for_each_args(key_value);
+			if (keys_.empty()) {
+				return false;
+			}
+
+			return client_->multi_set_keys(std::move(keys_));
 		}
 
 		template<typename...Args>
@@ -347,122 +502,149 @@ namespace cpp_redis {
 		{
 			constexpr auto Size = sizeof...(key_value);
 			static_assert(is_sting_, "This API Support String Request");
-			auto ptr = std::dynamic_pointer_cast<string_client>(client_);
-			if (ptr == nullptr || Size == 0) {
-				return{};
-			}
-
-			return ptr->multi_set_if_not_set(std::forward<Args>(key_value)...);
-		}
-
-		//key不存，会直接创建key
-		int append_value(std::string&& key, std::string&& append_value)
-		{
-			static_assert(is_sting_, "This API Support String Request");
-			if (client_ == nullptr || key.empty() || append_value.empty()) {
-				return 1 ;
-			}
-
-			return client_->append_value(std::forward<std::string>(key), 
-				std::forward<std::string>(append_value));
-		}
-
-		template<typename T>
-		int list_rpush(std::string&& key, T&& value)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_ == nullptr || key.empty()) {
+			if (Size == 0) {
 				return 0;
 			}
 
+			for_each_args(key_value);
+			if (keys_.empty()) {
+				return 0;
+			}
+
+			return client_->multi_set_if_not_set(std::move(keys_));
+		}
+
+		//key不存，会直接创建key
+		template<typename T1,typename T2>
+		int append_value(T1&& key, T2&& new_value)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+			if (client_ == nullptr) {
+				return 1;
+			}
+
+			any_type_to_string(key);
+			any_type_to_string(new_value);
+
+			if (keys_.size() != 2) {
+				return 0;
+			}
+
+			return client_->append_value(std::move(keys_[0]),std::move(keys_[1]));
+		}
+
+		template<typename T1,typename T2>
+		int list_rpush(T1&& key, T2&& value)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_ == nullptr) {
+				return 0;
+			}
+
+			any_type_to_string(key);
 			any_type_to_string(value);
 
+			if (keys_.size()!=2){
+				return 0;
+			}
+
+			return client_->list_rpush(std::move(keys_[0]),std::move(keys_[1]));
+		}
+
+		template<typename T1, typename T2>
+		int list_rpush_if(T1&& key, T2&& value)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_ == nullptr) {
+				return 0;
+			}
+
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() != 2) {
+				return 0;
+			}
+
+			return client_->list_rpush_if(std::move(keys_[0]),std::move(keys_[1]));
+		}
+
+		template<typename T1, typename T2>
+		int list_lpush(T1&& key,T2&& value)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_ == nullptr) {
+				return 0;
+			}
+
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() != 2) {
+				return 0;
+			}
+
+			return client_->list_lpush(std::move(keys_[0]),std::move(keys_[1]));
+		}
+
+		template<typename T1,typename T2>
+		int list_lpush_if(T1&& key,T2&& value)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_ == nullptr) {
+				return 0;
+			}
+
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() != 2) {
+				return 0;
+			}
+
+			return client_->list_lpush_if(std::move(keys_[0]),std::move(keys_[1]));
+		}
+
+		template<typename T>
+		int32_t list_size(T&& key)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_== nullptr) {
+				return 0;
+			}
+
+			any_type_to_string(key);
 			if (keys_.empty()){
 				return 0;
 			}
 
-			return client_->list_rpush(std::forward<std::string>(key),std::move(keys_[0]));
+			return client_->list_size(std::move(key));
 		}
 
 		template<typename T>
-		int list_rpush_if(std::string&& key,T&& value)
+		RESULTS_TYPE list_range(T&& key, int start, int end)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_ == nullptr || key.empty()) {
-				return 0;
-			}
-
-			any_type_to_string(value);
-
-			if (keys_.empty()) {
-				return 0;
-			}
-
-			return client_->list_rpush_if(std::forward<std::string>(key),std::move(keys_[0]));
-		}
-
-		template<typename T>
-		int list_lpush(std::string&& key,T&& value)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_ == nullptr || key.empty()) {
-				return 0;
-			}
-
-			any_type_to_string(value);
-
-			if (keys_.empty()) {
-				return 0;
-			}
-
-			return client_->list_lpush(std::forward<std::string>(key), std::move(keys_[0]));
-		}
-
-		template<typename T>
-		int list_lpush_if(std::string&& key,T&& value)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_ == nullptr || key.empty()) {
-				return 0;
-			}
-
-			any_type_to_string(value);
-
-			if (keys_.empty()) {
-				return 0;
-			}
-
-
-			return client_->list_lpush_if(std::forward<std::string>(key),std::move(keys_[0]));
-		}
-
-		int32_t list_size(std::string&& key)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_== nullptr || key.empty()) {
-				return 0;
-			}
-
-			return client_->list_size(std::forward<std::string>(key));
-		}
-
-		RESULTS_TYPE list_range(std::string&& key, int start, int end)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return {};
 			}
 
-			return client_->list_range(std::forward<std::string>(key), start, end);
+			any_type_to_string(key);
+			if (keys_.empty()){
+				return{};
+			}
+
+			return client_->list_range(std::move(keys_[0]),start, end);
 		}
 
-		std::string list_lpop(std::string&& key)
+		template<typename T>
+		std::string list_lpop(T&& key)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
@@ -470,80 +652,115 @@ namespace cpp_redis {
 				return "";
 			}
 
-			return client_->list_lpop(std::forward<std::string>(key));
-		}
-
-		std::string list_rpop(std::string&& key)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_  == nullptr || key.empty()) {
-				return "";
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return"";
 			}
 
-			return client_->list_rpop(std::forward<std::string>(key));
-		}
-
-		std::string list_brpop(std::string&& key, size_t timeout = 0)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_ == nullptr || key.empty()) {
-				return "";
-			}
-
-			return client_->list_brpop(std::forward<std::string>(key), timeout);
-		}
-
-		std::string list_blpop(std::string&& key, size_t timeout = 0)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_== nullptr || key.empty()) {
-				return "";
-			}
-
-			return  client_->list_blpop(std::forward<std::string>(key), timeout);
-		}
-
-		bool list_trim(std::string&& key, int start, int end)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_  == nullptr || key.empty()) {
-				return "";
-			}
-
-			return client_->list_trim(std::forward<std::string>(key), start, end);
-		}
-
-		std::string list_index(std::string&& key, int index)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_ == nullptr || key.empty()) {
-				return "";
-			}
-
-			return client_->list_index(std::forward<std::string>(key), index);
+			return client_->list_lpop(std::move(keys_[0]));
 		}
 
 		template<typename T>
-		bool list_set(std::string&& key, T&& value, int index)
+		std::string list_rpop(T&& key)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_  == nullptr || key.empty()) {
+			if (client_  == nullptr) {
+				return "";
+			}
+
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return"";
+			}
+
+			return client_->list_rpop(std::move(keys_[0]));
+		}
+
+		template<typename T>
+		std::string list_brpop(T&& key, size_t timeout = 0)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_ == nullptr) {
+				return "";
+			}
+
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return"";
+			}
+
+			return client_->list_brpop(std::move(keys_[0]), timeout);
+		}
+
+		template<typename T>
+		std::string list_blpop(T&& key, size_t timeout = 0)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_== nullptr) {
+				return "";
+			}
+
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return"";
+			}
+
+			return  client_->list_blpop(std::move(keys_[0]), timeout);
+		}
+
+		template<typename T>
+		bool list_trim(T&& key, int start, int end)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_  == nullptr) {
+				return "";
+			}
+
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return"";
+			}
+
+			return client_->list_trim(std::move(keys_[0]),start, end);
+		}
+
+		template<typename T>
+		std::string list_index(T&& key, int index)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_ == nullptr) {
+				return "";
+			}
+
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return"";
+			}
+
+			return client_->list_index(std::move(keys_[0]), index);
+		}
+
+		template<typename T1,typename T2>
+		bool list_set(T1&& key, T2&& value, int index)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_  == nullptr) {
 				return false;
 			}
 
+			any_type_to_string(key);
 			any_type_to_string(value);
-			if (keys_.empty()){
+			if (keys_.size() !=2){
 				return false;
 			}
 
-			return client_->list_set(std::forward<std::string>(key), 
-				std::move(keys_[0]),unit::int_to_string(index));
+			return client_->list_set(std::move(keys_[0]),std::move(keys_[1]),unit::int_to_string(index));
 		}
 
 
@@ -551,219 +768,269 @@ namespace cpp_redis {
 		//如果从0开始删除，有多少删除多少
 		//如果从-1开始删除,就只会删除一个元素
 		//数量为>=|count|
-		template<typename T>
-		int list_del_elem(std::string&& key,T&& value, int count = 0)
+		template<typename T1,typename T2>
+		int list_del_elem(T1&& key,T2&& value, int count = 0)
 		{
 			static_assert(is_list_, "This API Support List Request");
 
-			if (client_  == nullptr || key.empty()) {
+			if (client_  == nullptr) {
 				return 0;
 			}
 
+			any_type_to_string(key);
 			any_type_to_string(value);
+			if (keys_.size()!=2) {
+				return 0;
+			}
+
+			return client_->list_del_elem(std::move(keys_[0]),std::move(keys_[1]),unit::int_to_string(count));
+		}
+
+		template<typename T1, typename T2>
+		std::string list_rpoplpush(T1&& src_key,T2&& dst_key)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_ == nullptr) {
+				return "";
+			}
+
+			any_type_to_string(src_key);
+			any_type_to_string(dst_key);
+
+			if (keys_.size() !=2){
+				return "";
+			}
+
+			return client_->list_rpoplpush(std::move(keys_[0]),std::move(keys_[1]));
+		}
+
+		template<typename T1,typename T2>
+		std::string list_brpoplpush(T1&& src_key,T2&& dst_key, int timeout = 0)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_ == nullptr) {
+				return "";
+			}
+
+			any_type_to_string(src_key);
+			any_type_to_string(dst_key);
+
+			if (keys_.size() !=2){
+				return "";
+			}
+
+			return client_->list_brpoplpush(std::move(keys_[0]),std::move(keys_[1]), timeout);
+		}
+
+		template<typename T1, typename T2,typename T3>
+		int list_insert_before(T1&& key,T2&& dst_value, T3&& insert_value)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_ == nullptr || key.empty()) {
+				return 0;
+			}
+
+			any_type_to_string(key);
+			any_type_to_string(dst_value);
+			any_type_to_string(insert_value);
+
+			if (keys_.size()!=3) {
+				return 0;
+			}
+
+			return client_->list_insert_before(std::move(keys_[0]), std::move(keys_[1]),std::move(keys_[2]));
+		}
+
+		template<typename T1,typename T2,typename T3>
+		int list_insert_after(T1&& key,T2&& dst_value,T3&& insert_value)
+		{
+			static_assert(is_list_, "This API Support List Request");
+
+			if (client_== nullptr || key.empty()) {
+				return 0;
+			}
+
+			any_type_to_string(key);
+			any_type_to_string(dst_value);
+			any_type_to_string(insert_value);
+
+			if (keys_.size()!=3){
+				return 0;
+			}
+
+			return client_->list_insert_after(std::move(keys_[0]),std::move(keys_[1]),std::move(keys_[2]));
+		}
+
+		template<typename T,typename...Args>
+		int set_add(T&& key, Args&&...args)
+		{
+			constexpr auto Size = sizeof...(args)+1;
+			static_assert(is_set_, "This API Support Set Request");
+			any_type_to_string(key);
+
+			for_each_args(std::forward<Args>(args)...);
+			if (keys_.size() != Size){
+				return 0;
+			}
+
+			return client_->set_add(std::move(keys_));
+		}
+
+		template<typename T,typename...Args>
+		int set_delete_elem(T&& key, Args&&...args)
+		{
+			constexpr auto Size = sizeof...(args)+1;
+			static_assert(is_set_, "This API Support Set Request");
+			any_type_to_string(key);
+
+			for_each_args(std::forward<Args>(args)...);
+			if (keys_.size() != Size) {
+				return 0;
+			}
+
+			return client_->set_delete_elem(std::move(keys_));
+		}
+
+		template<typename T1,typename T2>
+		bool set_is_member(T1&& key,T2&& value)
+		{
+			static_assert(is_set_, "This API Support Set Request");
+			if (client_  == nullptr) {
+				return false;
+			}
+
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() !=2){
+				return false;
+			}
+
+			return client_->set_is_member(std::move(keys_[0]),std::move(keys_[1]));
+		}
+
+		template<typename T>
+		std::string set_rdel_elem(T&& key)
+		{
+			static_assert(is_set_, "This API Support Set Request");
+			if (client_ == nullptr) {
+				return "";
+			}
+
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return "";
+			}
+
+			return client_->set_rdel_elem(std::move(keys_[0]));
+		}
+
+		//只是随机，不会发生删除
+		template<typename T>
+		RESULTS_TYPE set_rand_elem(T&& key, int count)
+		{
+			static_assert(is_set_, "This API Support Set Request");
+			if (client_  == nullptr) {
+				return {};
+			}
+
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return "";
+			}
+
+			return client_->set_rand_elem(std::move(keys_[0]), count);
+		}
+
+		template<typename T1,typename T2,typename T3>
+		bool set_move_elem(T1&& src_key,T2&& dst_key,T3&& member)
+		{
+			static_assert(is_set_, "This API Support Set Request");
+			if (client_== nullptr) {
+				return false;
+			}
+
+			any_type_to_string(src_key);
+			any_type_to_string(dst_key);
+			any_type_to_string(member);
+
+			if (keys_.size() != 3){
+				return false;
+			}
+
+			return client_->set_move_elem(std::move(keys_[0]),std::move(keys_[1]),std::move(keys_[2]));
+		}
+
+		template<typename T>
+		size_t set_get_size(T&& key)
+		{
+			static_assert(is_set_, "This API Support Set Request");
+			if (client_ == nullptr) {
+				return 0;
+			}
+
+			any_type_to_string(key);
+
+			if (keys_.empty()){
+				return 0;
+			}
+			 
+			return  client_->set_get_size(std::move(keys_[0]));
+		}
+
+		template<typename T>
+		RESULTS_TYPE set_get_all_member(T&& key)
+		{
+			static_assert(is_set_, "This API Support Set Request");
+			if (client_== nullptr) {
+				return {};
+
+			}
+
+			any_type_to_string(key);
+
 			if (keys_.empty()) {
 				return 0;
 			}
 
-			return client_->list_del_elem(std::forward<std::string>(key),std::move(keys_[0]),
-				unit::int_to_string(count));
-		}
-
-		std::string list_rpoplpush(std::string&& src_key, std::string&& dst_key)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_   == nullptr ||
-				src_key.empty() || dst_key.empty()) {
-				return "";
-			}
-
-			return client_->list_rpoplpush(std::forward<std::string>(src_key), std::forward<std::string>(dst_key));
-		}
-
-		std::string list_brpoplpush(std::string&& src_key, std::string&& dst_key, int timeout = 0)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_ == nullptr ||
-				src_key.empty() || dst_key.empty()) {
-				return "";
-			}
-
-			return client_->list_brpoplpush(std::forward<std::string>(src_key), std::forward<std::string>(dst_key), timeout);
-		}
-
-		template<typename T1, typename T2>
-		int list_insert_before(std::string&& key,T1&& dst_value, T2&& insert_value)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_ == nullptr || key.empty()) {
-				return 0;
-			}
-
-
-			any_type_to_string(dst_value);
-			any_type_to_string(insert_value);
-
-			if (keys_.empty() || keys_.size() < 2) {
-				return 0;
-			}
-
-			return client_->list_insert_before(std::forward<std::string>(key), std::move(keys_[0]), std::move(keys_[1]));
-		}
-
-		template<typename T1,typename T2>
-		int list_insert_after(std::string&& key,T1&& dst_value,T2&& insert_value)
-		{
-			static_assert(is_list_, "This API Support List Request");
-
-			if (client_== nullptr || key.empty()) {
-				return 0;
-			}
-
-			any_type_to_string(dst_value);
-			any_type_to_string(insert_value);
-
-			if (keys_.empty() || keys_.size()<2){
-				return 0;
-			}
-
-			return client_->list_insert_after(std::forward<std::string>(key),std::move(keys_[0]),std::move(keys_[1]));
-		}
-
-		template<typename...Args>
-		std::tuple<bool, int>set_add(std::string&& key, Args&&...args)
-		{
-			constexpr auto Size = sizeof...(args);
-			static_assert(is_set_, "This API Support Set Request");
-			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr  == nullptr || 
-				key.empty() || Size     ==0) {
-				return { false,-1 };
-			}
-
-			return ptr->set_add(std::forward<std::string>(key), std::forward<Args>(args)...);
-		}
-
-		template<typename...Args>
-		std::tuple<bool, int>set_delete_elem(std::string&& key, Args&&...args)
-		{
-			constexpr auto Size = sizeof...(args);
-			static_assert(is_set_, "This API Support Set Request");
-			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr  == nullptr 
-				|| key.empty() || Size  ==0) {
-				return { false,-1 };
-			}
-
-			return ptr->set_delete_elem(std::forward<std::string>(key), std::forward<Args>(args)...);
-		}
-
-		template<typename T>
-		bool set_is_member(std::string&& key,T&& value)
-		{
-			static_assert(is_set_, "This API Support Set Request");
-			if (client_  == nullptr || key.empty()) {
-				return false;
-			}
-
-			any_type_to_string(value);
-			
-			if (keys_.empty()){
-				return false;
-			}
-
-			return client_->set_is_member(std::forward<std::string>(key),std::move(keys_[0]));
-		}
-
-		std::string set_rdel_elem(std::string&& key)
-		{
-			static_assert(is_set_, "This API Support Set Request");
-			if (client_ == nullptr || key.empty()) {
-				return "";
-			}
-
-			return client_->set_rdel_elem(std::forward<std::string>(key));
-		}
-
-		//只是随机，不会发生删除
-		RESULTS_TYPE set_rand_elem(std::string&& key, int count)
-		{
-			static_assert(is_set_, "This API Support Set Request");
-			if (client_  == nullptr || key.empty()) {
-				return {};
-			}
-
-			return client_->set_rand_elem(std::forward<std::string>(key), count);
-		}
-
-		template<typename T>
-		bool set_move_elem(std::string&& src_key, std::string&& dst_key,T&& member)
-		{
-			static_assert(is_set_, "This API Support Set Request");
-			if (client_== nullptr ||
-				src_key.empty() || dst_key.empty()) {
-				return false;
-			}
-
-			any_type_to_string(member);
-			if (keys_.empty()){
-				return false;
-			}
-
-			return client_->set_move_elem(std::forward<std::string>(src_key),
-				std::forward<std::string>(dst_key),std::move(keys_[0]));
-		}
-
-		size_t set_get_size(std::string&& key)
-		{
-			static_assert(is_set_, "This API Support Set Request");
-			if (client_ == nullptr || key.empty()) {
-				return 0;
-
-			}
-			return  client_->set_get_size(std::forward<std::string>(key));
-		}
-
-		RESULTS_TYPE set_get_all_member(std::string&& key)
-		{
-			static_assert(is_set_, "This API Support Set Request");
-			if (client_== nullptr || key.empty()) {
-				return {};
-
-			}
-
-			return  client_->set_get_all_member(std::forward<std::string>(key));
+			return  client_->set_get_all_member(std::move(keys_[0]));
 		}
 
 		//求集合的交集，如果一个为空，就返回空
-		template<typename...Args>
-		RESULTS_TYPE set_sinter(Args&&...keys)
+		template<typename T,typename...Args>
+		RESULTS_TYPE set_sinter(T&&key,Args&&...keys)
 		{
-			constexpr auto Size = sizeof...(keys);
+			constexpr auto Size = sizeof...(keys)+1;
 			static_assert(is_set_, "This API Support Set Request");
-			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr || Size ==0) {
+			any_type_to_string(key);
+
+			for_each_args(std::forward<Args>(keys)...);
+
+			if (keys_.size() !=Size){
 				return {};
 			}
 
-			return ptr->set_sinter(std::forward<Args>(keys)...);
+			return client_->set_sinter(std::move(keys_));
 		}
 
 		//求集合的交集，如果一个为空，就返回空,并保存另外一个地方
-		template<typename...Args>
-		int set_inter_store(std::string&& dst_key, Args&&...keys)
+		template<typename T,typename...Args>
+		int set_inter_store(T&& dst_key, Args&&...keys)
 		{
-			constexpr auto Size = sizeof...(keys);
+			constexpr auto Size = sizeof...(keys)+1;
 			static_assert(is_set_, "This API Support Set Request");
-			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr   == nullptr ||
-				Size  ==0 || dst_key.empty()) {
-				return -1;
+
+			any_type_to_string(dst_key);
+			for_each_args(std::forward<Args>(keys)...);
+
+			if (keys_.size() != Size) {
+				return {};
 			}
 
-			return ptr->set_inter_store(std::forward<std::string>(dst_key), std::forward<Args>(keys)...);
+			return client_->set_inter_store(std::move(keys_));
 		}
 
 		//求集合的并集合,不存在key就视为空 
@@ -773,27 +1040,36 @@ namespace cpp_redis {
 		{
 			constexpr auto Size = sizeof...(key);
 			static_assert(is_set_, "This API Support Set Request");
-			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr  == nullptr || Size ==0) {
+			if (client_ == nullptr || Size ==0) {
 				return {};
 			}
 
-			return ptr->set_union(std::forward<Args>(key)...);
+			for_each_args(std::forward<Args>(key)...);
+			if (keys_.size() != Size){
+				return {};
+			}
+
+			return client_->set_union(std::move(keys_));
 		}
 		//求集合的并集，如果一个为空，就返回空,并保存另外一个地方
 		//(返回一个集合的全部成员，该集合是所有给定集合的并集)
-		template<typename...Args>
-		int set_union_store(std::string&& dst_key, Args&&...keys)
+		template<typename T,typename...Args>
+		int set_union_store(T&& dst_key, Args&&...keys)
 		{
-			constexpr auto Size = sizeof...(keys);
+			constexpr auto Size = sizeof...(keys)+1;
 			static_assert(is_set_, "This API Support Set Request");
-			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr || 
-				dst_key.empty() || Size ==0) {
+			if (client_ == nullptr) {
 				return -1;
 			}
 
-			return ptr->set_union_store(std::forward<std::string>(dst_key), std::forward<Args>(keys)...);
+			any_type_to_string(dst_key);
+			for_each_args(std::forward<Args>(keys)...);
+
+			if (keys_.size() != Size){
+				return -1;
+			}
+
+			return client_->set_union_store(std::move(keys_));
 		}
 
 		//返回一个集合的全部成员，该集合是所有给定集合之间的差集。
@@ -803,39 +1079,47 @@ namespace cpp_redis {
 		{
 			constexpr auto Size = sizeof...(key);
 			static_assert(is_set_, "This API Support Set Request");
-			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr || Size ==0) {
+			if (client_ == nullptr) {
 				return{};
 			}
 
-			return ptr->set_diff(std::forward<Args>(key)...);
-		}
+			for_each_args(std::forward<Args>(key)...);
 
-		template<typename...Args>
-		int set_diff_store(std::string&& dst_key, Args&&...key)
-		{
-			constexpr auto Size = sizeof...(key);
-			static_assert(is_set_, "This API Support Set Request");
-			auto ptr = std::dynamic_pointer_cast<set_client>(client_);
-			if (ptr == nullptr || 
-				dst_key.empty() || Size == 0) {
-				return -1;
+			if (keys_.size() != Size){
+				return {};
 			}
 
-			return ptr->set_diff_store(std::forward<std::string>(dst_key), std::forward<Args>(key)...);
+			return client_->set_diff(std::move(keys_));
+		}
+
+		template<typename T,typename...Args>
+		int set_diff_store(T&& dst_key, Args&&...key)
+		{
+			constexpr auto Size = sizeof...(key)+1;
+			static_assert(is_set_, "This API Support Set Request");
+			if (client_ == nullptr) {
+				return 0;
+			}
+
+			any_type_to_string(dst_key);
+			for_each_args(std::forward<Args>(key)...);
+			if (keys_.size() != Size){
+				return 0;
+			}
+
+			return client_->set_diff_store(std::move(keys_));
 		}
 
 		//ZADD key score member [[score member] [score member] …]
-		template<typename...Args>
-		int zset_add(std::string&& key, Args&&...args) {
+		template<typename T,typename...Args>
+		int zset_add(T&& key, Args&&...args) {
 			constexpr auto Size = sizeof...(args)+1;
 			static_assert(is_zset, "This API Support ZSet Request");
 
-			keys_.push_back(std::forward<std::string>(key));
-			make_keys(std::forward<Args>(args)...);
+			any_type_to_string(key);
+			for_each_zset_args(std::forward<Args>(args)...);
 
-			if (client_ == nullptr ||
-				keys_.size() == 1 || keys_.size()!= Size) {
+			if (client_ == nullptr|| keys_.size()!= Size) {
 				return -1;
 			}
 
@@ -843,73 +1127,86 @@ namespace cpp_redis {
 		}
 
 		//获取指定zset成员的值
-		template<typename T>
-		std::string zset_score(std::string&& key, T&& member)
+		template<typename T1,typename T2>
+		std::string zset_score(T1&& key, T2&& member)
 		{
-			check_pass_args(std::forward<T>(member));
 			static_assert(is_zset, "This API Support ZSet Request");
 
 			if (client_== nullptr){
 				return "";
 			}
 
-			std::string value = to_string(member);
+			any_type_to_string(key);
+			any_type_to_string(member);
 
-			if (value.empty()){
+			if (keys_.size() !=2){
 				return "";
 			}
 
-			return client_->zset_score(std::forward<std::string>(key), std::move(value));
+			return client_->zset_score(std::move(keys_[0]),std::move(keys_[1]));
 		}
 
 		//获取指定zset成员增加值
 		//member:就是数据库中的value字段
-		template<typename T>
-		std::string zset_incrby(std::string&& key, int increment, T&& member)
+		template<typename T1,typename T2>
+		std::string zset_incrby(T1&& key, int increment, T2&& member)
 		{
-			check_pass_args(std::forward<T>(member));
 			static_assert(is_zset, "This API Support ZSet Request");
 
 			if (client_ == nullptr){
 				return "";
 			}
 
-			std::string value = to_string(member);
+			any_type_to_string(key);
+			any_type_to_string(member);
 
-			if (value.empty()){
+			if (keys_.size() !=2){
 				return "";
 			}
 
-			return client_->zset_incrby(std::forward<std::string>(key), unit::int_to_string(increment), std::move(value));
+			return client_->zset_incrby(std::move(keys_[0]), unit::int_to_string(increment), std::move(keys_[1]));
 
 		}
 
 		//返回有序集 key的总数
-		int zset_counts(std::string&& key)
+		template<typename T>
+		int zset_counts(T&& key)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 			if (client_ == nullptr){
-				return -1;
+				return 0;
 			}
 
-			return client_->zset_card(std::forward<std::string>(key));
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return 0;
+			}
+
+			return client_->zset_card(std::move(keys_[0]));
 		}
 
 		//返回有序集 key的 min和max区间总数
-		int zset_range_counts(std::string&& key, int min, int max)
+		template<typename T>
+		int zset_range_counts(T&& key, int min, int max)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 			if (client_  == nullptr){
-				return -1;
+				return 0;
 			}
 
-			return client_->zset_count(std::forward<std::string>(key), unit::int_to_string(min), unit::int_to_string(max));
+			any_type_to_string(key);
+			if (keys_.empty()){
+				return 0;
+			}
+
+			return client_->zset_count(std::move(keys_[0]), unit::int_to_string(min), unit::int_to_string(max));
 		}
 
 		//返回列表以 value1, score1, ..., valueN, scoreN 的格式表示。
 		//with_scores:false不带score返回
 		//递增排序
-		RESULTS_TYPE zset_range(std::string&& key, int begin, int end, bool with_scores = true)
+		template<typename T>
+		RESULTS_TYPE zset_range(T&& key, int begin, int end, bool with_scores = true)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
@@ -917,52 +1214,78 @@ namespace cpp_redis {
 				return { {} };
 			}
 
-			return client_->zset_range(std::forward<std::string>(key), unit::int_to_string(begin), unit::int_to_string(end), with_scores);
+			any_type_to_string(key);
+			if (keys_.empty()){
+				return {};
+			}
+
+			return client_->zset_range(std::move(keys_[0]), unit::int_to_string(begin), unit::int_to_string(end), with_scores);
 		}
 
 		//其中成员的位置按 score 值递减(从大到小)来排列,命令和zrange相似
 		//递减排序
 		//字典序的逆序
-		RESULTS_TYPE zset_rerange(std::string&& key, int begin, int end, bool with_scores = true)
+		template<typename T>
+		RESULTS_TYPE zset_rerange(T&& key, int begin, int end, bool with_scores = true)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 			if (client_ == nullptr){
 				return { {} };
 			}
 
-			return client_->zset_revrange(std::forward<std::string>(key), unit::int_to_string(begin), unit::int_to_string(end), with_scores);
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return {};
+			}
+
+			return client_->zset_revrange(std::move(keys_[0]), unit::int_to_string(begin), unit::int_to_string(end), with_scores);
 		}
 
 		//求区间内的score排序
-		RESULTS_TYPE zset_range_score(std::string&& key, int min, int max,
+		template<typename T>
+		RESULTS_TYPE zset_range_score(T&& key, int min, int max,
 			bool with_scores = true, bool limit = false, int limit_min = 0, int limit_max = 1)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
 			if (client_ == nullptr) {
-				return { {} };
+				return {} ;
 			}
 
-			return client_->zset_range_score(std::forward<std::string>(key), unit::int_to_string(min),
+			any_type_to_string(key);
+
+			if (keys_.empty()){
+				return {};
+			}
+
+			return client_->zset_range_score(std::move(keys_[0]), unit::int_to_string(min),
 				unit::int_to_string(max), with_scores, limit, unit::int_to_string(limit_min), unit::int_to_string(limit_max));
 		}
 
 		//求区间内的score从数据库中逆向取值并排序
-		RESULTS_TYPE zset_revrange_score(std::string&& key, int max, int min,
+		template<typename T>
+		RESULTS_TYPE zset_revrange_score(T&& key, int max, int min,
 			bool with_scores = true, bool limit = false, int limit_min = 0, int limit_max = 1)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
 			if (client_== nullptr) {
-				return { {} };
+				return {} ;
 			}
 
-			return client_->zset_revrange_score(std::forward<std::string>(key), unit::int_to_string(max),
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return {};
+			}
+
+			return client_->zset_revrange_score(std::move(keys_[0]), unit::int_to_string(max),
 				unit::int_to_string(min), with_scores, limit, unit::int_to_string(limit_min), unit::int_to_string(limit_max));
 		}
 
 		//升序，从0开始
-		int zset_rank(std::string&& key, std::string&& member)
+		template<typename T1,typename T2>
+		int zset_rank(T1&& key,T2&& member)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
@@ -970,11 +1293,19 @@ namespace cpp_redis {
 				return -1;
 			}
 
-			return client_->zset_rank(std::forward<std::string>(key), std::forward<std::string>(member));
+			any_type_to_string(key);
+			any_type_to_string(member);
+
+			if (keys_.size() !=2){
+				return -1;
+			}
+
+			return client_->zset_rank(std::move(keys_[0]),std::move(keys_[1]));
 		}
 
 		//降序，从0开始，到从大的开始排
-		int zset_revrank(std::string&& key, std::string&& member)
+		template<typename T1, typename T2>
+		int zset_revrank(T1&& key,T2&& member)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
@@ -982,32 +1313,41 @@ namespace cpp_redis {
 				return -1;
 			}
 
-			return client_->zset_revrank(std::forward<std::string>(key), std::forward<std::string>(member));
+			any_type_to_string(key);
+			any_type_to_string(member);
+
+
+			if (keys_.size() != 2) {
+				return -1;
+			}
+
+			return client_->zset_revrank(std::move(keys_[0]), std::move(keys_[1]));
 		}
 
-		//ZREM key score member [[score member][score member] …]
-		template<typename...Args>
-		bool zset_rem(std::string&& key, Args&&...args)
+		//ZREM key  member [[score member][score member] …]
+		template<typename T,typename...Args>
+		bool zset_rem(T&& key, Args&&...args)
 		{
 			constexpr auto Size = sizeof...(args) + 1;
 			static_assert(is_zset, "This API Support ZSet Request");
-			auto ptr = std::dynamic_pointer_cast<zset_client>(client_);
-			if (ptr == nullptr) {
+
+			if (client_ == nullptr) {
 				return false;
 			}
 
-			keys_.push_back(std::forward<std::string>(key));
-			make_keys(std::forward<Args>(args)...);
+			any_type_to_string(key);
+			for_each_args(std::forward<Args>(args)...);
 
-			if (keys_.size() ==1 || keys_.size() !=Size){
+			if (keys_.size()!=Size){
 				return false;
 			}
 
-			return ptr->zset_rem(std::move(keys_));
+			return client_->zset_rem(std::move(keys_));
 		}
 
 		//移除有序集 key 中，指定排名(rank)区间内的所有成员
-		int zset_remrangeby_rank(std::string&& key,int begin,int end)
+		template<typename T>
+		int zset_remrangeby_rank(T&& key,int begin,int end)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
@@ -1015,11 +1355,18 @@ namespace cpp_redis {
 				return -1;
 			}
 
-			return client_->zset_remrangeby_rank(std::forward<std::string>(key), unit::int_to_string(begin), unit::int_to_string(end));
+			any_type_to_string(key);
+
+			if (keys_.empty()){
+				return -1;
+			}
+
+			return client_->zset_remrangeby_rank(std::move(keys_[0]), unit::int_to_string(begin), unit::int_to_string(end));
 		}
 
 		//移除有序集 key 中，所有 score 值介于 min 和 max 之间(包括等于 min 或 max )的成员。
-		int zset_remrangebyscore(std::string&& key,int min,int max)
+		template<typename T>
+		int zset_remrangebyscore(T&& key,int min,int max)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 			
@@ -1027,27 +1374,41 @@ namespace cpp_redis {
 				return -1;
 			}
 
-			return client_->zset_remrangebyscore(std::forward<std::string>(key), unit::int_to_string(min), unit::int_to_string(max));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return -1;
+			}
+
+			return client_->zset_remrangebyscore(std::move(keys_[0]), unit::int_to_string(min), unit::int_to_string(max));
 		}
 		
 		//合法的 min 和 max 参数必须包含(或者[， 其中(表示开区间（指定的值不会被包含在范围之内）， 而[则表示闭区间（指定的值会被包含在范围之内）。
 		//特殊值 + 和 - 在 min 参数以及 max 参数中具有特殊的意义， 其中 + 表示正无限， 而 - 表示负无限。 
 		//因此， 向一个所有成员的分值都相同的有序集合发送命令 ZRANGEBYLEX <zset> -+， 命令将返回有序集合中的所有元素。
 
-		RESULTS_TYPE zset_rangebylex(std::string&& key,std::string&&min,std::string&& max,bool limit=false,int limit_min=0,int limit_max=1)
+		template<typename T>
+		RESULTS_TYPE zset_rangebylex(T&& key,std::string&&min,std::string&& max,bool limit=false,int limit_min=0,int limit_max=1)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
 			if (client_ == nullptr){
-				return { {}};
+				return {};
 			}
 
-			return client_->zset_rangebylex(std::forward<std::string>(key),std::forward<std::string>(min),std::forward<std::string>(max), 
+			any_type_to_string(key);
+
+			if (keys_.empty()){
+				return {};
+			}
+
+			return client_->zset_rangebylex(std::move(keys_[0]),std::forward<std::string>(min),std::forward<std::string>(max), 
 				limit,unit::int_to_string(limit_max),unit::int_to_string(limit_max));
 		}
 
 		//此接口和上面接口一样，只是返回数量
-		int zset_lexcount(std::string&& key, std::string&& min, std::string&& max)
+		template<typename T>
+		int zset_lexcount(T&& key, std::string&& min, std::string&& max)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
@@ -1055,11 +1416,17 @@ namespace cpp_redis {
 				return -1;
 			}
 
-			return client_->zset_lexcount(std::forward<std::string>(key), std::forward<std::string>(min), std::forward<std::string>(max));
+			any_type_to_string(key);
+			if (keys_.empty()){
+				return -1;
+			}
+
+			return client_->zset_lexcount(std::move(keys_[0]), std::forward<std::string>(min), std::forward<std::string>(max));
 		}
 
 		//特殊符号，删除元素
-		int zset_remrangebylex(std::string&& key, std::string&& min, std::string&& max)
+		template<typename T>
+		int zset_remrangebylex(T&& key, std::string&& min, std::string&& max)
 		{
 			static_assert(is_zset, "This API Support ZSet Request");
 
@@ -1067,27 +1434,31 @@ namespace cpp_redis {
 				return -1;
 			}
 
-			return client_->zset_remrangebylex(std::forward<std::string>(key),std::forward<std::string>(min), std::forward<std::string>(max));
+			any_type_to_string(key);
+			if (keys_.empty()) {
+				return -1;
+			}
+
+			return client_->zset_remrangebylex(std::move(keys_[0]),std::forward<std::string>(min), std::forward<std::string>(max));
 		}
 		
 		//计算给定的一个或多个有序集的并集，其中给定 key 的数量必须以 num_keys 参数指定，
 		//并将该并集(结果集)储存到 dst_store_key ,其中num_keys,参与计算key的个数
 		//默认情况下，结果集中某个成员的 score 值是所有给定集下该成员 score 值之 和
 		//函数使用介绍，参数1：目标存储的key,参数 2，求和的方式，参数3：N个key 跟上权重,具体使用可以看官方命令
-		template<typename...Args>
-		int zset_union_store(std::string&& dst_store_key,int num_keys,aggregate_mothod mothod,
+		template<typename T,typename...Args>
+		int zset_union_store(T&& dst_store_key,int num_keys,aggregate_mothod mothod,
 			int weight_min,int weight_max,Args&&...args)
 		{
 			constexpr auto Size = sizeof...(args) + 2;
 			static_assert(is_zset, "This API Support ZSet Request");
 
-			keys_.push_back(std::forward<std::string>(dst_store_key));
+			any_type_to_string(dst_store_key);
 			keys_.emplace_back(unit::int_to_string(num_keys));
 
-			make_keys(std::forward<Args>(args)...);
+			for_each_args(std::forward<Args>(args)...);
 
-			if (client_ == nullptr || 
-				keys_.size() == 1 || keys_.size() != Size) {
+			if (client_ == nullptr || keys_.size() != Size) {
 				return -1;
 			}
 
@@ -1098,20 +1469,19 @@ namespace cpp_redis {
 		}
 
 		//求交集，具体参数可以参考 zset_union_store接口
-		template<typename...Args>
-		int zset_inter_store(std::string&& dst_store_key, int num_keys, aggregate_mothod mothod,
+		template<typename T,typename...Args>
+		int zset_inter_store(T&& dst_store_key, int num_keys, aggregate_mothod mothod,
 			int weight_min, int weight_max, Args&&...args)
 		{
 			constexpr auto Size = sizeof...(args) + 2;
 			static_assert(is_zset, "This API Support ZSet Request");
 
-			keys_.push_back(std::forward<std::string>(dst_store_key));
+			any_type_to_string(dst_store_key);
 			keys_.emplace_back(unit::int_to_string(num_keys));
 
-			make_keys(std::forward<Args>(args)...);
+			for_each_args(std::forward<Args>(args)...);
 
-			if (client_ == nullptr ||
-				keys_.size() == 1 || keys_.size() != Size) {
+			if (client_ == nullptr || keys_.size() != Size) {
 				return -1;
 			}
 
@@ -1123,48 +1493,68 @@ namespace cpp_redis {
 
 		//当 HSET 命令在哈希表中新创建 field 域并成功为它设置值时， 命令返回 1 
 		//如果域 field 已经存在于哈希表， 并且 HSET 命令成功使用新值覆盖了它的旧值， 那么命令返回 0
-		template<typename T1,typename T2>
-		int hash_set(std::string&&key,T1 &&field, T2&& value)
+		template<typename T1,typename T2,typename T3>
+		int hash_set(T1 &&key,T2 &&field, T3&& value)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 
-			if (client_ == nullptr || key.empty()){
+			if (client_ == nullptr){
 				return -1;
 			}
 
-			return client_->hash_set(std::forward<std::string>(key), 
-				hash_build_string(std::forward<T1>(field)), hash_build_string(std::forward<T2>(value)));
+			any_type_to_string(key);
+			any_type_to_string(field);
+			any_type_to_string(value);
+			if (keys_.size()!=3){
+				return -1;
+			}
+
+			return client_->hash_set(std::move(keys_[0]),std::move(keys_[1]),std::move(keys_[2]));
 		}
 
 		//HSETNX 命令在设置成功时返回 1 ， 在给定域已经存在而放弃执行设置操作时返回 0.
 		//如果给定域已经存在于哈希表当中， 那么命令将放弃执行设置操作。
-		template<typename T1, typename T2>
-		int hash_setx(std::string&& key, T1&& field, T2&& value)
+		template<typename T1, typename T2,typename T3>
+		int hash_setx(T1&& key, T1&& field, T2&& value)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return -1;
 			}
 
-			return client_->hash_setx(std::forward<std::string>(key),
-				hash_build_string(std::forward<T1>(field)), hash_build_string(std::forward<T2>(value)));
+
+			any_type_to_string(key);
+			any_type_to_string(field);
+			any_type_to_string(value);
+			if (keys_.size() != 3) {
+				return -1;
+			}
+
+			return client_->hash_setx(std::move(keys_[0]),std::move(keys_[1]),std::move(keys_[2]));
 		}
 
-		template<typename T>
-		int hash_exists(std::string&& key,T&& field)
+		template<typename T1,typename T2>
+		int hash_exists(T1&& key,T2&& field)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 
-			if (client_ == nullptr || key.empty()) {
+			if (client_ == nullptr) {
 				return -1;
 			}
 
-			return client_->hash_exists(std::forward<std::string>(key),hash_build_string(std::forward<T>(field)));
+			any_type_to_string(key);
+			any_type_to_string(field);
+
+			if (keys_.size() != 2) {
+				return -1;
+			}
+
+			return client_->hash_exists(std::move(keys_[0]),std::move(keys_[1]));
 		}
 
-		template<typename T>
-		std::string hash_get(std::string&& key,T&& field)
+		template<typename T1,typename T2>
+		std::string hash_get(T1&& key,T2&& field)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 
@@ -1172,11 +1562,11 @@ namespace cpp_redis {
 				return "";
 			}
 
-			return client_->hash_get(std::forward<std::string>(key),hash_build_string(std::forward<T>(field)));
+			return client_->hash_get(std::move(keys_[0]),std::move(keys_[1]));
 		}
 		
-		template<typename...Args>
-		int hash_del(std::string&& key, Args&&...fields)
+		template<typename T,typename...Args>
+		int hash_del(T&& key, Args&&...fields)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 			constexpr auto Size = sizeof...(fields)+1;
@@ -1185,8 +1575,8 @@ namespace cpp_redis {
 				return -1;
 			}
 
-			keys_.push_back(std::forward<std::string>(key));
-			any_type_to_string(std::forward<Args>(fields)...);
+			any_type_to_string(key);
+			for_each_args(std::forward<Args>(fields)...);
 			if ( keys_.empty() || keys_.size() != Size){
 				return -1;
 			}
@@ -1194,40 +1584,59 @@ namespace cpp_redis {
 			return client_->hash_del(std::move(keys_));
 		}
 
-		int hash_len(std::string&& key)
+		template<typename T>
+		int hash_len(T&& key)
 		{
 			static_assert(is_hash, "This API Support hash Request");
-			if (client_ == nullptr || key.empty()){
+			if (client_ == nullptr){
 				return 0;
 			}
 
-			return client_->hash_len(std::forward<std::string>(key));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return 0;
+			}
+
+			return client_->hash_len(std::move(keys_[0]));
 		}
 
-		template<typename T>
-		int hash_strlen(std::string&& key,T&& field)
+		template<typename T1,typename T2>
+		int hash_strlen(T1&& key,T2&& field)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 			if (client_== nullptr) {
 				return 0;
 			}
 
-			return client_->hash_strlen(std::forward<std::string>(key), 
-				hash_build_string(std::forward<T>(field)));
+			any_type_to_string(key);
+			any_type_to_string(field);
+
+			if (keys_.size() !=2){
+				return 0;
+			}
+
+			return client_->hash_strlen(std::move(keys_[0]),std::move(keys_[1]));
 		}
 
 		//返回增加值
 		//一个新的哈希表被创建并执行HINCRBY 命令(注意地方)
-		template<typename T>
-		int hash_incrby(std::string&& key, T&& field, int increment)
+		template<typename T1,typename T2>
+		int hash_incrby(T1&& key, T2&& field, int increment)
 		{
 			static_assert(is_hash, "This API Support hash Request");
-			if (client_  == nullptr || key.empty()) {
+			if (client_  == nullptr) {
 				return 0;
 			}
 
-			return client_->hash_incrby(std::forward<std::string>(key),hash_build_string(std::forward<T>(field)),
-				unit::int_to_string(increment));
+			any_type_to_string(key);
+			any_type_to_string(field);
+
+			if (keys_.size() != 2) {
+				return "";
+			}
+
+			return client_->hash_incrby(std::move(keys_[0]),std::move(keys_[1]),unit::int_to_string(increment));
 		}
 
 		template<typename T>
@@ -1238,24 +1647,36 @@ namespace cpp_redis {
 				return "";
 			}
 
-			return client_->hash_incrby_float(std::forward<std::string>(key), hash_build_string(std::forward<T>(field)),
-				unit::double_to_string(increment));
+			any_type_to_string(key);
+			any_type_to_string(field);
+
+			if (keys_.size() != 2) {
+				return "";
+			}
+
+			return client_->hash_incrby_float(std::move(keys_[0]),std::move(keys_[1]),unit::double_to_string(increment));
 		}
 
-		template<typename T>
-		std::string hash_incrby_float(std::string&& key, T&& field, float increment)
+		template<typename T1,typename T2>
+		std::string hash_incrby_float(T1&& key, T2&& field, float increment)
 		{
 			static_assert(is_hash, "This API Support hash Request");
 			if (client_ == nullptr || key.empty()) {
 				return "";
 			}
 
-			return client_->hash_incrby_float(std::forward<std::string>(key), hash_build_string(std::forward<T>(field)),
-				unit::float_to_string(increment));
+			any_type_to_string(key);
+			any_type_to_string(field);
+
+			if (keys_.size() != 2) {
+				return "";
+			}
+
+			return client_->hash_incrby_float(std::move(keys_[0]), std::move(keys_[1]),unit::float_to_string(increment));
 		}
 
-		template<typename...Args>
-		bool hash_mset(std::string&& key, Args&&...keys)
+		template<typename T,typename...Args>
+		bool hash_mset(T&& key, Args&&...keys)
 		{
 			const auto Size = sizeof...(keys) + 1;
 			static_assert(is_hash, "This API Support hash Request");
@@ -1263,8 +1684,8 @@ namespace cpp_redis {
 				return false;
 			}
 
-			keys_.push_back(std::forward<std::string>(key));
-			any_type_to_string(std::forward<Args>(keys)...);
+			any_type_to_string(key);
+			for_each_args(std::forward<Args>(keys)...);
 
 			if (keys_.size() != Size) {
 				return false;
@@ -1273,95 +1694,116 @@ namespace cpp_redis {
 			return client_->hash_mset(std::move(keys_));
 		}
 
-		template<typename...Args>
-		RESULTS_TYPE hash_mget(std::string&& key, Args&&...keys)
+		template<typename T,typename...Args>
+		RESULTS_TYPE hash_mget(T&& key, Args&&...keys)
 		{
 			const auto Size = sizeof...(keys) + 1;
 			static_assert(is_hash, "This API Support hash Request");
 			if (client_ == nullptr || key.empty()) {
-				return { {} };
+				return {} ;
 			}
 
-			keys_.push_back(std::forward<std::string>(key));
-			any_type_to_string(std::forward<Args>(keys)...);
+			any_type_to_string(key);
+			for_each_args(std::forward<Args>(keys)...);
 
 			if (keys_.size() != Size) {
-				return { {} };
+				return  {} ;
 			}
 
 			return client_->hash_mget(std::move(keys_));
 		}
 
 		//返回所有的keys
-		RESULTS_TYPE hash_keys(std::string&& key)
+		template<typename T>
+		RESULTS_TYPE hash_keys(T&& key)
 		{
 			static_assert(is_hash, "This API Support hash Request");
-			if (client_ == nullptr || key.empty()) {
-				return { {} };
+			if (client_ == nullptr) {
+				return {};
 			}
 			
-			return client_->hash_keys(std::forward<std::string>(key));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return {};
+			}
+
+			return client_->hash_keys(std::move(keys_[0]));
 		}
 
 		//返回key中的所有值
-		RESULTS_TYPE hash_vals(std::string&& key)
+		template<typename T>
+		RESULTS_TYPE hash_vals(T&& key)
 		{
 			static_assert(is_hash, "This API Support hash Request");
-			if (client_ == nullptr || key.empty()) {
-				return { {} };
+			if (client_ == nullptr) {
+				return {} ;
 			}
 
-			return client_->hash_vals(std::forward<std::string>(key));
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return {};
+			}
+
+			return client_->hash_vals(std::move(keys_[0]));
 		}
 
 		//返回key中的域和值
-		RESULTS_TYPE hash_get_all(std::string&& key)
+		template<typename T>
+		RESULTS_TYPE hash_get_all(T&& key)
 		{
 			static_assert(is_hash, "This API Support hash Request");
-			if (client_ == nullptr || key.empty()) {
-				return { {} };
+			if (client_ == nullptr) {
+				return {} ;
 			}
 
-			return client_->hash_get_all(std::forward<std::string>(key));
+			any_type_to_string(key);
+			
+			if (keys_.empty()){
+				return {};
+			}
+
+			return client_->hash_get_all(std::move(keys_[0]));
 		}
 	private:
-		void any_type_to_string()
+		template<typename T>
+		void any_type_to_string(T&& value)
 		{
-
-		}
-
-		template<typename T, typename...Args>
-		void any_type_to_string(T&& header, Args&&...args)
-		{
-			std::string value;
+			std::string str;
 #if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
 #else
-			if constexpr(std::is_same<typename std::decay<decltype(header)>::type, bool>::value){
-				value = header ? "true" : "false";
-			}else{
-				value = to_string(header);
+			if constexpr (std::is_same<typename std::decay<decltype(value)>::type, bool>::value) {
+				str = value ? "true" : "false";
+			}else {
+				str = to_string(value);
 			}
 #endif
-			keys_.push_back(std::move(value));
-			any_type_to_string(std::forward<Args>(args)...);
-
+			if (!str.empty()){
+				keys_.push_back(std::move(str));
+			}
 		}
 
-		void make_keys()
+		template<typename...Args>
+		void for_each_args(Args&&...value)
 		{
-
+			int arr[] = { (any_type_to_string(value),0)... };
 		}
 
-		template<typename T,typename...Args>
-		void make_keys(T&&header,Args&&...args)
+		template<typename T>
+		void zset_make_keys(T&&t)
 		{
-			std::string value = to_string(std::forward<T>(header));
+			std::string value = to_string(std::forward<T>(t));
 
-			if (!value.empty()){
+			if (!value.empty()) {
 				keys_.push_back(std::move(value));
 			}
+		}
 
-			make_keys(std::forward<Args>(args)...);
+		template<typename...Args>
+		void for_each_zset_args(Args&&...args)
+		{
+			int arr[] = { (zset_make_keys(args),0)... };
 		}
 
 		template<typename T>
@@ -1449,25 +1891,6 @@ namespace cpp_redis {
 		}
 
 		template<typename T>
-		std::string hash_build_string(T&& value)
-		{
-			std::string str;
-#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
-			if (constexpr (std::is_same<T,bool>::value)){
-				str = value ? "true" : "false";
-			}
-#else
-			if constexpr (std::is_same<T,bool>::value){
-				str = value ? "true" : "false";
-			}else{
-				str = to_string(value);
-			}
-
-			return std::move(str);
-#endif
-		}
-
-		template<typename T>
 		std::string build_string(T&& value)
 		{
 			std::string str;
@@ -1499,30 +1922,6 @@ namespace cpp_redis {
 			}
 #endif
 			return std::move(str);
-		}
-
-		template<typename T>
-		void check_pass_args(T&& value)
-		{
-#if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
-			if (constexpr (cpp_redis::traits::is_string<T>::value))) {
-			     constexpr bool is_string = cpp_redis::traits::is_string<T>::value;
-			     static_assert(is_string, "T only support double string float int ");
-			}
-			else {
-				constexpr bool is_none = cpp_redis::traits::contains<T, double, float, int>::value;
-				static_assert(is_none, "T only support double string float int ");
-			}
-#else
-			if constexpr (cpp_redis::traits::is_string<T>::value) {
-				constexpr bool is_string = cpp_redis::traits::is_string<T>::value;
-				static_assert(is_string, "T only support double string float int ");
-			}
-			else {
-				constexpr bool is_none = cpp_redis::traits::contains<T, double, float, int>::value;
-				static_assert(is_none, "T only support double string float int ");
-			}
-#endif
 		}
 	private:
 		static constexpr bool is_sting_ = std::is_same<type, String>::value;

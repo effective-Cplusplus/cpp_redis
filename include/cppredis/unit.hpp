@@ -149,8 +149,13 @@ namespace cpp_redis {
 
 		}
 
+		template <typename F,typename ...Args>
+		void for_each_args(F&&func,Args...args){
+			int arr[] = { (std::forward<F>(func)(args),0)... };
+		}
+
 		template<typename F, typename...Ts>
-		void for_each_tuple_front(const std::tuple<Ts...>& tuple, F func) {
+		void for_each_tuple_front(const std::tuple<Ts...>& tuple, F&& func) {
 			for_each_tuple_front(tuple, func, cpp_redis::traits::make_index_sequence<sizeof...(Ts)>());
 		}
 
@@ -176,11 +181,9 @@ namespace cpp_redis {
 		}
 
 		template<typename F, typename...Ts>
-		void for_each_tuple_back(std::tuple<Ts...>& tuple, F func) {
+		void for_each_tuple_back(std::tuple<Ts...>& tuple, F&& func) {
 			for_each_tuple_back(tuple, func, cpp_redis::traits::make_index_sequence<sizeof...(Ts)>());
 		}
-
-
 	}
 }
 #endif // unit_h__

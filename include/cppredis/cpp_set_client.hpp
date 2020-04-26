@@ -13,51 +13,40 @@ namespace cpp_redis {
 		}
 
 		//返回当前set的个数
-		template<typename...Args>
-		std::tuple<bool, int>set_add(std::string&& key, Args&&...args)
+		int set_add(KEYS&& keys)
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sadd),
-				std::forward<std::string>(key), std::forward<Args>(args)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sadd),std::forward<KEYS>(keys));
 
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return { false,-1 };
+				return 0;
 			}
 
-			const auto result = res->get_int_results();
-			if (result.empty()) {
-				return { false,-1 };
-			}
+			const auto results = res->get_int_results();
 
-			return std::make_tuple(true, result[0]);
+			return ((!results.empty()) ? results[0]:0);
 		}
 
 		//返回当前set的个数,删除失败直接返回-1
-		template<typename...Args>
-		std::tuple<bool, int>set_delete_elem(std::string&& key, Args&&...args)
+		int set_delete_elem(KEYS&& keys)
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::srem),
-				std::forward<std::string>(key), std::forward<Args>(args)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::srem),std::forward<KEYS>(keys));
 
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return { false,-1 };
+				return 0;
 			}
 
-			const auto result = res->get_int_results();
-			if (result.empty()) {
-				return { false,-1 };
-			}
-
-			return std::make_tuple(true, result[0]);
+			const auto results = res->get_int_results();
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		//是返回ture,其它一律为false
@@ -186,11 +175,10 @@ namespace cpp_redis {
 		}
 
 		//求集合的交集，如果一个为空，就返回空
-		template<typename...Args>
-		RESULTS_TYPE set_sinter(Args&&...keys)
+		virtual RESULTS_TYPE set_sinter(KEYS&& keys)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sinter), std::forward<Args>(keys)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sinter),std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -199,44 +187,34 @@ namespace cpp_redis {
 			}
 
 			auto result = res->get_results();
-			if (result.empty()) {
-				return {};
-			}
-
-			return  std::move(result);
+			return ((!result.empty()) ? std::move(result) : std::move(std::vector<std::string>{}));
 		}
 
 		//求集合的交集，如果一个为空，就返回空,并保存另外一个地方
-		template<typename...Args>
-		int set_inter_store(std::string&& dst_key, Args&&...keys)
+		virtual int set_inter_store(KEYS&& keys)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::ssinter_store),
-				std::forward<std::string>(dst_key), std::forward<Args>(keys)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::ssinter_store),std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return -1;
+				return 0;
 			}
 
 			auto result = res->get_int_results();
-			if (result.empty()) {
-				return -1;
-			}
 
-			return  result[0];
+			return  ((!result.empty()) ? result[0] :0);
 		}
 
 		//求集合的并集合,不存在key就视为空 
 		//(返回一个集合的全部成员，该集合是所有给定集合的并集)
 		//A{1:1234,2:5678,37895,4:910245} B{1:1234,2:7895,3:78945}
 		//A U B={1234,5678,7895,10245}
-		template<typename...Args>
-		RESULTS_TYPE set_union(Args&&...key)
+		virtual RESULTS_TYPE set_union(KEYS &&keys)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sunion), std::forward<Args>(key)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sunion), std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -255,34 +233,29 @@ namespace cpp_redis {
 		//求集合的并集，如果一个为空，就返回空,并保存另外一个地方
 		//(返回一个集合的全部成员，该集合是所有给定集合的并集)
 		//src_key可以是本身自己
-		template<typename...Args>
-		int set_union_store(std::string&& dst_key, Args&&...keys)
+		virtual int set_union_store(KEYS&&keys)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::ssunion_store),
-				std::forward<std::string>(dst_key), std::forward<Args>(keys)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::ssunion_store),std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return -1;
+				return 0;
 			}
 
-			auto result = res->get_int_results();
-			if (result.empty()) {
-				return -1;
-			}
+			auto results = res->get_int_results();
 
-			return  result[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		//返回一个集合的全部成员，该集合是所有给定集合之间的差集。
 	   //不存在的 key 被视为空集。
-		template<typename...Args>
-		RESULTS_TYPE set_diff(Args&&...key)
+
+		virtual RESULTS_TYPE set_diff(KEYS && keys)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sdiff), std::forward<Args>(key)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sdiff), std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -290,34 +263,28 @@ namespace cpp_redis {
 				return{};
 			}
 
-			auto result = res->get_results();
-			if (result.empty()) {
-				return {};
-			}
+			auto results = res->get_results();
 
-			return  std::move(result);
+			return  ((!results.empty()) ? std::move(results) : std::move(RESULTS_TYPE()));
 		}
 
 		//返回一个集合的全部成员，该集合是所有给定集合之间的差集。
 		//不存在的 key 被视为空集。然后保存起来
-		template<typename...Args>
-		int set_diff_store(std::string&& dst_key, Args&&...key)
+		virtual int set_diff_store(KEYS &&keys)
 		{
 			check_args();
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sdiff_store), std::forward<std::string>(dst_key), std::forward<Args>(key)...);
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sdiff_store),std::forward<KEYS>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return -1;
+				return 0;
 			}
 
-			auto result = res->get_int_results();
-			if (result.empty()) {
-				return -1;
-			}
+			auto results = res->get_int_results();
 
-			return result[0];
+
+			return  ((!results.empty()) ? results[0]:0);
 		}
 
 	};
