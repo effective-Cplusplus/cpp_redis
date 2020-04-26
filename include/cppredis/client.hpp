@@ -660,14 +660,21 @@ namespace cpp_redis {
 			return ptr->set_delete_elem(std::forward<std::string>(key), std::forward<Args>(args)...);
 		}
 
-		bool set_is_member(std::string&& key, std::string&& value)
+		template<typename T>
+		bool set_is_member(std::string&& key,T&& value)
 		{
 			static_assert(is_set_, "This API Support Set Request");
-			if (client_  == nullptr || key.empty() || value.empty()) {
+			if (client_  == nullptr || key.empty()) {
 				return false;
 			}
 
-			return client_->set_is_member(std::forward<std::string>(key), std::forward<std::string>(value));
+			any_type_to_string(value);
+			
+			if (keys_.empty()){
+				return false;
+			}
+
+			return client_->set_is_member(std::forward<std::string>(key),std::move(keys_[0]));
 		}
 
 		std::string set_rdel_elem(std::string&& key)
@@ -691,16 +698,22 @@ namespace cpp_redis {
 			return client_->set_rand_elem(std::forward<std::string>(key), count);
 		}
 
-		bool set_move_elem(std::string&& src_key, std::string&& dst_key, std::string&& member)
+		template<typename T>
+		bool set_move_elem(std::string&& src_key, std::string&& dst_key,T&& member)
 		{
 			static_assert(is_set_, "This API Support Set Request");
 			if (client_== nullptr ||
-				src_key.empty() || dst_key.empty() ||member.empty()) {
+				src_key.empty() || dst_key.empty()) {
+				return false;
+			}
+
+			any_type_to_string(member);
+			if (keys_.empty()){
 				return false;
 			}
 
 			return client_->set_move_elem(std::forward<std::string>(src_key),
-				std::forward<std::string>(dst_key), std::forward<std::string>(member));
+				std::forward<std::string>(dst_key),std::move(keys_[0]));
 		}
 
 		size_t set_get_size(std::string&& key)
