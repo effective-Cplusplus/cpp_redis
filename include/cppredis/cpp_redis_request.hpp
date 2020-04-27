@@ -320,7 +320,7 @@ namespace cpp_redis {
 			auto tp = std::make_tuple<Args...>(std::forward<Args>(key)...);
 
 			std::vector<std::string> cmds;
-			cpp_redis::unit::for_each_tuple_front(tp, [this, &cmds](std::string str, const int& index) {
+			cpp_redis::unit::for_each_tuple_front(std::move(tp), [this, &cmds](std::string str, const int& index) {
 				cmds.push_back(std::move(str));
 				});
 

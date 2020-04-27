@@ -128,7 +128,7 @@ namespace cpp_redis {
 		}
 
 		template<typename F, typename...Ts, std::size_t...Is>
-		void for_each_tuple_front(const std::tuple<Ts...>& tuple, F func, cpp_redis::traits::index_sequence<Is...>) {
+		void for_each_tuple_front(std::tuple<Ts...>&& tuple, F&& func, cpp_redis::traits::index_sequence<Is...>) {
 			constexpr auto SIZE = std::tuple_size<cpp_redis::traits::remove_reference_t<decltype(tuple)>>::value;
 #if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
 			if (constexpr(SIZE > 0)) {
@@ -155,12 +155,12 @@ namespace cpp_redis {
 		}
 
 		template<typename F, typename...Ts>
-		void for_each_tuple_front(const std::tuple<Ts...>& tuple, F&& func) {
-			for_each_tuple_front(tuple, func, cpp_redis::traits::make_index_sequence<sizeof...(Ts)>());
+		void for_each_tuple_front(std::tuple<Ts...>&& tuple, F&& func) {
+			for_each_tuple_front(std::forward<std::tuple<Ts...>>(tuple), func, cpp_redis::traits::make_index_sequence<sizeof...(Ts)>());
 		}
 
 		template<typename F, typename...Ts, std::size_t...Is>
-		void for_each_tuple_back(const std::tuple<Ts...>& tuple, F func, cpp_redis::traits::index_sequence<Is...>) {
+		void for_each_tuple_back(std::tuple<Ts...>&& tuple, F&& func, cpp_redis::traits::index_sequence<Is...>) {
 			//匿名构造函数调用
 			constexpr auto SIZE = std::tuple_size<cpp_redis::traits::remove_reference_t<decltype(tuple)>>::value;
 #if (_MSC_VER >= 1700 && _MSC_VER <= 1900) //vs2012-vs2015
@@ -181,8 +181,8 @@ namespace cpp_redis {
 		}
 
 		template<typename F, typename...Ts>
-		void for_each_tuple_back(std::tuple<Ts...>& tuple, F&& func) {
-			for_each_tuple_back(tuple, func, cpp_redis::traits::make_index_sequence<sizeof...(Ts)>());
+		void for_each_tuple_back(std::tuple<Ts...>&& tuple, F&& func) {
+			for_each_tuple_back(std::forward<std::tuple<Ts...>>(tuple), func, cpp_redis::traits::make_index_sequence<sizeof...(Ts)>());
 		}
 	}
 }
