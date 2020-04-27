@@ -243,7 +243,7 @@ namespace cpp_redis {
 				return false;
 			}
 
-			client_->rename_key(std::move(keys_[0]), std::move(keys_[1]));
+			return client_->rename_key(std::move(keys_[0]), std::move(keys_[1]));
 		}
 
 		//»áÅÐ¶Ïnew_keyÊÇ·ñ´æÔÚ 
@@ -260,7 +260,7 @@ namespace cpp_redis {
 				return false;
 			}
 
-			client_->renamenx_key(std::move(keys_[0]), std::move(keys_[1]));
+			return client_->renamenx_key(std::move(keys_[0]), std::move(keys_[1]));
 		}
 
 		template<typename T1,typename T2>
