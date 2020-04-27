@@ -19,15 +19,12 @@ namespace cpp_redis {
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code()!= status::int_result_){
-				return -1;
+				return 0;
 			}
 
-			const auto result = res->get_int_results();
-			if (result.empty()){
-				return -1;
-			}
+			const auto results = res->get_int_results();
 
-			return result[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		virtual std::string zset_score(std::string&& key,std::string&& member)
@@ -80,11 +77,7 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return 0;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 	
 		virtual int zset_count(std::string&& key, std::string&& min, std::string&& max)
@@ -100,11 +93,7 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return 0;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		//可以通过使用 WITHSCORES 选项，来让成员和它的 score 值一并返回，
@@ -128,7 +117,7 @@ namespace cpp_redis {
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code()!= status::results_){
-				return { {} };
+				return {} ;
 			}
 			
 			return std::move(res->get_results());
@@ -156,7 +145,7 @@ namespace cpp_redis {
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::results_) {
-				return { {} };
+				return {} ;
 			}
 
 			return std::move(res->get_results());
@@ -193,7 +182,7 @@ namespace cpp_redis {
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::results_) {
-				return { {} };
+				return {} ;
 			}
 
 			return std::move(res->get_results());
@@ -230,7 +219,7 @@ namespace cpp_redis {
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::results_) {
-				return { {} };
+				return {};
 			}
 
 			return std::move(res->get_results());
@@ -249,11 +238,7 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return -1;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : -1);
 		}
 
 		//降序，从0开始，到从大的开始排
@@ -269,11 +254,7 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return -1;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : -1);
 		}
 
 
@@ -311,11 +292,8 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return false;
-			}
 
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		virtual int zset_remrangebyscore(std::string&& key, std::string&& min, std::string&& max)
@@ -332,11 +310,8 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return false;
-			}
 
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		virtual int zset_union_store(std::vector<std::string>&& keys, aggregate_mothod mothod)
@@ -357,21 +332,20 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()){
-				return 0;
-			}
 
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		virtual int zset_inter_store(std::vector<std::string>&& keys, aggregate_mothod mothod)
 		{
-			if (mothod != aggregate_mothod::agg_none) {
+			if (mothod > aggregate_mothod::agg_none&&
+				mothod <= aggregate_mothod::agg_max) {
 				keys.emplace_back("AGGREGATE");
 				keys.emplace_back(request_->get_aggregate_mothod(mothod));
 			}
 
-			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_inter_store), std::forward<std::vector<std::string>>(keys));
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_inter_store),
+				std::forward<std::vector<std::string>>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
@@ -380,11 +354,7 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return 0;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		/**************************************************************以下几个接口不常用************************************************************************/
@@ -408,7 +378,7 @@ namespace cpp_redis {
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::results_) {
-				return { {} };
+				return {};
 			}
 
 			return std::move(res->get_results());
@@ -424,15 +394,12 @@ namespace cpp_redis {
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return false;
+				return 0;
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return false;
-			}
 
-			return results[0];
+			return ((!results.empty()) ?results[0]: 0);
 		}
 
 		virtual int zset_remrangebylex(std::string&& key, std::string&& min, std::string&& max)
@@ -445,15 +412,12 @@ namespace cpp_redis {
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return false;
+				return 0;
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return false;
-			}
 
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 	};

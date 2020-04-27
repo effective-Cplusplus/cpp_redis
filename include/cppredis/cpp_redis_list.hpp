@@ -121,7 +121,7 @@ namespace cpp_redis {
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::results_) {
-				return { {} };
+				return {} ;
 			}
 
 			//函数调用是右值

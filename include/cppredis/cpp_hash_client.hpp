@@ -27,11 +27,8 @@ namespace cpp_redis
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()){
-				return 0;
-			}
 
-			return results[0];
+			return ((!results.empty())?results[0]:0);
 		}
 
 		//和string数据结构一样,可以实现分布式锁
@@ -50,11 +47,7 @@ namespace cpp_redis
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return 0;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		virtual int hash_exists(std::string&& key, std::string&& field)
@@ -70,11 +63,7 @@ namespace cpp_redis
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return 0;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		virtual std::string hash_get(std::string&& key, std::string&& field)
@@ -106,15 +95,11 @@ namespace cpp_redis
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_){
-				return -1;
+				return 0;
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()){
-				return -1;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		virtual int hash_len(std::string&& key)
@@ -126,15 +111,11 @@ namespace cpp_redis
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return -1;
+				return 0;
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return -1;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		virtual int hash_strlen(std::string&& key, std::string&& field)
@@ -147,15 +128,11 @@ namespace cpp_redis
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return -1;
+				return 0;
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return -1;
-			}
-
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		//返回增加值
@@ -170,15 +147,12 @@ namespace cpp_redis
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
-				return -1;
+				return 0;
 			}
 
 			const auto results = res->get_int_results();
-			if (results.empty()) {
-				return -1;
-			}
 
-			return results[0];
+			return ((!results.empty()) ? results[0] : 0);
 		}
 
 		virtual std::string hash_incrby_float(std::string&& key, std::string&& field, std::string&& increment)
@@ -195,11 +169,8 @@ namespace cpp_redis
 			}
 
 			const auto results = res->get_results();
-			if (results.empty()) {
-				return"";
-			}
 
-			return results[0];
+			return ((!results.empty()) ? results[0] : "");
 		}
 
 
@@ -225,10 +196,10 @@ namespace cpp_redis
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_)
 			{
-				return { {} };
+				return {} ;
 			}
 
-			return std::move(res->get_results());
+			return res->get_results();
 		}
 
 		//返回所有的keys
@@ -240,10 +211,10 @@ namespace cpp_redis
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_)
 			{
-				return { {} };
+				return {} ;
 			}
 
-			return std::move(res->get_results());
+			return res->get_results();
 		}
 
 
@@ -257,10 +228,10 @@ namespace cpp_redis
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_)
 			{
-				return { {} };
+				return {} ;
 			}
 
-			return std::move(res->get_results());
+			return res->get_results();
 		}
 		
 		//返回key中的域和值
@@ -273,10 +244,10 @@ namespace cpp_redis
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_)
 			{
-				return { {} };
+				return  {} ;
 			}
 
-			return std::move(res->get_results());
+			return res->get_results();
 		}
 
 	};
