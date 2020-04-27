@@ -341,12 +341,14 @@ namespace cpp_redis {
 
 		virtual int zset_union_store(std::vector<std::string>&& keys, aggregate_mothod mothod)
 		{
-			if (mothod != aggregate_mothod::agg_none){
+			if (mothod >aggregate_mothod::agg_none && 
+				mothod <=aggregate_mothod::agg_max) {
 				keys.emplace_back("AGGREGATE");
 				keys.emplace_back(request_->get_aggregate_mothod(mothod));
 			}
 
-			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_union_store), std::forward<std::vector<std::string>>(keys));
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::zset_union_store), 
+				std::forward<std::vector<std::string>>(keys));
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
