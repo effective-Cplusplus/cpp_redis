@@ -56,6 +56,10 @@ namespace cpp_redis {
 		}
 
 		~redis_client() = default;
+		redis_client(const redis_client&) = delete;
+		redis_client(redis_client&&) = delete;
+		redis_client& operator=(const redis_client&) = delete;
+		redis_client& operator=(redis_client&&) = delete;
 
 		std::string get_current_error() {
 			if (client_ == nullptr) {
