@@ -31,8 +31,14 @@ namespace cpp_redis {
 		{
 			check_args();
 			const auto res = socket_->get_responese();
-			std::string error = res->get_error();
-			return std::move(error);
+			return res->get_error();
+		}
+
+		std::string get_current_status()
+		{
+			check_args();
+			const auto res = socket_->get_responese();
+			return res->get_status();
 		}
 		/********ip,port,password,db_num********************/
 		template<typename...Args>
@@ -239,6 +245,53 @@ namespace cpp_redis {
 			if (res->get_result_code() != status::status_) {
 				return false;
 			}
+
+			return true;
+		}
+		
+		bool start_multi()
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::multi));
+
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::status_) {
+				return false;
+			}
+
+			return true;
+		}
+
+		bool exec()
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::exec));
+
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() == status::errors_) {
+				return false;
+			}
+
+			return true;
+		}
+
+		bool discard()
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::discard));
+
+			socket_->send_msg(std::move(msg));
+
+			const auto res = socket_->get_responese();
 
 			return true;
 		}

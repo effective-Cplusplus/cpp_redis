@@ -72,11 +72,20 @@ namespace cpp_redis {
 			case cpp_redis::remove_expire:
 				cmd_str = g_remove_expire_cmd;
 				break;
+			case redis_cmd::multi:
+				cmd_str = g_multi_cmd;
+				break;
+			case redis_cmd::exec:
+				cmd_str = g_exec_cmd;
+				break;
 			case cpp_redis::ttl:
 				cmd_str = g_ttl_cmd;
 				break;
 			case cpp_redis::rename:
 				cmd_str = g_rename_cmd;
+				break;
+			case cpp_redis::discard:
+				cmd_str = g_discard_cmd;
 				break;
 			case cpp_redis::get_set:
 				cmd_str = g_get_set_cmd;

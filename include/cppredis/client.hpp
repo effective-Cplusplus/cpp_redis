@@ -65,6 +65,15 @@ namespace cpp_redis {
 			return client_->get_current_error();
 		}
 
+		std::string get_current_status()
+		{
+			if (client_ == nullptr){
+				return "";
+			}
+
+			return client_->get_current_status();
+		}
+
 		bool set_db_num(int&& num)
 		{
 			if (client_ == nullptr) {
@@ -261,6 +270,36 @@ namespace cpp_redis {
 			}
 
 			return client_->renamenx_key(std::move(keys_[0]), std::move(keys_[1]));
+		}
+
+		//开启一个事务
+		bool start_multi()
+		{
+			if (client_ == nullptr){
+				return false;
+			}
+
+			return client_->start_multi();
+		}
+
+		//提交事务(所有命令)
+		bool exec()
+		{
+			if (client_ == nullptr) {
+				return false;
+			}
+
+			return client_->exec();
+		}
+
+		//取消所有事务
+		bool discard()
+		{
+			if (client_ == nullptr){
+				return false;
+			}
+
+			return client_->discard();
 		}
 
 		template<typename T1,typename T2>

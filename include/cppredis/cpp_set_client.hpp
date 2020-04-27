@@ -17,12 +17,14 @@ namespace cpp_redis {
 		{
 			check_args();
 
-			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sadd),std::forward<std::vector<std::string>>(keys));
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sadd),
+				std::forward<std::vector<std::string>>(keys));
 
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_) {
+			if (res->get_result_code() != status::int_result_&&
+				res->get_result_code() != status::status_) {
 				return 0;
 			}
 
@@ -36,12 +38,14 @@ namespace cpp_redis {
 		{
 			check_args();
 
-			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::srem),std::forward<std::vector<std::string>>(keys));
+			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::srem),
+				std::forward<std::vector<std::string>>(keys));
 
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_) {
+			if (res->get_result_code() != status::int_result_&&
+				res->get_result_code() != status::status_) {
 				return 0;
 			}
 
@@ -60,7 +64,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_) {
+			if (res->get_result_code() != status::int_result_&&
+				res->get_result_code() != status::status_) {
 				return false;
 			}
 
@@ -82,8 +87,9 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::results_) {
-				return false;
+			if (res->get_result_code() != status::results_&&
+				res->get_result_code() != status::status_) {
+				return"";
 			}
 
 			const auto result = res->get_results();
@@ -102,7 +108,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::results_) {
+			if (res->get_result_code() != status::results_&&
+				res->get_result_code() != status::status_) {
 				return{};
 			}
 
@@ -123,7 +130,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_) {
+			if (res->get_result_code() != status::int_result_&&
+				res->get_result_code() != status::status_) {
 				return false;
 			}
 
@@ -143,7 +151,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_) {
+			if (res->get_result_code() != status::int_result_&&
+				res->get_result_code() != status::status_) {
 				return 0;
 			}
 
@@ -162,7 +171,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::results_) {
+			if (res->get_result_code() != status::results_&&
+				res->get_result_code() != status::status_) {
 				return{};
 			}
 
@@ -182,7 +192,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::results_) {
+			if (res->get_result_code() != status::results_&&
+				res->get_result_code() != status::status_) {
 				return{};
 			}
 
@@ -198,7 +209,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_) {
+			if (res->get_result_code() != status::int_result_&&
+				res->get_result_code() != status::status_) {
 				return 0;
 			}
 
@@ -218,7 +230,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::results_) {
+			if (res->get_result_code() != status::results_&&
+				res->get_result_code() != status::status_) {
 				return{};
 			}
 
@@ -240,7 +253,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_) {
+			if (res->get_result_code() != status::int_result_&&
+				res->get_result_code() != status::status_) {
 				return 0;
 			}
 
@@ -259,7 +273,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::results_) {
+			if (res->get_result_code() != status::results_&&
+				res->get_result_code() != status::status_) {
 				return{};
 			}
 
@@ -277,7 +292,8 @@ namespace cpp_redis {
 			socket_->send_msg(std::move(msg));
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::int_result_) {
+			if (res->get_result_code() != status::int_result_&&
+				res->get_result_code() != status::status_) {
 				return 0;
 			}
 
