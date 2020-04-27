@@ -169,7 +169,6 @@ namespace cpp_redis {
 			return client_->pexpire(std::move(keys_[0]), milliseconds);
 		}
 
-
 		template<typename T>
 		bool expire_at(T&& key, std::size_t unix_timestamp)
 		{
@@ -221,7 +220,6 @@ namespace cpp_redis {
 			return client_->remove_expire(std::move(keys_[0]));
 		}
 
-
 		template<typename T>
 		int  remainder_ttl(T&& key)
 		{
@@ -237,6 +235,23 @@ namespace cpp_redis {
 			}
 
 			return client_->remainder_ttl(std::move(keys_[0]));
+		}
+
+		template<typename T>
+		int  remainder_pttl(T&& key)
+		{
+			if (client_ == nullptr) {
+				return -1;
+			}
+
+			reset();
+			any_type_to_string(key);
+
+			if (keys_.empty()) {
+				return -1;
+			}
+
+			return client_->remainder_pttl(std::move(keys_[0]));
 		}
 
 		template<typename T1,typename T2>

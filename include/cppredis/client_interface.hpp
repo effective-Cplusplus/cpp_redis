@@ -212,6 +212,30 @@ namespace cpp_redis {
 			return int_results[0];
 		}
 
+		//key的剩余时间 -1:表示永久 -2:表示不存在
+		int64_t  remainder_pttl(std::string&& key)
+		{
+			check_args();
+
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::pttl), 
+				std::forward<std::string>(key));
+			
+			socket_->send_msg(std::move(msg));
+			const auto res = socket_->get_responese();
+
+			if (res->get_result_code() != status::int_result_) {
+				return -2;
+			}
+
+			const auto int_results = res->get_int_results();
+			if (int_results.empty()) {
+				return -2;
+			}
+
+			return int_results[0];
+		}
+
+
 		bool rename_key(std::string&& key,std::string &&new_key)
 		{
 			check_args();

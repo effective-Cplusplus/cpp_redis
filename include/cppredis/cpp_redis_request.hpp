@@ -81,6 +81,9 @@ namespace cpp_redis {
 			case cpp_redis::ttl:
 				cmd_str = g_ttl_cmd;
 				break;
+			case redis_cmd::pttl:
+				cmd_str = g_pttl_cmd;
+				break;
 			case cpp_redis::rename:
 				cmd_str = g_rename_cmd;
 				break;
