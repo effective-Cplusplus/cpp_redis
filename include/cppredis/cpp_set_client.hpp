@@ -91,7 +91,7 @@ namespace cpp_redis {
 				return "";
 			}
 
-			return ((result[0] == g_nil) ? "" : result[0]);
+			return ((result[0] == g_nil) ? "" : std::move(result[0]));
 		}
 
 		//count >0表示元素不会重复, <0表示元素会重复

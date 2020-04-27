@@ -43,7 +43,7 @@ namespace cpp_redis {
 				return "";
 			}
 
-			return ((results[0] == g_nil) ? "" :results[0]);
+			return ((results[0] == g_nil) ? "" :std::move(results[0]));
 		}
 
 		virtual std::string zset_incrby(std::string&& key,std::string&& increment,std::string&& member)
@@ -63,7 +63,7 @@ namespace cpp_redis {
 				return "";
 			}
 
-			return ((results[0] == g_nil) ? "" : results[0]);
+			return ((results[0] == g_nil) ? "" : std::move(results[0]));
 		}
 
 		virtual int zset_card(std::string&& key)

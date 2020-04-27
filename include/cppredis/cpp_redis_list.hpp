@@ -125,7 +125,7 @@ namespace cpp_redis {
 			}
 
 			//函数调用是右值
-			return res->get_results();
+			return std::move(res->get_results());
 		}
 
 		//第一个开始弹,不管原始的插入方向
@@ -144,7 +144,7 @@ namespace cpp_redis {
 
 			const auto results = res->get_results();
 
-			return ((!results.empty()) ? results[0]:"");
+			return ((!results.empty()) ? std::move(results[0]):"");
 		}
 
 		//从最后面弹出元素，元素弹完了，redis直接删除
@@ -163,7 +163,7 @@ namespace cpp_redis {
 
 			const auto results = res->get_results();
 
-			return ((!results.empty()) ? results[0] : "");
+			return ((!results.empty()) ? std::move(results[0]) : "");
 		}
 
 		//弹出最后元素
@@ -182,7 +182,7 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_results();
-			return ((!results.empty() && results.size() == 2) ? results[1] : "");
+			return ((!results.empty() && results.size() == 2) ? std::move(results[1]) : "");
 		}
 
 		//弹出最前元素
@@ -200,7 +200,7 @@ namespace cpp_redis {
 			}
 
 			const auto results = res->get_results();
-			return ((!results.empty() && results.size()==2) ? results[1] : "");
+			return ((!results.empty() && results.size()==2) ? std::move(results[1]) : "");
 		}
 
 		//列表只保留指定区间内的元素，不在指定区间之内的元素都将被删除。
@@ -234,7 +234,7 @@ namespace cpp_redis {
 
 			const auto  results = res->get_results();
 
-			return ((!results.empty() && results[0]!= g_nil) ? results[0] : "");
+			return ((!results.empty() && results[0]!= g_nil) ? std::move(results[0]) : "");
 		}
 
 		//指定索引上设置元素值
@@ -293,7 +293,7 @@ namespace cpp_redis {
 
 			const auto results = res->get_results();
 
-			return ((!results.empty()) ? results[0] : "");
+			return ((!results.empty()) ? std::move(results[0]) : "");
 		}
 
 		//最后一个元素移动到另外一个list去
@@ -313,7 +313,7 @@ namespace cpp_redis {
 
 			const auto results = res->get_results();
 
-			return ((!results.empty()) ? results[0] : "");
+			return ((!results.empty()) ? std::move(results[0]) : "");
 		}
 
 		virtual int list_insert_before(std::string&& key, std::string&& dst_value, std::string&& insert_value)

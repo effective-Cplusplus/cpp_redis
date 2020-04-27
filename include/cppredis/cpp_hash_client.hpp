@@ -82,7 +82,7 @@ namespace cpp_redis
 				return "";
 			}
 
-			return ((results[0] == g_nil) ? "" : results[0]);
+			return ((results[0] == g_nil) ? "" : std::move(results[0]));
 		}
 
 		virtual int hash_del(std::vector<std::string>&& fields)
@@ -170,7 +170,7 @@ namespace cpp_redis
 
 			const auto results = res->get_results();
 
-			return ((!results.empty()) ? results[0] : "");
+			return ((!results.empty()) ? std::move(results[0]) : "");
 		}
 
 
@@ -199,7 +199,7 @@ namespace cpp_redis
 				return {} ;
 			}
 
-			return res->get_results();
+			return std::move(res->get_results());
 		}
 
 		//返回所有的keys
@@ -214,7 +214,7 @@ namespace cpp_redis
 				return {} ;
 			}
 
-			return res->get_results();
+			return std::move(res->get_results());
 		}
 
 
@@ -231,7 +231,7 @@ namespace cpp_redis
 				return {} ;
 			}
 
-			return res->get_results();
+			return std::move(res->get_results());
 		}
 		
 		//返回key中的域和值
@@ -247,7 +247,7 @@ namespace cpp_redis
 				return  {} ;
 			}
 
-			return res->get_results();
+			return std::move(res->get_results());
 		}
 
 	};

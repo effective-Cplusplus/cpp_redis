@@ -145,7 +145,7 @@ namespace cpp_redis {
 
 			const auto results = res->get_results();
 
-			return ((results.empty() ||results[0] == g_nil) ? "": results[0]);
+			return ((results.empty() ||results[0] == g_nil) ? "": std::move(results[0]));
 		}
 
 		//若不存在,就创建key,然后再增加1
@@ -204,7 +204,7 @@ namespace cpp_redis {
 
 			const auto results = res->get_results();
 
-			return (!results.empty() && results[0] != g_nil ? results[0] : "");
+			return (!results.empty() && results[0] != g_nil ? std::move(results[0]) : "");
 		}
 
 		virtual int decr(std::string&& key)
@@ -254,7 +254,7 @@ namespace cpp_redis {
 
 			const auto results = res->get_results();
 
-			return ((!results.empty()) ? results[0] : "");
+			return ((!results.empty()) ? std::move(results[0]) : "");
 		}
 
 		virtual std::string get_set_key(std::string&& key, std::string&& value)
@@ -269,7 +269,7 @@ namespace cpp_redis {
 
 			const auto results = res->get_results();
 
-			return ((!results.empty()) ? results[0] : "");
+			return ((!results.empty()) ? std::move(results[0]) : "");
 		}
 
 		virtual std::string substr_reflect_value(std::string&& key, int start, int end)
@@ -284,7 +284,7 @@ namespace cpp_redis {
 
 			const auto results = res->get_results();
 			
-			return ((!results.empty()) ? results[0] : "");
+			return ((!results.empty()) ? std::move(results[0]) : "");
 		}
 
 		virtual std::vector<std::string>  multi_get_keys(std::vector<std::string>&&keys)
@@ -334,12 +334,12 @@ namespace cpp_redis {
 		}
 
 		//在指定key追加值
-		virtual int append_value(std::string&& key, std::string&& append_value)
+		virtual int append_value(std::string&& key, std::string&& appended_value)
 		{
 			check_args();
 
 			std::string msg = request_->req_n_key(request_->get_cmd(cpp_redis::append),
-				std::forward<std::string>(key), std::forward<std::string>(append_value));
+				std::forward<std::string>(key), std::forward<std::string>(appended_value));
 			socket_->send_msg(std::move(msg));
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_) {
