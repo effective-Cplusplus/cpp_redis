@@ -6,13 +6,16 @@
 namespace cpp_redis {
 	class cpp_redis_response {
 	public:
+		cpp_redis_response() = default;
+		~cpp_redis_response() = default;
+
 		void reset()
 		{
 			err_.clear();
 			status_.clear();
 			results_.clear();
 			int_results_.clear();
-			result_code_ = 0;
+			result_code_ = status::unconnected_;
 		}
 
 		void set_result_code(int result_code)
@@ -66,7 +69,7 @@ namespace cpp_redis {
 			return std::move(status_);
 		}
 	private:
-		int result_code_; //-1: unconnected, 0: results_; 2: int ; 4: err_;  8: status_
+		int result_code_{status::unconnected_}; //-1: unconnected, 0: results_; 2: int ; 4: err_;  8: status_
 		std::string err_;
 		std::string status_;
 		std::vector<int> int_results_;
