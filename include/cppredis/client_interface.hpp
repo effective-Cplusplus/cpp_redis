@@ -63,7 +63,10 @@ namespace cpp_redis {
 			check_args();
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::auth), std::forward<std::string>(password));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))){
+				return false;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() == status::unconnected_ ||
@@ -79,7 +82,10 @@ namespace cpp_redis {
 			check_args();
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::del), std::forward<std::string>(key));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))){
+				return false;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() == status::errors_) {
@@ -103,7 +109,10 @@ namespace cpp_redis {
 			check_args();
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::exists), std::forward<std::string>(key));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))){
+				return false;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() == status::errors_) {
@@ -127,7 +136,10 @@ namespace cpp_redis {
 			check_args();
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::expire), std::forward<std::string>(key), unit::int_to_string(seconds));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))){
+				return false;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::int_result_) {
@@ -144,7 +156,10 @@ namespace cpp_redis {
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::pexpire), 
 				std::forward<std::string>(key), unit::int_to_string(milliseconds));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))){
+				return false;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::int_result_) {
@@ -160,8 +175,12 @@ namespace cpp_redis {
 		{
 			check_args();
 
-			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::expire_at), std::forward<std::string>(key), unit::int_to_string(unix_timestamp));
-			socket_->send_msg(std::move(msg));
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::expire_at), 
+				std::forward<std::string>(key), unit::int_to_string(unix_timestamp));
+			if (!socket_->send_msg(std::move(msg))){
+				return false;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::int_result_) {
@@ -180,7 +199,10 @@ namespace cpp_redis {
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::pexpire_at),
 				std::forward<std::string>(key), unit::int_to_string(unix_milli_timestamp));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))){
+				return false;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::int_result_) {
@@ -197,7 +219,10 @@ namespace cpp_redis {
 			check_args();
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::ttl), std::forward<std::string>(key));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))){
+				return -2;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::int_result_) {
@@ -220,7 +245,10 @@ namespace cpp_redis {
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::pttl), 
 				std::forward<std::string>(key));
 			
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))){
+				return -2;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() != status::int_result_) {
@@ -243,7 +271,9 @@ namespace cpp_redis {
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::rename),
 				std::forward<std::string>(key),std::forward<std::string>(new_key));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
+			}
 
 			const auto res = socket_->get_responese();
 
@@ -262,7 +292,9 @@ namespace cpp_redis {
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::renamenx),
 				std::forward<std::string>(key), std::forward<std::string>(new_key));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
+			}
 
 			const auto res = socket_->get_responese();
 
@@ -279,7 +311,9 @@ namespace cpp_redis {
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::multi));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
+			}
 
 			const auto res = socket_->get_responese();
 
@@ -296,7 +330,9 @@ namespace cpp_redis {
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::exec));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
+			}
 
 			const auto res = socket_->get_responese();
 
@@ -313,7 +349,9 @@ namespace cpp_redis {
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::discard));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
+			}
 
 			const auto res = socket_->get_responese();
 
@@ -326,8 +364,10 @@ namespace cpp_redis {
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::remove_expire),std::forward<std::string>(key));
 
-			socket_->send_msg(std::move(msg));
-			
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() !=status::int_result_){
@@ -774,7 +814,10 @@ private:
 			}
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::select), std::move(unit::int_to_string(num)));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))){
+				return false;
+			}
+
 			const auto res = socket_->get_responese();
 
 			if (res->get_result_code() == status::unconnected_ ||

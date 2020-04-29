@@ -2,6 +2,7 @@
 #define unit_h__
 #include <sstream>
 #include <regex>
+#include <chrono>
 #include <tuple>
 #include "traits.hpp"
 
@@ -121,7 +122,7 @@ namespace cpp_redis {
 			return value;
 		}
 
-		static size_t get_time_stamp()
+		static int64_t get_time_stamp()
 		{
 			std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> tp = 
 				std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());

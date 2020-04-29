@@ -20,7 +20,9 @@ namespace cpp_redis {
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sadd),
 				std::forward<std::vector<std::string>>(keys));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return 0;
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_&&
@@ -41,7 +43,9 @@ namespace cpp_redis {
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::srem),
 				std::forward<std::vector<std::string>>(keys));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return 0;
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_&&
@@ -61,7 +65,9 @@ namespace cpp_redis {
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::sismember),
 				std::forward<std::string>(key), std::forward<std::string>(value));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_&&
@@ -84,7 +90,9 @@ namespace cpp_redis {
 
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::spop_elem), std::forward<std::string>(key));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return "";
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_&&
@@ -105,7 +113,9 @@ namespace cpp_redis {
 		{
 			check_args();
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::srandmember), std::forward<std::string>(key), std::move(unit::int_to_string(count)));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return {};
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_&&
@@ -127,7 +137,9 @@ namespace cpp_redis {
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::smove), std::forward<std::string>(src_key),
 				std::forward<std::string>(dst_key), std::forward<std::string>(member));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_&&
@@ -148,7 +160,9 @@ namespace cpp_redis {
 			check_args();
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::ssize), std::forward<std::string>(key));
 
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return 0;
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_&&
@@ -168,7 +182,9 @@ namespace cpp_redis {
 		{
 			check_args();
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::smembers), std::forward<std::string>(key));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return {};
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_&&
@@ -189,7 +205,9 @@ namespace cpp_redis {
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sinter),std::forward<std::vector<std::string>>(keys));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return {};
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_&&
@@ -206,7 +224,9 @@ namespace cpp_redis {
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::ssinter_store),std::forward<std::vector<std::string>>(keys));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return 0;
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_&&
@@ -227,7 +247,9 @@ namespace cpp_redis {
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sunion), std::forward<std::vector<std::string>>(keys));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return {};
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_&&
@@ -250,7 +272,9 @@ namespace cpp_redis {
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::ssunion_store),std::forward<std::vector<std::string>>(keys));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return 0;
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_&&
@@ -270,7 +294,9 @@ namespace cpp_redis {
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sdiff), std::forward<std::vector<std::string>>(keys));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return {};
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::results_&&
@@ -289,7 +315,9 @@ namespace cpp_redis {
 		{
 			check_args();
 			std::string msg = request_->req_n_keys(request_->get_cmd(redis_cmd::sdiff_store),std::forward<std::vector<std::string>>(keys));
-			socket_->send_msg(std::move(msg));
+			if (!socket_->send_msg(std::move(msg))) {
+				return 0;
+			}
 
 			const auto res = socket_->get_responese();
 			if (res->get_result_code() != status::int_result_&&
