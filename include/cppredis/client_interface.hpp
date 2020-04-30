@@ -395,7 +395,7 @@ namespace cpp_redis {
 			return false;
 		}
 
-		virtual bool set_has_seconds(std::string&& key, std::string&& value,std::string&&seconds)
+		virtual bool setnx(std::string&& key, std::string&& value)
 		{
 			return false;
 		}
@@ -415,19 +415,22 @@ namespace cpp_redis {
 			return false;
 		}
 
-		virtual bool set_has_seconds_if(std::string&& key, std::string&& value, 
-			std::string&& seconds,bool is_exist)
+		virtual bool setnx_has_seconds(std::string&& key, std::string&& value,std::string&& seconds)
 		{
 			return false;
 		}
 
-		virtual bool set_has_milliseconds(std::string&& key, std::string&& value,std::string&&milliseconds)
+		virtual bool setxx(std::string&& key, std::string&& value, std::string&& seconds)
 		{
 			return false;
 		}
 
-		virtual bool set_has_milliseconds_if(std::string&& key, std::string&& value, 
-			std::string&& milliseconds,bool is_exist)
+		virtual bool setnx_has_milliseconds(std::string&& key, std::string&& value,std::string&& milliseconds)
+		{
+			return false;
+		}
+
+		virtual bool setxx_has_milliseconds(std::string&& key, std::string&& value, std::string&& milliseconds)
 		{
 			return false;
 		}

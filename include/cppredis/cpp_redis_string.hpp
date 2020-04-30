@@ -67,10 +67,27 @@ namespace cpp_redis {
 			return true;
 		}
 
-		virtual bool set_has_seconds(std::string&& key, std::string&& value, std::string&& seconds)
+		virtual bool setnx(std::string&& key, std::string&& value)
+		{
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::setnx),
+				std::forward<std::string>(key), std::forward<std::string>(value));
+
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
+			}
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::status_) {
+				return false;
+			}
+
+			return true;
+		}
+
+		virtual bool setnx_has_seconds(std::string&& key, std::string&& value, std::string&& seconds)
 		{
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
-				std::forward<std::string>(key), std::forward<std::string>(value),"EX",std::forward<std::string>(seconds));
+				std::forward<std::string>(key), std::forward<std::string>(value), "EX", std::forward<std::string>(seconds), "NX");
 
 			if (!socket_->send_msg(std::move(msg))) {
 				return false;
@@ -84,16 +101,27 @@ namespace cpp_redis {
 			return true;
 		}
 
-		virtual bool set_has_seconds_if(std::string&& key, std::string&& value, std::string&& seconds, bool is_exist)
+		virtual bool setxx(std::string&& key, std::string&& value, std::string&& seconds)
 		{
-			std::string msg;
-			if (is_exist){
-				msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
-					std::forward<std::string>(key), std::forward<std::string>(value), "EX", std::forward<std::string>(seconds),"XX");
-			}else {
-				msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
-					std::forward<std::string>(key), std::forward<std::string>(value), "EX", std::forward<std::string>(seconds), "NX");
+			std::string msg=request_->req_n_key(request_->get_cmd(redis_cmd::set),
+					std::forward<std::string>(key), std::forward<std::string>(value), "EX", std::forward<std::string>(seconds), "XX");
+
+			if (!socket_->send_msg(std::move(msg))) {
+				return false;
 			}
+
+			const auto res = socket_->get_responese();
+			if (res->get_result_code() != status::status_) {
+				return false;
+			}
+
+			return true;
+		}
+
+		virtual bool setnx_has_milliseconds(std::string&& key, std::string&& value,std::string&& milliseconds)
+		{
+			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
+				std::forward<std::string>(key), std::forward<std::string>(value), "PX", std::forward<std::string>(milliseconds), "NX");
 
 			if (!socket_->send_msg(std::move(msg))) {
 				return false;
@@ -107,41 +135,17 @@ namespace cpp_redis {
 			return true;
 		}
 
-		virtual bool set_has_milliseconds(std::string&& key, std::string&& value, std::string&& milliseconds)
+		virtual bool setxx_has_milliseconds(std::string&& key, std::string&& value, std::string&& milliseconds)
 		{
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
-				std::forward<std::string>(key), std::forward<std::string>(value), "PX", std::forward<std::string>(milliseconds));
+		std::forward<std::string>(key), std::forward<std::string>(value), "PX", std::forward<std::string>(milliseconds),"XX");
 			
 			if (!socket_->send_msg(std::move(msg))) {
 				return false;
 			}
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_){
-				return false;
-			}
-
-			return true;
-		}
-
-		virtual bool set_has_milliseconds_if(std::string&& key, std::string&& value,
-			std::string&& milliseconds, bool is_exist)
-		{
-			std::string msg;
-			if (is_exist){
-				msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
-					std::forward<std::string>(key), std::forward<std::string>(value), "PX", std::forward<std::string>(milliseconds),"XX");
-			}else {
-				msg = request_->req_n_key(request_->get_cmd(redis_cmd::set),
-					std::forward<std::string>(key), std::forward<std::string>(value), "PX", std::forward<std::string>(milliseconds),"NX");
-			}
-			
-			if (!socket_->send_msg(std::move(msg))) {
-				return false;
-			}
-
-			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_){
+			if (res->get_result_code() != status::status_) {
 				return false;
 			}
 

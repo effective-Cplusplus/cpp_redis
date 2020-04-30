@@ -361,30 +361,9 @@ namespace cpp_redis {
 			return client_->psetex(std::move(keys_[0]), std::move(keys_[1]),unit::int_to_string(milliseconds));
 		}
 
-		//提高这以下四个接口，主要防止，有些版本不支持setex的接口
-		template<typename T1, typename T2>
-		bool set_has_seconds(T1&& key, T2&& value,std::size_t seconds)
-		{
-			static_assert(is_sting_, "This API Support String Request");
-
-			if (client_ == nullptr) {
-				return false;
-			}
-
-			reset();
-			any_type_to_string(key);
-			any_type_to_string(value);
-
-			if (keys_.size() != 2) {
-				return false;
-			}
-
-			return client_->set_has_seconds(std::move(keys_[0]), std::move(keys_[1]), unit::int_to_string(seconds));
-		}
-
 		//此接口相当于setnx 加上秒，is_exist:true(NX) false(XX)
 		template<typename T1,typename T2>
-		bool set_has_seconds_if(T1&& key,T2&& value, std::size_t seconds,bool is_exist)
+		bool setnx(T1&& key,T2&& value)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
@@ -400,11 +379,11 @@ namespace cpp_redis {
 				return false;
 			}
 
-			return client_->set_has_seconds_if(std::move(keys_[0]), std::move(keys_[1]),unit::int_to_string(seconds),is_exist);
+			return client_->setnx(std::move(keys_[0]), std::move(keys_[1]));
 		}
 	
-		template<typename T1,typename T2>
-		bool set_has_milliseconds(T1&& key,T2&& value, std::size_t milliseconds)
+		template<typename T1, typename T2>
+		bool setnx(T1&& key, T2&& value,std::size_t seconds)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
@@ -420,12 +399,11 @@ namespace cpp_redis {
 				return false;
 			}
 
-			return client_->set_has_milliseconds(std::move(keys_[0]), std::move(keys_[1]),unit::int_to_string(milliseconds));
+			return client_->setnx_has_seconds(std::move(keys_[0]), std::move(keys_[1]), unit::int_to_string(seconds));
 		}
 
-		//is_exist:true(NX)false(XX)
 		template<typename T1, typename T2>
-		bool set_has_milliseconds_if(T1&& key, T2&& value,std::size_t milliseconds,bool is_exist)
+		bool setxx(T1&& key, T2&& value, std::size_t seconds)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
@@ -441,7 +419,47 @@ namespace cpp_redis {
 				return false;
 			}
 
-			return client_->set_has_milliseconds_if(std::move(keys_[0]), std::move(keys_[1]), unit::int_to_string(milliseconds), is_exist);
+			return client_->setxx(std::move(keys_[0]), std::move(keys_[1]), unit::int_to_string(seconds));
+		}
+
+		template<typename T1, typename T2>
+		bool setnx_has_milliseconds(T1&& key, T2&& value,std::size_t milliseconds)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+
+			if (client_ == nullptr) {
+				return false;
+			}
+
+			reset();
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() != 2) {
+				return false;
+			}
+
+			return client_->setnx_has_milliseconds(std::move(keys_[0]), std::move(keys_[1]), unit::int_to_string(milliseconds));
+		}
+
+		template<typename T1, typename T2>
+		bool setxx_has_milliseconds(T1&& key, T2&& value, std::size_t milliseconds)
+		{
+			static_assert(is_sting_, "This API Support String Request");
+
+			if (client_ == nullptr) {
+				return false;
+			}
+
+			reset();
+			any_type_to_string(key);
+			any_type_to_string(value);
+
+			if (keys_.size() != 2) {
+				return false;
+			}
+
+			return client_->setxx_has_milliseconds(std::move(keys_[0]), std::move(keys_[1]), unit::int_to_string(milliseconds));
 		}
 
 		template<typename T1,typename T2>
