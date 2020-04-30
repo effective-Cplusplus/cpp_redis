@@ -537,7 +537,7 @@ namespace cpp_redis {
 		}
 
 		template<typename T>
-		int decr(std::string&& key)
+		int decr(T&& key)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 			if (client_ == nullptr) {
