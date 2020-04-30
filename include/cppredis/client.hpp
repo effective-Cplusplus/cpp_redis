@@ -363,12 +363,12 @@ namespace cpp_redis {
 
 		//此接口相当于setnx 加上秒，is_exist:true(NX) false(XX)
 		template<typename T1,typename T2>
-		bool setnx(T1&& key,T2&& value)
+		int setnx(T1&& key,T2&& value)
 		{
 			static_assert(is_sting_, "This API Support String Request");
 
 			if (client_ == nullptr) {
-				return false;
+				return 0;
 			}
 
 			reset();
@@ -376,7 +376,7 @@ namespace cpp_redis {
 			any_type_to_string(value);
 
 			if (keys_.size() != 2) {
-				return false;
+				return 0;
 			}
 
 			return client_->setnx(std::move(keys_[0]), std::move(keys_[1]));

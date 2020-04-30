@@ -67,21 +67,23 @@ namespace cpp_redis {
 			return true;
 		}
 
-		virtual bool setnx(std::string&& key, std::string&& value)
+		virtual int setnx(std::string&& key, std::string&& value)
 		{
 			std::string msg = request_->req_n_key(request_->get_cmd(redis_cmd::setnx),
 				std::forward<std::string>(key), std::forward<std::string>(value));
 
 			if (!socket_->send_msg(std::move(msg))) {
-				return false;
+				return 0;
 			}
 
 			const auto res = socket_->get_responese();
-			if (res->get_result_code() != status::status_) {
-				return false;
+			if (res->get_result_code() != status::int_result_) {
+				return 0;
 			}
 
-			return true;
+			const auto results = res->get_int_results();
+
+			return ((!results.empty()) ? results[0]:0);
 		}
 
 		virtual bool setnx_has_seconds(std::string&& key, std::string&& value, std::string&& seconds)

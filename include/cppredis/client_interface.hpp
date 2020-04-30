@@ -395,9 +395,9 @@ namespace cpp_redis {
 			return false;
 		}
 
-		virtual bool setnx(std::string&& key, std::string&& value)
+		virtual int setnx(std::string&& key, std::string&& value)
 		{
-			return false;
+			return 0;
 		}
 
 		virtual std::vector<std::string> multi_get_keys(std::vector<std::string>&& keys)

@@ -30,6 +30,9 @@ namespace cpp_redis {
 			case cpp_redis::setex:
 				cmd_str = g_setx_cmd;
 				break;
+			case cpp_redis::setnx:
+				cmd_str = g_setnx_cmd;
+				break;
 			case cpp_redis::psetex:
 				cmd_str = g_psetx_cmd;
 				break;
