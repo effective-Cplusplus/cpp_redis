@@ -7,7 +7,6 @@ namespace cpp_redis {
 	const std::string g_crlf                        = "\r\n";
 	const std::string g_nil                         = "nil";
 
-	constexpr std::uint16_t g_send_times            = 500; //毫秒单位
 	/******************常规操作***********************************/
 	const std::string g_select_cmd                  = "SELECT";
 	const std::string g_auth_cmd                    = "AUTH";

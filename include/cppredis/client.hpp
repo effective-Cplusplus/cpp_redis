@@ -228,14 +228,14 @@ namespace cpp_redis {
 		int  remainder_ttl(T&& key)
 		{
 			if (client_  == nullptr) {
-				return -1;
+				return 0;
 			}
 
 			reset();
 			any_type_to_string(key);
 
 			if (keys_.empty()) {
-				return -1;
+				return 0;
 			}
 
 			return client_->remainder_ttl(std::move(keys_[0]));

@@ -1,8 +1,8 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include <tuple>
-#include <thread>
 #include <atomic>
+#include <mutex>
 #include "traits.hpp"
 #include "redis_unit.hpp"
 #include "cpp_redis_response.hpp"
@@ -15,54 +15,40 @@ namespace cpp_redis {
 		{
 			try
 			{
-				ios_   = cpp_redis::traits::make_unique<boost::asio::io_service>();
+				ios_ = cpp_redis::traits::make_unique<boost::asio::io_service>();
 				socket_ = cpp_redis::traits::make_unique<boost::asio::ip::tcp::socket>(*ios_);
 				timer_ = cpp_redis::traits::make_unique<boost::asio::steady_timer>(*ios_);
-				response_ =std::make_shared<cpp_redis_response>();
-				thread_ = cpp_redis::traits::make_unique<std::thread>([this]() {
-					while (exit_){
-						boost::system::error_code ec;
-						ios_->poll(ec);
-						if (ec){
-							break;
-						}
-
-						std::this_thread::sleep_for(std::chrono::milliseconds(200));
-					}
-					});
+				response_ = std::make_shared<cpp_redis_response>();
 			}
-			catch (const std::exception&ex)
+			catch (const std::exception & ex)
 			{
 				std::cout << ex.what() << std::endl;
 				ios_ = nullptr;
 				socket_ = nullptr;
-				thread_ = nullptr;
 				response_ = nullptr;
 			}
 		}
-		
+
 		~cpp_redis_net() {
-			exit_ = false;
 			close();
 
-			//线程回收资源，防止孤线程
-			thread_->join();
+			ios_->stop();
 		}
 
 		/********ip,port,password,db_num********************/
 		template<typename...Args>
-		bool connect_to(std::string&&ip,Args&&...args)
+		bool connect_to(std::string&& ip, Args&&...args)
 		{
-			if (socket_ == nullptr || ios_ == nullptr){
+			if (socket_ == nullptr || ios_ == nullptr) {
 				return false;
 			}
 
 			constexpr auto size = sizeof...(args);
-			if (size >3){
+			if (size > 3) {
 				return false;
 			}
 
-			if (!cpp_redis::unit::ip_v6_check(ip) && !cpp_redis::unit::ip_addr_check(ip)){
+			if (!cpp_redis::unit::ip_v6_check(ip) && !cpp_redis::unit::ip_addr_check(ip)) {
 				return false;
 			}
 
@@ -71,10 +57,12 @@ namespace cpp_redis {
 #if (_MSC_VER >=1500 && _MSC_VER<=1900)
 			if (constexpr (sizeof...(args) == 1)) {
 				port_ = std::move(std::get<0>(tp));
-			}else if (constexpr (sizeof...(args) == 2)) {
+			}
+			else if (constexpr (sizeof...(args) == 2)) {
 				port_ = std::move(std::get<0>(tp));
 				password_ = std::move(std::get<1>(tp));
-		   }else if (constexpr (sizeof...(args) == 3)) {
+			}
+			else if (constexpr (sizeof...(args) == 3)) {
 				port_ = std::move(std::get<0>(tp));
 				password_ = std::move(std::get<1>(tp));
 				db_num_ = std::move(std::get<2>(tp));
@@ -83,21 +71,25 @@ namespace cpp_redis {
 #else
 			if constexpr (sizeof...(args) == 1) {
 				port_ = std::move(std::get<0>(tp));
-			}else if constexpr (sizeof...(args) == 2){
+			}
+			else if constexpr (sizeof...(args) == 2) {
 				port_ = std::move(std::get<0>(tp));
 				password_ = std::move(std::get<1>(tp));
-			}else if constexpr (sizeof...(args) == 3) {
+			}
+			else if constexpr (sizeof...(args) == 3) {
 				port_ = std::move(std::get<0>(tp));
 				password_ = std::move(std::get<1>(tp));
 				db_num_ = std::move(std::get<2>(tp));
 			}
 #endif
 			boost::system::error_code ec;
-			socket_->connect(boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(host_),port_),ec);
-			if (ec){
+			socket_->connect(boost::asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(host_), port_), ec);
+			if (ec) {
 				return false;
 			}
 
+			is_connect_ = true;
+			init_socket();
 			if (!password_.empty()) {
 				bool is_sucess = send_auth();
 				if (!is_sucess) {
@@ -105,7 +97,7 @@ namespace cpp_redis {
 				}
 			}
 
-			if (db_num_ >=0){
+			if (db_num_ >= 0) {
 				return select_db();
 			}
 
@@ -113,18 +105,22 @@ namespace cpp_redis {
 		}
 
 		bool send_msg(std::string&& buffer) {
+			std::unique_lock<std::mutex>lock(mutex_);
+
 			boost::system::error_code ec;
 			std::string msg = std::move(buffer);
-			boost::asio::write(*socket_,boost::asio::buffer(msg),boost::asio::transfer_exactly(msg.size()),ec);
-			if (ec){
+			boost::asio::write(*socket_, boost::asio::buffer(msg), boost::asio::transfer_exactly(msg.size()), ec);
+			if (ec) {
+				is_connect_ = false;
 				return false;
 			}
 
+			lock.unlock();
 			read_msg();
 			return true;
 		}
 
-		const std::shared_ptr<cpp_redis_response>&get_responese() const {
+		const std::shared_ptr<cpp_redis_response>& get_responese() const {
 			return response_;
 		}
 
@@ -144,7 +140,9 @@ namespace cpp_redis {
 			data.append(g_crlf);
 			std::string msg = "select ";
 			msg.append(data);
-			send_msg(std::move(msg));
+			if (!send_msg(std::move(msg))){
+				return false;
+			}
 
 			if (response_->get_result_code() == status::unconnected_ ||
 				response_->get_result_code() == status::errors_) {
@@ -154,21 +152,6 @@ namespace cpp_redis {
 			return true;
 		}
 
-		void set_timer() {
-			timer_->expires_from_now(std::chrono::milliseconds(g_send_times));
-			timer_->async_wait([this](const boost::system::error_code& ec) {
-				if (ec){
-					return;
-				}
-
-				close();
-				});
-		}
-
-		void cancle_timer() {
-			boost::system::error_code ec;
-			timer_->cancel(ec);
-		}
 		bool read_msg() {
 			boost::asio::streambuf response;
 			int loop_times = -1;
@@ -233,23 +216,26 @@ namespace cpp_redis {
 
 		void read_bytes(boost::asio::streambuf& response, std::string& data)
 		{
-			set_timer();
-			boost::system::error_code e;
-			size_t bytes_transferred = boost::asio::read_until(*socket_, response,g_crlf, e);
-			if (e.value() != 0){
-				cancle_timer();
+			if (!is_connect_) {
 				response_->set_result_code(status::unconnected_);
 				return;
 			}
 
-			cancle_timer();
-			if (bytes_transferred >0){
+			boost::system::error_code e;
+			size_t bytes_transferred = boost::asio::read_until(*socket_, response, g_crlf, e);
+			if (e.value() != 0) {
+				response_->set_result_code(status::unconnected_);
+				return;
+			}
+
+			if (bytes_transferred > 0) {
 				data.assign(boost::asio::buffers_begin(response.data()), boost::asio::buffers_begin(response.data()) + bytes_transferred);
 				auto pos = data.find(g_crlf);
-				if (pos !=std::string::npos){
+				if (pos != std::string::npos) {
 					data = data.substr(0, pos);
 				}
-			}else {
+			}
+			else {
 				data = "-ERR read bytes is error";
 			}
 
@@ -263,17 +249,19 @@ namespace cpp_redis {
 
 		void read_bytes(boost::asio::streambuf& response)
 		{
-			set_timer();
-			boost::system::error_code e;
-			size_t bytes_transferred = boost::asio::read_until(*socket_, response,g_crlf, e);
-
-			if (e.value() != 0){
-				cancle_timer();
+			if (!is_connect_){
 				response_->set_result_code(status::unconnected_);
 				return;
 			}
-			
-			cancle_timer();
+
+			boost::system::error_code e;
+			size_t bytes_transferred = boost::asio::read_until(*socket_, response, g_crlf, e);
+
+			if (e.value() != 0) {
+				response_->set_result_code(status::unconnected_);
+				return;
+			}
+
 			std::string data;
 
 			if (bytes_transferred > 0) {
@@ -310,6 +298,32 @@ namespace cpp_redis {
 			//response_->set_results(std::move(v));
 		}
 
+
+		void read_ping_bytes(std::string& data)
+		{
+			if (!is_connect_) {
+				response_->set_result_code(status::unconnected_);
+				return;
+			}
+
+			boost::system::error_code e;
+			size_t bytes_transferred = socket_->read_some(boost::asio::buffer(&data[0], data.size()),e);
+			if (e.value() != 0) {
+				response_->set_result_code(status::unconnected_);
+				return;
+			}
+
+			if (bytes_transferred > 0) {
+				auto pos = data.find(g_crlf);
+				if (pos != std::string::npos) {
+					data = data.substr(0, pos);
+				}
+			}
+			else {
+				data = "-ERR read bytes is error";
+			}
+		}
+
 		void set_nil()
 		{
 			std::string data = g_nil;
@@ -337,16 +351,23 @@ namespace cpp_redis {
 		bool send_auth()
 		{
 			password_.append(g_crlf);
-			std::string msg= "auth ";
+			std::string msg = "auth ";
 			msg.append(password_);
-			send_msg(std::move(msg));
+			if (!send_msg(std::move(msg))) {
+				return false;
+			}
 
-			if (response_->get_result_code() ==status::errors_)
+			if (response_->get_result_code() == status::errors_)
 			{
 				return false;
 			}
 
 			return true;
+		}
+
+		void init_socket() {
+			boost::system::error_code ec;
+			socket_->set_option(boost::asio::ip::tcp::no_delay(true), ec);
 		}
 	private:
 		std::string host_;
@@ -354,9 +375,9 @@ namespace cpp_redis {
 		int db_num_ = -1;
 		std::string password_;
 		std::string data_;
-		std::atomic<bool>exit_ = true;
+		std::atomic<bool>is_connect_ = false;
+		std::mutex mutex_;
 		std::shared_ptr<cpp_redis_response> response_;
-		std::unique_ptr<std::thread>thread_;
 		std::unique_ptr<boost::asio::steady_timer>timer_;
 		std::unique_ptr<boost::asio::io_service>ios_{};
 		std::unique_ptr<boost::asio::ip::tcp::socket>socket_{};
