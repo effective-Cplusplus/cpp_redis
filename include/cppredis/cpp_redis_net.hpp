@@ -4,7 +4,7 @@
 #include <thread>
 #include <atomic>
 #include "traits.hpp"
-#include "unit.hpp"
+#include "redis_unit.hpp"
 #include "cpp_redis_response.hpp"
 
 namespace cpp_redis {

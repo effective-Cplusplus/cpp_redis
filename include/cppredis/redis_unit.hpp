@@ -1,10 +1,10 @@
-#ifndef unit_h__
-#define unit_h__
+#ifndef redis_unit_h__
+#define redis_unit_h__
 #include <sstream>
 #include <regex>
 #include <chrono>
 #include <tuple>
-#include "traits.hpp"
+#include "redis_traits.hpp"
 
 namespace cpp_redis {
 	namespace unit {
@@ -110,23 +110,23 @@ namespace cpp_redis {
 			return std::move(ostr.str());
 		}
 
-		static int string_to_int(std::string && str)
+		static int string_to_int(std::string&& str)
 		{
-			if (str.empty()){
+			if (str.empty()) {
 				return INT_MAX;
 			}
 
 			int value;
 			std::istringstream istr(str);
-			istr >>value;
+			istr >> value;
 			return value;
 		}
 
 		static int64_t get_time_stamp()
 		{
-			std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> tp = 
+			std::chrono::time_point<std::chrono::system_clock, std::chrono::seconds> tp =
 				std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
-			
+
 			auto tmp = std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch());
 			return tmp.count();
 		}
@@ -159,8 +159,8 @@ namespace cpp_redis {
 
 		}
 
-		template <typename F,typename ...Args>
-		void for_each_args(F&&func,Args...args){
+		template <typename F, typename ...Args>
+		void for_each_args(F&& func, Args...args) {
 			int arr[] = { (std::forward<F>(func)(args),0)... };
 		}
 
@@ -196,4 +196,5 @@ namespace cpp_redis {
 		}
 	}
 }
-#endif // unit_h__
+
+#endif // redis_unit_h__

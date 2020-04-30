@@ -1,5 +1,6 @@
-#ifndef traits_h__
-#define traits_h__
+#ifndef redis_traits_h__
+#define redis_traits_h__
+
 #include <type_traits>
 #include <vector>
 #include <map>
@@ -10,7 +11,7 @@
 #include <cstddef>
 
 
-namespace cpp_redis{
+namespace cpp_redis {
 	namespace traits {
 		template< class T >
 		struct is_signed_intergral_like : std::integral_constant < bool,
@@ -212,4 +213,4 @@ namespace cpp_redis{
 
 	}//traits
 }//cpp_redis
-#endif // traits_h__
+#endif // redis_traits_h__
