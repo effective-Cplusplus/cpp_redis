@@ -4,6 +4,7 @@
 1. 基于boost.asio
 1. 支持string、list、set、hash、zset五种数据结构
 1. 支持事务提交
+1. 新增实现redis锁
 
 ## 说明
 1. 使用c++11以及以上编译(若c++11编译不过，请用c++14)
